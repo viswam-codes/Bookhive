@@ -80,7 +80,7 @@ const insertUser = async (req, res) => {
 
 const loadOTP = async (req, res) => {
   try {
-    return res.render("otp");
+    return res.render("otp",{message:''});
   } catch (error) {
     console.log(error.message);
   }
@@ -94,7 +94,7 @@ const verifyOTP = async (req, res) => {
     if (req.session.details.otp == req.body.otp) {
       console.log("OTP is correct");
       if (Date.now() < req.session.details.otpExpiration) {
-        console.log("OTP expired, resend OTP");
+       return res.render("otp",{message:"OTP expired"})
       } else {
         console.log("OTP is valid and has not expired");
         const spassword = await securePassword(req.session.details.password);
@@ -110,12 +110,41 @@ const verifyOTP = async (req, res) => {
         res.redirect("/login");
       }
     } else {
-      console.log("OTP is incorrect");
+      res.render("otp",{message:"Invalid OTP"})
     }
   } catch (error) {
     console.log(error.message);
   }
 };
+
+const resendOTP=async(req,res)=>{
+  try{
+    const newOTP= generateOtp();
+    req.session.details.otp=newOTP;
+    console.log(req.session.details.otp);
+    req.session.details.otpExpiration= Date.now +6000;
+    req.session.save();
+    const mailoptions = {
+      from: "jithviswa24@gmail.com",
+      to: req.body.email,
+      subject: "OTP verification",
+      text: `Your OTP for verification is :${otp}`,
+    };
+    transport.sendMail(mailoptions, function (error, info) {
+      if (error) {
+        console.log("Error occured:", error);
+      } else {
+        console.log("Email sent", info.response);
+      }
+    });
+    res.json({sucess:true});
+
+
+  }catch(error){
+    console.log(error);
+    res.status(500).json({sucess:false,error:"Internal server error"})
+  }
+}
 
 const verifyLogin = async (req, res) => {
   try {
@@ -174,4 +203,5 @@ module.exports = {
   verifyOTP,
   verifyLogin,
   userLogout,
+  resendOTP
 };

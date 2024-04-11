@@ -9,8 +9,10 @@ const categorySchema=mongoose.Schema({
         type : Boolean,
         default : true
     },
-    craatedOn:{
+    createdOn:{
         type:Date,
         required:true
     }
 })
+
+module.exports=mongoose.model("Categories",categorySchema);

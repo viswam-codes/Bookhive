@@ -74,14 +74,67 @@
 <body>
     <div class="container">
         <h1>OTP Verification</h1>
+        <% if(message){ %>
+            <p style="color: red;"><%= message %></p>
+            <% } %>
         <form action="/otpVerify" method="post">
         <input type="text" id="otpInput" placeholder="Enter OTP" name="otp">
-        <button id="verifyBtn" onclick="verifyOTP()">Verify OTP</button>
-        <div id="timer">00:59</div>
-        <button id="resendBtn" onclick="resendOTP()">Resend OTP</button>
+        <button id="verifyBtn" onclick="">Verify OTP</button>
+        <div style="margin-top: 20px;"><span id="timer">00:60</span></div>
+        <button id="resendBtn" onclick="resendOTP()">Resend OTP</button> 
     </form>
     </div>
+    <!--OTP timer script-->
+  <script>
+    let countDown=60;
+    let timer;
+    document.getElementById('resendBtn').disabled=true;
+    //function start timer
+    function startTimer(){
+        timer=setInterval(()=>{
+            if(countDown===0){
+                //Enable resend otp button and clear timer
+                document.getElementById('resendBtn').disabled = false;
+                document.getElementById('timer').innerText='';
+                clearInterval(timer)
+            }else{
+                countDown--;
+                document.getElementById('timer').innerText='Resend OTP in '+ countDown +' seconds' 
+            }
+        },1000)
+    }
+    //function reset timer 
+    function resetTimer(){
+        clearInterval(timer);
+        countDown=60
+        startTimer();
+    }
+    // start of timer
+    startTimer();
 
+    function resendOTP() {
+        fetch('/resendOTP', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reset timer
+                resetTimer();
+            } else {
+                console.error('Failed to resend OTP');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    
+  </script>
    
 </body>
 </html>
