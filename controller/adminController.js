@@ -17,6 +17,7 @@ const loadLogin=async(req,res)=>{
 
     }catch(error){
         console.log(error)
+        res.status(500).send("Internet Server Error");
     }
 }
 
