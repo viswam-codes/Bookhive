@@ -128,7 +128,7 @@ const resendOTP=async(req,res)=>{
       from: "jithviswa24@gmail.com",
       to: req.body.email,
       subject: "OTP verification",
-      text: `Your OTP for verification is :${otp}`,
+      text: `Your OTP for verification is :${newOTP}`,
     };
     transport.sendMail(mailoptions, function (error, info) {
       if (error) {

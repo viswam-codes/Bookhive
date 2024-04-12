@@ -13,7 +13,7 @@ admin_route.post("/",adminController.verifyLogin)
 admin_route.get("/home",adminController.loadHome);
 admin_route.get("/user_management",userManagement.loadUserList);
 admin_route.post("/user_management/:userId",userManagement.blockUnblockUser);
-admin_route.get("/category_management",categoryManagement.listCategory);
+admin_route.get("/category_management",categoryManagement.loadCategory);
 admin_route.post("/category_management",categoryManagement.addCategory);
 
 module.exports=admin_route

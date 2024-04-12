@@ -6,8 +6,9 @@ const categorySchema=mongoose.Schema({
         required:true
     },
     isListed : {
-        type : Boolean,
-        default : true
+        type : String,
+        enum:["Active","Inactive"],
+        default :"Active"
     },
     createdOn:{
         type:Date,
