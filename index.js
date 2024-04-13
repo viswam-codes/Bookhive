@@ -1,6 +1,7 @@
 const express=require("express");
 const mongoose=require("mongoose");
 const path=require("path");
+const nocache=require('nocache');
 require("dotenv").config()
 mongoose.connect(process.env.MONGO_URL);
 const session=require("express-session");

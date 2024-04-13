@@ -13,6 +13,11 @@ const categorySchema=mongoose.Schema({
     createdOn:{
         type:Date,
         required:true
+    },
+    deleted:{
+        type:Boolean,
+        required:true,
+        default:false
     }
 })
 

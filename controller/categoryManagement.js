@@ -2,7 +2,7 @@ const Category=require('../model/categoryModel');
 
 const loadCategory=async(req,res)=>{
     try{
-        const categoryData= await Category.find().sort({createdOn:-1});
+        const categoryData= await Category.find({deleted:false}).sort({createdOn:-1});
         // console.log(categoryData);
         res.render("category",{message:"",cat:categoryData});
 
@@ -13,11 +13,11 @@ const loadCategory=async(req,res)=>{
 const addCategory = async (req, res) => {
     try {
         const { name } = req.body;
-        console.log(name)
+        console.log(req.body,"In body");
+       
         const existingCategory = await Category.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
-        console.log(existingCategory);
-        const categoryData= await Category.find().sort({createdOn:-1});
-
+        const categoryData= await Category.find({deleted:false}).sort({createdOn:-1});
+        console.log(existingCategory,"existingcat");
         if (existingCategory) {
             
             return res.render("category", {cat:categoryData, message: "Category already exists" });
@@ -41,17 +41,36 @@ const addCategory = async (req, res) => {
 
 const updateCategory= async(req,res)=>{
     try{
-        const id=req.params;
+        const id=req.params.id;
         const {name,isListed}=req.body;
+        
 
-        const updateCategory= await Category.findByIAndUpdate(categoryId,{name,isListed},{new:true});
+        const updateCategory= await Category.findByIdAndUpdate(id,{name,isListed},{new:true});
 
         if(!updateCategory){
             return res.status(404).json({sucess:false,message:"Category not found"});
         }
         
-        res.status(200).json({sucess:true,category:updatedCategory});
+        res.status(200).json({sucess:true,category:updateCategory});
 
+    }catch(error){
+        console.log(error.message);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+}
+
+const deleteCatgory= async(req,res)=>{
+    console.log("working");
+    const categoryId=req.params.id;
+    console.log(categoryId);
+    try{
+        const updatedCategory = await Category.findByIdAndUpdate(categoryId, { deleted: true });
+        if(updatedCategory){
+            res.json({ success: true, message: 'Category soft deleted successfully' });
+        }else{
+            res.status(404).json({ success: false, message: 'Category not found' });
+        }
+        
     }catch(error){
         console.log(error.message);
         res.status(500).json({ success: false, message: 'Internal server error' });
@@ -61,5 +80,6 @@ const updateCategory= async(req,res)=>{
 module.exports={
     loadCategory,
     addCategory,
-    updateCategory
+    updateCategory,
+    deleteCatgory
 }
