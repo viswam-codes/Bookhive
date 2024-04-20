@@ -1,5 +1,6 @@
 const express=require("express");
 const user_route=express();
+const auth=require("../middlewares/userAuth");
 
 
 
@@ -11,7 +12,7 @@ user_route.set("views","./views/user")
 const userController=require("../controller/userController")
 
 user_route.get('/',userController.loadLandingPage);
-user_route.get('/login',userController.loadLogin);
+user_route.get('/login',auth.isLogOut,userController.loadLogin);
 user_route.post('/login',userController.verifyLogin);
 user_route.get('/register',userController.loadRegister);
 user_route.post('/register',userController.insertUser);

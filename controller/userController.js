@@ -1,4 +1,5 @@
 const User = require("../model/userModel");
+const Product = require("../model/productModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 
@@ -6,7 +7,7 @@ const transport = nodemailer.createTransport({
   service: "Gmail",
   auth: {
     user: "jithviswa24@gmail.com",
-    pass: "ttpgohljycbziuuk",
+    pass: "zuki zpba euue yhxe",
   },
 });
 
@@ -25,7 +26,8 @@ const securePassword = async (password) => {
 
 const loadLandingPage = async (req, res) => {
   try {
-    return res.render("home", { user: req.session.user });
+    const product = await Product.find();
+    return res.render("home", { user: req.session.user, pro: product });
   } catch (err) {
     console.log(err.message);
   }
@@ -80,7 +82,7 @@ const insertUser = async (req, res) => {
 
 const loadOTP = async (req, res) => {
   try {
-    return res.render("otp",{message:''});
+    return res.render("otp", { message: "" });
   } catch (error) {
     console.log(error.message);
   }
@@ -89,12 +91,15 @@ const loadOTP = async (req, res) => {
 const verifyOTP = async (req, res) => {
   try {
     console.log(req.body.otp);
-    console.log(req.session.details.otp);
+   
 
     if (req.session.details.otp == req.body.otp) {
       console.log("OTP is correct");
-      if (Date.now() < req.session.details.otpExpiration) {
-       return res.render("otp",{message:"OTP expired"})
+      if (Date.now() > req.session.details.otpExpiration) {
+        console.log("expired");
+        return res.json({ expired: true });
+       
+
       } else {
         console.log("OTP is valid and has not expired");
         const spassword = await securePassword(req.session.details.password);
@@ -110,19 +115,19 @@ const verifyOTP = async (req, res) => {
         res.redirect("/login");
       }
     } else {
-      res.render("otp",{message:"Invalid OTP"})
+      res.render("otp", { message: "Invalid OTP" });
     }
   } catch (error) {
     console.log(error.message);
   }
 };
 
-const resendOTP=async(req,res)=>{
-  try{
-    const newOTP= generateOtp();
-    req.session.details.otp=newOTP;
+const resendOTP = async (req, res) => {
+  try {
+    const newOTP = generateOtp();
+    req.session.details.otp = newOTP;
     console.log(req.session.details.otp);
-    req.session.details.otpExpiration= Date.now +6000;
+    req.session.details.otpExpiration = Date.now + 6000;
     req.session.save();
     const mailoptions = {
       from: "jithviswa24@gmail.com",
@@ -137,14 +142,12 @@ const resendOTP=async(req,res)=>{
         console.log("Email sent", info.response);
       }
     });
-    res.json({sucess:true});
-
-
-  }catch(error){
+    res.json({ sucess: true });
+  } catch (error) {
     console.log(error);
-    res.status(500).json({sucess:false,error:"Internal server error"})
+    res.status(500).json({ sucess: false, error: "Internal server error" });
   }
-}
+};
 
 const verifyLogin = async (req, res) => {
   try {
@@ -156,7 +159,10 @@ const verifyLogin = async (req, res) => {
       const passwordMatch = await bcrypt.compare(password, userData.password);
       if (passwordMatch) {
         if (userData.is_verified === false) {
-          return res.render("login", { user:req.session.userData, message:"User blocked" });
+          return res.render("login", {
+            user: req.session.userData,
+            message: "User blocked",
+          });
         } else {
           req.session.user = userData;
           console.log(userData);
@@ -203,5 +209,5 @@ module.exports = {
   verifyOTP,
   verifyLogin,
   userLogout,
-  resendOTP
+  resendOTP,
 };

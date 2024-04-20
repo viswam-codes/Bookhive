@@ -1,140 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OTP Verification</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
 
-        .container {
-            width: 400px;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
+      .container {
+        width: 400px;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
 
-        h1 {
-            margin-bottom: 20px;
-            color: #088178;
-        }
+      h1 {
+        margin-bottom: 20px;
+        color: #088178;
+      }
 
-        input[type="text"] {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
+      input[type="text"] {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
 
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            background-color: #088178;
-            color: #fff;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin: 0 5px;
-        }
+      button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        background-color: #088178;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin: 0 5px;
+      }
 
-        button:hover {
-            background-color: #075b5b;
-        }
+      button:hover {
+        background-color: #075b5b;
+      }
 
-        #resendBtn {
-            font-size: 14px;
-            color: #088178;
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            text-decoration: underline;
-            margin-top: 10px;
-            outline: none;
-        }
+      #resendBtn {
+        font-size: 14px;
+        color: #088178;
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+        text-decoration: underline;
+        margin-top: 10px;
+        outline: none;
+      }
 
-        #timer {
-            font-size: 24px;
-            color: #088178;
-            margin-bottom: 20px;
-        }
+      #timer {
+        font-size: 24px;
+        color: #088178;
+        margin-bottom: 20px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>OTP Verification</h1>
-        <% if(message){ %>
-            <p style="color: red;"><%= message %></p>
-            <% } %>
-        <form action="/otpVerify" method="post">
-        <input type="text" id="otpInput" placeholder="Enter OTP" name="otp">
-        <button id="verifyBtn" onclick="">Verify OTP</button>
-        <div style="margin-top: 20px;"><span id="timer">00:60</span></div>
-        <button id="resendBtn" onclick="resendOTP()">Resend OTP</button> 
-    </form>
+      <h1>OTP Verification</h1>
+      <% if(message){ %>
+      <p style="color: red"><%= message %></p>
+      <% } %>
+      <form action="/otpVerify" method="post">
+        <input type="number" id="otpInput" placeholder="Enter OTP" name="otp" />
+        <button type="submit" id="verifyBtn" onclick="verifyOTP()">Verify OTP</button>
+        <div style="margin-top: 20px"><span id="timer">00:60</span></div>
+        <button id="resendBtn" onclick="resendOTP()">Resend OTP</button>
+      </form>
     </div>
     <!--OTP timer script-->
-  <script>
-    let countDown=60;
-    let timer;
-    document.getElementById('resendBtn').disabled=true;
-    //function start timer
-    function startTimer(){
-        timer=setInterval(()=>{
-            if(countDown===0){
-                //Enable resend otp button and clear timer
-                document.getElementById('resendBtn').disabled = false;
-                document.getElementById('timer').innerText='';
-                clearInterval(timer)
-            }else{
-                countDown--;
-                document.getElementById('timer').innerText='Resend OTP in '+ countDown +' seconds' 
-            }
-        },1000)
-    }
-    //function reset timer 
-    function resetTimer(){
+    <script>
+      let countDown = 60;
+      let timer;
+      document.getElementById("resendBtn").disabled = true;
+      //function start timer
+      function startTimer() {
+        timer = setInterval(() => {
+          if (countDown === 0) {
+            //Enable resend otp button and clear timer
+            document.getElementById("resendBtn").disabled = false;
+            document.getElementById("timer").innerText = "";
+            clearInterval(timer);
+          } else {
+            countDown--;
+            document.getElementById("timer").innerText =
+              "Resend OTP in " + countDown + " seconds";
+          }
+        }, 1000);
+      }
+      //function reset timer
+      function resetTimer() {
         clearInterval(timer);
-        countDown=60
+        countDown = 60;
         startTimer();
-    }
-    // start of timer
-    startTimer();
-
-    function resendOTP() {
-        fetch('/resendOTP', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({})
+      }
+      // start of timer
+      startTimer();
+    //   document
+    //     .getElementById("verifyBtn")
+    //     .addEventListener("click", verifyOTP());
+      function verifyOTP() {
+        const enteredOTP = document.getElementById("otpInput").value;
+        console.log(eneteredOTP);
+        fetch("/otpVerify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ otp: enteredOTP }),
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Reset timer
-                resetTimer();
-            } else {
-                console.error('Failed to resend OTP');
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.expired) {
+              // OTP is expired, disable timer and resend button
+              clearInterval(timer);
+              document.getElementById("resendBtn").disabled = true;
+              document.getElementById("timer").innerText = "OTP expired";
+              console.log("OTP expired");
+            } else if (data.redirect) {
+                window.location.href = data.redirect;
+            }else{
+                console.log("OTP not expired")
             }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+
+      function resendOTP() {
+        fetch("/resendOTP", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
         })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }
-    
-  </script>
-   
-</body>
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              // Reset timer
+              resetTimer();
+            } else {
+              console.error("Failed to resend OTP");
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+    </script>
+  </body>
 </html>
