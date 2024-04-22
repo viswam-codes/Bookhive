@@ -25,9 +25,11 @@ admin_route.post("/category_management/:id",categoryManagement.updateCategory);
 admin_route.post("/delete_category/:id",categoryManagement.deleteCatgory);
 
 //--product Management
-admin_route.get("/product_management",productManagement.loadProduct)
+admin_route.get("/product_management",productManagement.loadProduct);
 admin_route.get("/add_product",productManagement.loadAddProduct);
-admin_route.post("/add-product",productManagement.addProduct)
+admin_route.post("/add-product",productManagement.addProduct);
+admin_route.get("/editProduct",productManagement.loadEditProduct);
+admin_route.post("/editProduct",productManagement.updateProduct);
 
 
 module.exports=admin_route

@@ -111,7 +111,7 @@
         <div class="row">
             <div class="col-9">
                 <div class="content-header">
-                    <h2 class="content-title">Add New Product</h2>
+                    <h2 class="content-title">Edit Product</h2>
                     <!-- <div>
                         <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
                         <button type="submit" class="btn btn-md rounded font-sm hover-up">Publish</button>
@@ -124,38 +124,40 @@
                         <h4>Basic</h4>
                     </div>
                     <div class="card-body">
-                        <form action="/admin/add-product" method="post" enctype="multipart/form-data">
+                        <form action="/admin/editProduct" method="post" enctype="multipart/form-data">
+                           
                             <div class="mb-4">
                                 <label for="product_name" class="form-label">Title</label>
-                                <input type="text" placeholder="Type here" class="form-control" id="product_name" name="title" required>
+                                <input type="text" value="<%=pro.title%>" class="form-control" id="product_name" name="title" required>
                             </div>
                             <div class="mb-4">
                                 <label for="author" class="form-label">Author</label>
-                                <input type="text" placeholder="Type here" class="form-control" id="author" name="author" required>
+                                <input type="text" value="<%=pro.author %>" class="form-control" id="author" name="author" required>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label">Full description</label>
-                                <textarea placeholder="Type here" class="form-control" rows="4" name="description" required></textarea>
+                                <textarea  class="form-control" rows="4" name="description" required><%=pro.description %></textarea>
                             </div>
                             <div class="row">
                                 <div class="col-lg-4">
                                     <div class="mb-4">
                                         <label class="form-label">Regular price</label>
                                         <div class="row gx-2">
-                                            <input placeholder="Enter Price" type="text" class="form-control" name="price" required>
+                                            <input value="<%= pro.price %>" type="text" class="form-control" name="price" required>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-4">
                                     <div class="mb-4">
                                         <label class="form-label">Stock</label>
-                                        <input placeholder="Enter the Quantity" type="text" class="form-control" name="stock" required>
+                                        <input value="<%=pro.stock %>" type="text" class="form-control" name="stock" required>
                                     </div>
                                 </div>
                                 <div class="col-lg-4">
                                     <div class="mb-4">
                                         <label class="form-label" required>Category</label>
                                         <select class="form-select" name="category">
+                                            <option ><%=pro.category %></option>
                                             <% cat.forEach(function(cats) { %>
                                             <option><%=cats.name %></option>
                                             <% }); %>
@@ -186,6 +188,7 @@
                           
                           
                             <button type="submit" class="btn btn-md rounded font-sm hover-up" value="Upload">Publish</button>
+                           
                         </form>
                     </div>
                 </div> <!-- card end// -->

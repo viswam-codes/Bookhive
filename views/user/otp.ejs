@@ -77,11 +77,19 @@
       <% if(message){ %>
       <p style="color: red"><%= message %></p>
       <% } %>
-      <form action="/otpVerify" method="post">
-        <input type="number" id="otpInput" placeholder="Enter OTP" name="otp" />
-        <button type="submit" id="verifyBtn" onclick="verifyOTP()">Verify OTP</button>
+      <form action="/otpVerify" method="post" onsubmit="verifyOTP(event)">
+        <input
+          type="number"
+          id="otpInput"
+          placeholder="Enter OTP"
+          name="otp"
+          required
+        />
+        <button type="submit" id="verifyBtn" >Verify OTP</button>
         <div style="margin-top: 20px"><span id="timer">00:60</span></div>
-        <button id="resendBtn" onclick="resendOTP()">Resend OTP</button>
+        <button type="button" id="resendBtn" onclick="resendOTP()">
+          Resend OTP
+        </button>
       </form>
     </div>
     <!--OTP timer script-->
@@ -89,15 +97,18 @@
       let countDown = 60;
       let timer;
       document.getElementById("resendBtn").disabled = true;
+      document.getElementById("resendBtn").hidden = true;
       //function start timer
       function startTimer() {
         timer = setInterval(() => {
           if (countDown === 0) {
             //Enable resend otp button and clear timer
+            document.getElementById("resendBtn").hidden =false;
             document.getElementById("resendBtn").disabled = false;
             document.getElementById("timer").innerText = "";
             clearInterval(timer);
           } else {
+            document.getElementById("resendBtn").hidden =true;
             countDown--;
             document.getElementById("timer").innerText =
               "Resend OTP in " + countDown + " seconds";
@@ -108,16 +119,19 @@
       function resetTimer() {
         clearInterval(timer);
         countDown = 60;
-        startTimer();
+        document.getElementById("resendBtn").disabled = true; // Disable the button again
+        // Show the timer text
+        startTimer(); // Restart the timer
       }
       // start of timer
       startTimer();
-    //   document
-    //     .getElementById("verifyBtn")
-    //     .addEventListener("click", verifyOTP());
-      function verifyOTP() {
+      //   document
+      //     .getElementById("verifyBtn")
+      //     .addEventListener("click", verifyOTP());
+      function verifyOTP(event) {
+        event.preventDefault();
         const enteredOTP = document.getElementById("otpInput").value;
-        console.log(eneteredOTP);
+        console.log(enteredOTP);
         fetch("/otpVerify", {
           method: "POST",
           headers: {
@@ -127,6 +141,7 @@
         })
           .then((response) => response.json())
           .then((data) => {
+            console.log("data in fetch", data);
             if (data.expired) {
               // OTP is expired, disable timer and resend button
               clearInterval(timer);
@@ -134,9 +149,9 @@
               document.getElementById("timer").innerText = "OTP expired";
               console.log("OTP expired");
             } else if (data.redirect) {
-                window.location.href = data.redirect;
-            }else{
-                console.log("OTP not expired")
+              window.location.href = data.redirect;
+            } else {
+              console.log("OTP not expired");
             }
           })
           .catch((error) => {
@@ -156,7 +171,7 @@
           .then((data) => {
             if (data.success) {
               // Reset timer
-              resetTimer();
+             resetTimer()
             } else {
               console.error("Failed to resend OTP");
             }

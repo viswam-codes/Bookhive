@@ -54,7 +54,7 @@ const insertUser = async (req, res) => {
         email: req.body.email,
         password: req.body.password,
         otp: otp,
-        otpExpiration: Date.now() + 6000,
+        otpExpiration: Date.now() + 60*1000,
       };
 
       req.session.details = details;
@@ -95,11 +95,11 @@ const verifyOTP = async (req, res) => {
 
     if (req.session.details.otp == req.body.otp) {
       console.log("OTP is correct");
-      if (Date.now() > req.session.details.otpExpiration) {
+      console.log("Current time (Date.now()):", Date.now());
+      console.log("OTP Expiration time (req.session.details.otpExpiration):", req.session.details.otpExpiration-Date.now());
+      if ( req.session.details.otpExpiration < (Date.now()) ) {
         console.log("expired");
         return res.json({ expired: true });
-       
-
       } else {
         console.log("OTP is valid and has not expired");
         const spassword = await securePassword(req.session.details.password);
@@ -112,7 +112,7 @@ const verifyOTP = async (req, res) => {
         });
 
         await user.save();
-        res.redirect("/login");
+        res.json({ redirect: "/login" });
       }
     } else {
       res.render("otp", { message: "Invalid OTP" });
@@ -127,11 +127,11 @@ const resendOTP = async (req, res) => {
     const newOTP = generateOtp();
     req.session.details.otp = newOTP;
     console.log(req.session.details.otp);
-    req.session.details.otpExpiration = Date.now + 6000;
+    req.session.details.otpExpiration = Date.now + 60000;
     req.session.save();
     const mailoptions = {
       from: "jithviswa24@gmail.com",
-      to: req.body.email,
+      to: req.session.details.email,
       subject: "OTP verification",
       text: `Your OTP for verification is :${newOTP}`,
     };
