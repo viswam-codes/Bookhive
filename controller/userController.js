@@ -1,5 +1,6 @@
 const User = require("../model/userModel");
 const Product = require("../model/productModel");
+const Category=require('../model/categoryModel')
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 
@@ -200,6 +201,16 @@ const userLogout = async (req, res) => {
   }
 };
 
+const loadShopPage=async(req,res)=>{
+  try{
+    const product = await Product.find({isListed:"Active"})
+    const category=await Category.find({isListed:"Active"})
+   res.render("shop",{user:req.session.user,pro:product,cat:category});
+  }catch(error){
+    console.log(error.message);
+  }
+}
+
 module.exports = {
   loadLandingPage,
   loadLogin,
@@ -210,4 +221,5 @@ module.exports = {
   verifyLogin,
   userLogout,
   resendOTP,
+  loadShopPage
 };

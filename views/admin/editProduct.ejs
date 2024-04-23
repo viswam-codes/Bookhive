@@ -1,45 +1,59 @@
 <%- include('../partials/adminHeader.ejs') %>
-
+<style>
+  .image-scroll {
+    max-height: 300px; /* Adjust the height as needed */
+    overflow-y: auto; /* Enable vertical scrolling */
+  }
+</style>
 <body>
   <div class="screen-overlay"></div>
   <aside class="navbar-aside" id="offcanvas_aside">
     <div class="aside-top">
       <a href="index.html" class="brand-wrap">
-        <img src="/admin_assets/imgs/theme/logo.svg" class="logo" alt="Evara Dashboard">
+        <img
+          src="/admin_assets/imgs/theme/logo.svg"
+          class="logo"
+          alt="Evara Dashboard"
+        />
       </a>
       <div>
-        <button class="btn btn-icon btn-aside-minimize"> <i class="text-muted material-icons md-menu_open"></i> </button>
+        <button class="btn btn-icon btn-aside-minimize">
+          <i class="text-muted material-icons md-menu_open"></i>
+        </button>
       </div>
     </div>
     <nav>
       <ul class="menu-aside">
-        <li class="menu-item ">
-          <a class="menu-link" href="/admin/home"> <i class="icon material-icons md-home"></i>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/home">
+            <i class="icon material-icons md-home"></i>
             <span class="text">Dashboard</span>
           </a>
         </li>
-        <li class="menu-item ">
-          <a class="menu-link" href="/admin/user_management"> <i class="icon material-icons md-person"></i>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/user_management">
+            <i class="icon material-icons md-person"></i>
             <span class="text">User Management</span>
           </a>
-
         </li>
         <li class="menu-item active">
-          <a class="menu-link" href="/admin/product_management"> <i class="icon material-icons md-shopping_bag"></i>
+          <a class="menu-link" href="/admin/product_management">
+            <i class="icon material-icons md-shopping_bag"></i>
             <span class="text">Products Management</span>
           </a>
         </li>
-        <li class="menu-item ">
-          <a class="menu-link" href="/admin/category_management"> <i class="icon material-icons md-stars"></i>
-            <span class="text">Category Management</span> </a>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/category_management">
+            <i class="icon material-icons md-stars"></i>
+            <span class="text">Category Management</span>
+          </a>
         </li>
-
-
       </ul>
-      <hr>
+      <hr />
       <ul class="menu-aside">
         <li class="menu-item has-submenu">
-          <a class="menu-link" href="#"> <i class="icon material-icons md-settings"></i>
+          <a class="menu-link" href="#">
+            <i class="icon material-icons md-settings"></i>
             <span class="text">Settings</span>
           </a>
           <div class="submenu">
@@ -48,8 +62,8 @@
           </div>
         </li>
       </ul>
-      <br>
-      <br>
+      <br />
+      <br />
     </nav>
   </aside>
   <main class="main-wrap">
@@ -69,7 +83,12 @@
         </form> -->
       </div>
       <div class="col-nav">
-        <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"> <i class="material-icons md-apps"></i> </button>
+        <button
+          class="btn btn-icon btn-mobile me-auto"
+          data-trigger="#offcanvas_aside"
+        >
+          <i class="material-icons md-apps"></i>
+        </button>
         <ul class="nav">
           <li class="nav-item">
             <a class="nav-link btn-icon" href="#">
@@ -78,152 +97,352 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link btn-icon darkmode" href="#"> <i class="material-icons md-nights_stay"></i> </a>
+            <a class="nav-link btn-icon darkmode" href="#">
+              <i class="material-icons md-nights_stay"></i>
+            </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="requestfullscreen nav-link btn-icon"><i class="material-icons md-cast"></i></a>
+            <a href="#" class="requestfullscreen nav-link btn-icon"
+              ><i class="material-icons md-cast"></i
+            ></a>
           </li>
           <li class="dropdown nav-item">
-            <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownLanguage" aria-expanded="false"><i class="material-icons md-public"></i></a>
-            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownLanguage">
-              <a class="dropdown-item text-brand" href="#"><img src="assets/imgs/theme/flag-us.png" alt="English">English</a>
-              <a class="dropdown-item" href="#"><img src="assets/imgs/theme/flag-fr.png" alt="Français">Français</a>
-              <a class="dropdown-item" href="#"><img src="assets/imgs/theme/flag-jp.png" alt="Français">日本語</a>
-              <a class="dropdown-item" href="#"><img src="assets/imgs/theme/flag-cn.png" alt="Français">中国人</a>
+            <a
+              class="dropdown-toggle"
+              data-bs-toggle="dropdown"
+              href="#"
+              id="dropdownLanguage"
+              aria-expanded="false"
+              ><i class="material-icons md-public"></i
+            ></a>
+            <div
+              class="dropdown-menu dropdown-menu-end"
+              aria-labelledby="dropdownLanguage"
+            >
+              <a class="dropdown-item text-brand" href="#"
+                ><img
+                  src="assets/imgs/theme/flag-us.png"
+                  alt="English"
+                />English</a
+              >
+              <a class="dropdown-item" href="#"
+                ><img
+                  src="assets/imgs/theme/flag-fr.png"
+                  alt="Français"
+                />Français</a
+              >
+              <a class="dropdown-item" href="#"
+                ><img
+                  src="assets/imgs/theme/flag-jp.png"
+                  alt="Français"
+                />日本語</a
+              >
+              <a class="dropdown-item" href="#"
+                ><img
+                  src="assets/imgs/theme/flag-cn.png"
+                  alt="Français"
+                />中国人</a
+              >
             </div>
           </li>
           <li class="dropdown nav-item">
-            <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount" aria-expanded="false"> <img class="img-xs rounded-circle" src="assets/imgs/people/avatar2.jpg" alt="User"></a>
-            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
-              <a class="dropdown-item" href="#"><i class="material-icons md-perm_identity"></i>Edit Profile</a>
-              <a class="dropdown-item" href="#"><i class="material-icons md-settings"></i>Account Settings</a>
-              <a class="dropdown-item" href="#"><i class="material-icons md-account_balance_wallet"></i>Wallet</a>
-              <a class="dropdown-item" href="#"><i class="material-icons md-receipt"></i>Billing</a>
-              <a class="dropdown-item" href="#"><i class="material-icons md-help_outline"></i>Help center</a>
+            <a
+              class="dropdown-toggle"
+              data-bs-toggle="dropdown"
+              href="#"
+              id="dropdownAccount"
+              aria-expanded="false"
+            >
+              <img
+                class="img-xs rounded-circle"
+                src="assets/imgs/people/avatar2.jpg"
+                alt="User"
+            /></a>
+            <div
+              class="dropdown-menu dropdown-menu-end"
+              aria-labelledby="dropdownAccount"
+            >
+              <a class="dropdown-item" href="#"
+                ><i class="material-icons md-perm_identity"></i>Edit Profile</a
+              >
+              <a class="dropdown-item" href="#"
+                ><i class="material-icons md-settings"></i>Account Settings</a
+              >
+              <a class="dropdown-item" href="#"
+                ><i class="material-icons md-account_balance_wallet"></i
+                >Wallet</a
+              >
+              <a class="dropdown-item" href="#"
+                ><i class="material-icons md-receipt"></i>Billing</a
+              >
+              <a class="dropdown-item" href="#"
+                ><i class="material-icons md-help_outline"></i>Help center</a
+              >
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item text-danger" href="#"><i class="material-icons md-exit_to_app"></i>Logout</a>
+              <a class="dropdown-item text-danger" href="#"
+                ><i class="material-icons md-exit_to_app"></i>Logout</a
+              >
             </div>
           </li>
         </ul>
       </div>
     </header>
     <section class="content-main">
-        <div class="row">
-            <div class="col-9">
-                <div class="content-header">
-                    <h2 class="content-title">Edit Product</h2>
-                    <!-- <div>
+      <div class="row">
+        <div class="col-9">
+          <div class="content-header">
+            <h2 class="content-title">Edit Product</h2>
+            <!-- <div>
                         <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
                         <button type="submit" class="btn btn-md rounded font-sm hover-up">Publish</button>
                     </div> -->
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h4>Basic</h4>
-                    </div>
-                    <div class="card-body">
-                        <form action="/admin/editProduct" method="post" enctype="multipart/form-data">
-                           
-                            <div class="mb-4">
-                                <label for="product_name" class="form-label">Title</label>
-                                <input type="text" value="<%=pro.title%>" class="form-control" id="product_name" name="title" required>
-                            </div>
-                            <div class="mb-4">
-                                <label for="author" class="form-label">Author</label>
-                                <input type="text" value="<%=pro.author %>" class="form-control" id="author" name="author" required>
-                            </div>
-                            <div class="mb-4">
-                                <label class="form-label">Full description</label>
-                                <textarea  class="form-control" rows="4" name="description" required><%=pro.description %></textarea>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <div class="mb-4">
-                                        <label class="form-label">Regular price</label>
-                                        <div class="row gx-2">
-                                            <input value="<%= pro.price %>" type="text" class="form-control" name="price" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4">
-                                    <div class="mb-4">
-                                        <label class="form-label">Stock</label>
-                                        <input value="<%=pro.stock %>" type="text" class="form-control" name="stock" required>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4">
-                                    <div class="mb-4">
-                                        <label class="form-label" required>Category</label>
-                                        <select class="form-select" name="category">
-                                            <option ><%=pro.category %></option>
-                                            <% cat.forEach(function(cats) { %>
-                                            <option><%=cats.name %></option>
-                                            <% }); %>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h4>Media</h4>
-                                </div>
-                                <div class="card-body">
-                                    <div class="input-upload">
-                                        <input class="form-control" type="file" name="image" multiple>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mb-4">
-                              <div class="card-header">
-                                  <h4>Image Preview</h4>
-                              </div>
-                              <div class="card-body" style="height: 300px; width: 200px;">
-                                  <div id="image-preview" style="white-space: nowrap; display: flex;">
-                                      <!-- Placeholder for image preview -->
-                                  </div>
-                              </div>
-                          </div>
-                          
-                          
-                            <button type="submit" class="btn btn-md rounded font-sm hover-up" value="Upload">Publish</button>
-                           
-                        </form>
-                    </div>
-                </div> <!-- card end// -->
-            </div>
+          </div>
         </div>
-        <script>
-           function previewImages() {
-        var preview = document.getElementById('image-preview');
-        var files = document.querySelector('input[type=file]').files;
+        <div class="col-lg-6">
+          <div class="card mb-4">
+            <div class="card-header">
+              <h4>Basic</h4>
+            </div>
+            <div class="card-body">
+              <form
+                action="/admin/editProduct?id=<%=pro._id %>"
+                method="post"
+                enctype="multipart/form-data"
+              >
+                <div class="mb-4">
+                  <label for="product_name" class="form-label">Title</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="title"
+                    name="title"
+                    value="<%= pro.title %>"
+                  />
+                </div>
+                <div class="mb-4">
+                  <label for="author" class="form-label">Author</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="author"
+                    name="author"
+                    value="<%= pro.author %>"
+                  />
+                </div>
+                <div class="mb-4">
+                  <label class="form-label">Full description</label>
+                  <textarea
+                    class="form-control"
+                    rows="4"
+                    id="description"
+                    name="description"
+                    required
+                  >
+<%= pro.description %></textarea
+                  >
+                </div>
+                <div class="row">
+                  <div class="col-lg-4">
+                    <div class="mb-4">
+                      <label class="form-label">Regular price</label>
+                      <div class="row gx-2">
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="price"
+                          name="price"
+                          value="<%= pro.price %>"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-4">
+                    <div class="mb-4">
+                      <label class="form-label">Stock</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="stock"
+                        name="stock"
+                        value="<%= pro.stock %>"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-lg-4">
+                    <div class="mb-4">
+                      <label class="form-label">Category</label>
+                      <select
+                        class="form-select"
+                        id="category"
+                        name="category"
+                        required
+                      >
+                        <option value="<%= pro.category %>" selected>
+                          <%= pro.category %>
+                        </option>
+                        <% cat.forEach(function(category) { %>
+                        <option value="<%= category.name %>">
+                          <%= category.name %>
+                        </option>
+                        <% }); %>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="card mb-4">
+                  <div class="card-header">
+                    <h4>Media</h4>
+                  </div>
+                  <div class="card-body">
+                    <div class="input-upload">
+                      <input
+                        class="form-control"
+                        type="file"
+                        id="images"
+                        name="image"
+                        multiple
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="card mb-4">
+                  <div class="card-header">
+                    <h4>Image Preview</h4>
+                  </div>
+                  <div class="card-body" style="height: 300px; width: 200px">
+                    <div
+                      id="image-preview"
+                      style="white-space: nowrap; display: flex"
+                    >
+                      <!-- Placeholder for image preview -->
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  class="btn btn-md rounded font-sm hover-up"
+                >
+                  Publish
+                </button>
+              </form>
+            </div>
+          </div>
+          <!-- card end// -->
+        </div>
+        <div class="col-lg-3">
+          <div class="card mb-4">
+            <div class="card-header">
+              <h4>Product Images</h4>
+            </div>
+            <div class="card-body image-scroll">
+              <!-- Display existing images and delete buttons -->
+              <% pro.image.forEach(function(image,index) { %>
+              <div class="mb-2">
+                <img
+                  src="/uploads/<%= image %>"
+                  alt="Product Image"
+                  class="img-fluid"
+                />
+                <button
+                  class="btn btn-sm btn-danger delete-image"
+                  onclick="confirmDelete('<%= pro._id %>','<%= index %>')"
+                >
+                  Delete
+                </button>
+              </div>
+              <% }); %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+      function confirmDelete(productId, imageIndex) {
+        swal({
+          title: "Are you sure?",
+          text: "Are you sure about deleting the image?",
+          icon: "warning",
+          buttons: ["Cancel", "Delete"],
+          dangerMode: true,
+        }).then((willDelete) => {
+          if (willDelete) {
+            // If the user confirms deletion, perform the deletion action
+            deleteImage(productId, imageIndex);
+          }
+        });
+      }
 
-        preview.innerHTML = ''; // Clear existing preview
+      function deleteImage(productId, imageIndex) {
+        // Send a fetch post request to delete the image with the provided productId and imageIndex
+        fetch('/admin/deleteImage', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                productId: productId,
+                imageIndex: imageIndex
+            })
+        }).then(response => response.json())
+        .then(response => {
+            if (response.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Image Deleted Successfully',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                // Reload the page
+                
+            });
+                
+                
+            } else {
+                // Image deletion failed, handle error
+                console.error('Image deletion failed:', response.statusText);
+            }
+           
+        }).catch(error => {
+            console.error('Error deleting image:', error);
+        });
+        location.reload();
+    }
+
+      function previewImages() {
+        var preview = document.getElementById("image-preview");
+        var files = document.querySelector("input[type=file]").files;
+
+        preview.innerHTML = ""; // Clear existing preview
 
         // Loop through selected files
         for (var i = 0; i < files.length; i++) {
-            var file = files[i];
-            var reader = new FileReader();
+          var file = files[i];
+          var reader = new FileReader();
 
-            // Closure to capture the file information
-            reader.onload = (function(file) {
-                return function(e) {
-                    // Create image element
-                    var img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.classList.add('img-fluid', 'mb-2');
-                    preview.appendChild(img);
-                };
-            })(file);
+          // Closure to capture the file information
+          reader.onload = (function (file) {
+            return function (e) {
+              // Create image element
+              var img = document.createElement("img");
+              img.src = e.target.result;
+              img.classList.add("img-fluid", "mb-2");
+              preview.appendChild(img);
+            };
+          })(file);
 
-            // Read in the image file as a data URL
-            reader.readAsDataURL(file);
+          // Read in the image file as a data URL
+          reader.readAsDataURL(file);
         }
-    }
+      }
 
-    // Bind previewImages function to file input change event
-    document.querySelector('input[type=file]').addEventListener('change', previewImages);
-        </script>
-    </section>
-<%- include('../partials/adminFooter.ejs') %>
+      // Bind previewImages function to file input change event
+      document
+        .querySelector("input[type=file]")
+        .addEventListener("change", previewImages);
+    </script>
+    <%- include('../partials/adminFooter.ejs') %>
+  </main>
+</body>

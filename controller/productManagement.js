@@ -32,9 +32,11 @@ const upload = multer({
   fileFilter: fileFilter
 }).array("image", 10);
 
+
+
 const loadProduct=async(req,res)=>{
     try{
-      const product=await Product.find()
+      const product=await Product.find({isDeleted:false});
         res.render("product",{pro:product})
 
     }catch(error){
@@ -131,7 +133,6 @@ const addProduct=async(req,res)=>{
 const loadEditProduct=async(req,res)=>{
   try{
     let id=req.query.id;
-    console.log(id);
     const category=await Category.find({isListed:"Active"})
     const product= await Product.findById(id);
     req.session.productId=id;
@@ -142,84 +143,153 @@ const loadEditProduct=async(req,res)=>{
   }
 }
 
+
+
+
 const updateProduct = async (req, res) => {
   try {
-    console.log(req.body);
-    let id=req.sessoin.productId;
-      if (req.files && req.files.length > 0) {
-          // Handle image upload if there are files
-          upload(req, res, async function (err) {
-              if (err instanceof multer.MulterError) {
-                  console.log(`Multer error: ${err}`);
-                  res.status(500).send("Error uploading the images");
-                  return;
-              } else if (err) {
-                  console.log(`Unknown Error: ${err}`);
-                  res.status(500).send(`Unknown Error Occurred: ${err}`);
-                  return;
-              }
-              try {
-                  const processedImages = [];
-                  for (const file of req.files) {
-                      const filename = `${file.originalname} - cropped`;
-                      const imagePath = path.join(__dirname, "..", "public", "uploads", filename);
-                      try {
-                          // Image processing using sharp
-                          const imageBuffer = await sharp(file.buffer)
-                              .resize(400, 440)
-                              .toBuffer();
-                          // Write the processed image to the path specified
-                          fs.writeFileSync(imagePath, imageBuffer);
-                          processedImages.push(filename);
-                      } catch (err) {
-                          console.log(`Error occurred while processing the image: ${err}`);
-                          res.status(500).send("Error processing the image");
-                          return;
-                      }
-                  }
-                  // Update product with new images
-                  const { title, author, description, price, stock, category,image } = req.body;
-                  const updatedProduct = await Product.findByIdAndUpdate(req.session.id, {
-                      title: title,
-                      author: author,
-                      description: description,
-                      price: price,
-                      stock: stock,
-                      category: category,
-                      $push: { image: { $each: processedImages } }
-                  });
-                  await updatedProduct.save();
-                  res.redirect("/admin/product_management");
-              } catch (err) {
-                  console.log(`Error occurred while updating product with images: ${err}`);
-                  res.status(500).send(`Error updating product with images: ${err}`);
-              }
-          });
-      } else {
-          // Update product without uploading images
-          const { title, author, description, price, stock, category } = req.body;
-          const updatedProduct = await Product.findByIdAndUpdate(id, {
-              title: title,
-              author: author,
-              description: description,
-              price: price,
-              stock: stock,
-              category: category
-          });
-          await updatedProduct.save();
-          res.redirect("/admin/product_management");
+    let id=req.query.id;
+    upload(req, res, async function (err) {
+      if (err instanceof multer.MulterError) {
+        console.log(`Multer error: ${err}`);
+        res.status(500).send("Error Uploading the images");
+        return;
+      } else if (err) {
+        console.log(`Unknown Error:${err}`);
+        res.status(500).send("Unknown Error Occured. The Error", err);
+        return;
       }
+
+      try {
+        const processedImages = [];
+
+        // Check if files exist before processing
+        if (req.files && req.files.length > 0) {
+          for (const file of req.files) {
+            const filename = `${file.originalname} - cropped`;
+            const imagePath = path.join(
+              __dirname,
+              "..",
+              "public",
+              "uploads",
+              filename
+            );
+            try {
+              //image processing using sharp
+              const imageBuffer = await sharp(file.path)
+                .resize(400, 440)
+                .toBuffer();
+              //Write the processed image to the path specified
+              fs.writeFileSync(imagePath, imageBuffer);
+              processedImages.push({ filename });
+            } catch (err) {
+              console.log(`Error occured While processing the image:${err}`);
+              res.status(500).send("Error processing the image");
+              return;
+            }
+          }
+        }
+
+        const {
+          title,
+          author,
+          description,
+          price,
+          stock,
+          category,
+          images,
+        } = req.body;
+        const processedImageFilenames = processedImages.map(image => image.filename);
+
+        const existingProduct = await Product.findById(id);
+        if (!existingProduct) {
+          console.log("Product not found");
+          res.status(404).send("Product not found");
+          return;
+        }
+
+        // Combine existing images with the new ones
+        const updatedImages = existingProduct.image.concat(processedImageFilenames);
+
+        const updatedProduct = await Product.findByIdAndUpdate(
+         id,{
+            title: title,
+            author: author,
+            description: description,
+            price: price,
+            stock: stock,
+            category: category,
+            $set:{image:updatedImages},
+          },
+          { new: true }
+        );
+        if(!updatedProduct){
+          console.log("product not found");
+        }
+        await updatedProduct.save();
+        res.redirect("/admin/product_management");
+      } catch (err) {
+        console.log(`Error occured while processing the image using Sharp ${err}`);
+        res.status(500).send(`Error processing images using Sharp: ${err}`);
+      }
+    });
   } catch (error) {
-      console.log(`Error occurred in updateProduct controller: ${error.message}`);
-      res.status(500).send(`Error occurred in updateProduct controller: ${error.message}`);
+    console.log(error.message);
+    res.status(500).send("Error editing product.");
   }
 };
 
+const deleteImage=async(req,res)=>{
+  try{
+    const {productId,imageIndex}=req.body;
+    console.log(productId);
+
+    const product= await Product.findById(productId);
+
+    if(!product){
+      return res.status(404).json({error:"Product not found"});
+    }
+
+    //Image removal
+    if(imageIndex<product.image.length){
+      product.image.splice(imageIndex,1);
+    }else{
+      return res.status(400).json({success:false,error:"Invalid image index"});
+    }
+
+    await product.save();
+
+    return res.status(200).json({ success:true, message: 'Image deleted successfully' });
+
+  }catch(error){
+    console.log(error.message);
+  }
+}
+
+const deleteProduct=async(req,res)=>{
+  const productId=req.params.id;
+
+  try{
+    const updatedProduct=await Product.findByIdAndUpdate(productId,{isDeleted:true});
+    if(updatedProduct){
+      res.json({sucess:true,message:"Product soft deleted succesfully"})
+    }else{
+      res.status(404).json({sucess:false,message:'Product not found'})
+    }
+
+  }catch(error){
+    console.log(error.message);
+  }
+}
+    
 
 module.exports={
     loadProduct,
     loadAddProduct,
     addProduct,
     loadEditProduct,
-    updateProduct
-}
+    updateProduct,
+    deleteImage,
+    deleteProduct
+    
+} 

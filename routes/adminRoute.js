@@ -30,6 +30,8 @@ admin_route.get("/add_product",productManagement.loadAddProduct);
 admin_route.post("/add-product",productManagement.addProduct);
 admin_route.get("/editProduct",productManagement.loadEditProduct);
 admin_route.post("/editProduct",productManagement.updateProduct);
+admin_route.post("/deleteImage",productManagement.deleteImage);
+admin_route.post("/deleteProduct/:id",productManagement.deleteProduct)
 
 
 module.exports=admin_route
