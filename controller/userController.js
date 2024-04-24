@@ -46,7 +46,7 @@ const insertUser = async (req, res) => {
   try {
     const exitstingUser = await User.findOne({ email: req.body.email });
     if (exitstingUser) {
-      return res.render("register", { message: "User already exists" });
+      return res.render("register", {user:req.session.user, message: "User already exists" });
     } else {
       const otp = generateOtp();
       console.log(otp);
@@ -176,6 +176,7 @@ const verifyLogin = async (req, res) => {
       }
     } else {
       return res.render("login", {
+        user:req.session.user,
         message: "Email and password is incorrect",
       });
     }
@@ -204,6 +205,7 @@ const userLogout = async (req, res) => {
 const loadShopPage=async(req,res)=>{
   try{
     const product = await Product.find({isListed:"Active"})
+    console.log("shop page",product)
     const category=await Category.find({isListed:"Active"})
    res.render("shop",{user:req.session.user,pro:product,cat:category});
   }catch(error){
@@ -211,6 +213,17 @@ const loadShopPage=async(req,res)=>{
   }
 }
 
+const loadProductPage=async(req,res)=>{
+  try{
+    let id=req.query.id;
+    const product= await Product.findById(id);
+    console.log(product);
+    res.render("prodView",{user:req.session.user,pro:product});
+
+  }catch(error){
+    console.log(error.message);
+  }
+}
 module.exports = {
   loadLandingPage,
   loadLogin,
@@ -221,5 +234,6 @@ module.exports = {
   verifyLogin,
   userLogout,
   resendOTP,
-  loadShopPage
+  loadShopPage,
+  loadProductPage
 };

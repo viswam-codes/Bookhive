@@ -87,7 +87,7 @@ const addProduct=async(req,res)=>{
       try{
         //image processing using sharp
         const imageBuffer= await sharp(file.path)
-        .resize(400,440)
+        .resize(971,1500)
         .toBuffer();
         //Write the processed image to the path specified
         fs.writeFile(imagePath, imageBuffer, async function (writeErr) {
@@ -177,7 +177,7 @@ const updateProduct = async (req, res) => {
             try {
               //image processing using sharp
               const imageBuffer = await sharp(file.path)
-                .resize(400, 440)
+                .resize(971, 1500)
                 .toBuffer();
               //Write the processed image to the path specified
               fs.writeFileSync(imagePath, imageBuffer);

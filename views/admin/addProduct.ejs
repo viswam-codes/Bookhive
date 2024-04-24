@@ -222,5 +222,62 @@
     // Bind previewImages function to file input change event
     document.querySelector('input[type=file]').addEventListener('change', previewImages);
         </script>
+        
+        <script>
+          function validateForm() {
+            var username = document.getElementById("username").value;
+            var email = document.getElementById("email").value;
+            var password = document.getElementById("password").value;
+            var confirmPassword = document.getElementById("confirmPassword").value;
+            var valid = true;
+        
+            // Username validation
+            if (!username) {
+              document.getElementById("usernameError").innerText =
+                "Username is required";
+              document.getElementById("usernameError").style.color = "red"; // Set color to red
+              valid = false;
+            } else {
+              document.getElementById("usernameError").innerText = "";
+            }
+        
+            // Email validation
+            if (!email) {
+              document.getElementById("emailError").innerText = "Email is required";
+              document.getElementById("emailError").style.color = "red"; // Set color to red
+              valid = false;
+            } else {
+              document.getElementById("emailError").innerText = "";
+            }
+        
+            // Password validation
+            if (password !== confirmPassword) {
+              document.getElementById("confirmPasswordError").innerText =
+                "Passwords do not match";
+              document.getElementById("confirmPasswordError").style.color = "red"; // Set color to red
+              valid = false;
+            } else {
+              document.getElementById("confirmPasswordError").innerText = "";
+            }
+        
+            if (!isPasswordValid(password)) {
+              document.getElementById("passwordError").innerText =
+                "Password must contain at least one uppercase letter, one lowercase letter, one number, and be at least 8 characters long";
+              document.getElementById("passwordError").style.color = "red"; // Set color to red
+              valid = false;
+            } else {
+              document.getElementById("passwordError").innerText = "";
+            }
+        
+            if (valid) {
+              document.getElementById("registrationForm").submit(); // Submit the form if validation passes
+            }
+          }
+        
+          function isPasswordValid(password) {
+            var regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+            return regex.test(password);
+          }
+        </script>
     </section>
 <%- include('../partials/adminFooter.ejs') %>
