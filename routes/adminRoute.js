@@ -28,7 +28,7 @@ admin_route.post("/delete_category/:id",categoryManagement.deleteCatgory);
 //--product Management
 admin_route.get("/product_management",auth.isLogin,productManagement.loadProduct);
 admin_route.get("/add_product",auth.isLogin,productManagement.loadAddProduct);
-admin_route.post("/add-product",productManagement.addProduct);
+admin_route.post("/add_product",productManagement.addProduct);
 admin_route.get("/editProduct",auth.isLogin,productManagement.loadEditProduct);
 admin_route.post("/editProduct",productManagement.updateProduct);
 admin_route.post("/deleteImage",productManagement.deleteImage);

@@ -68,6 +68,7 @@
                     <div class="mb-3">
                         <label for="editCategoryName" class="form-label">Category Name</label>
                         <input type="text" class="form-control" id="editCategoryName">
+                        <div id="editCategoryNameError" class="invalid-feedback"></div>
                     </div>
                     <div class="mb-3 form-check">
                         <input type="radio" class="form-check-input" id="listUser" name="listStatus" value="Active">
@@ -247,6 +248,7 @@
     function showEditModal(categoryId, categoryName, isListed) {
         $('#editCategoryModal #categoryIdInput').val(categoryId);   
         $('#editCategoryName').val(categoryName);
+        $('#editCategoryNameError').empty();
         if (isListed === 'Active') {
             $('#listUser').prop('checked', true);
         } else {
@@ -277,6 +279,11 @@
                 row.find('.categoryStatus').text(status); 
             } else {
                 console.error('Failed to update category:', data.message);
+                if (data.error === 'category_exists') {
+                $('#editCategoryNameError').text('Category already exists');
+            } else {
+                // Handle other errors
+            }
                 // Handle error 
             }
             location.reload('/admin/category_management');
