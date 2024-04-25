@@ -27,7 +27,7 @@ const securePassword = async (password) => {
 
 const loadLandingPage = async (req, res) => {
   try {
-    const product = await Product.find();
+    const product = await Product.find().limit(8);
     return res.render("home", { user: req.session.user, pro: product });
   } catch (err) {
     console.log(err.message);
@@ -205,7 +205,6 @@ const userLogout = async (req, res) => {
 const loadShopPage=async(req,res)=>{
   try{
     const product = await Product.find({isListed:"Active"})
-    console.log("shop page",product)
     const category=await Category.find({isListed:"Active"})
    res.render("shop",{user:req.session.user,pro:product,cat:category});
   }catch(error){
@@ -217,8 +216,15 @@ const loadProductPage=async(req,res)=>{
   try{
     let id=req.query.id;
     const product= await Product.findById(id);
-    console.log(product);
-    res.render("prodView",{user:req.session.user,pro:product});
+    const relatedProducts = await Product.find({
+      $or: [
+        { category: product.category },
+        { author: product.author }
+      ],
+      _id: { $ne: id } // Exclude the current product
+    });
+
+    res.render("prodView",{user:req.session.user,pro:product,relProduct:relatedProducts});
 
   }catch(error){
     console.log(error.message);
