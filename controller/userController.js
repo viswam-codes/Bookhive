@@ -27,8 +27,9 @@ const securePassword = async (password) => {
 
 const loadLandingPage = async (req, res) => {
   try {
+    const user=await User.findById(req.session.user);
     const product = await Product.find().limit(8);
-    return res.render("home", { user: req.session.user, pro: product });
+    return res.render("home", { user, pro: product });
   } catch (err) {
     console.log(err.message);
   }
@@ -36,7 +37,8 @@ const loadLandingPage = async (req, res) => {
 
 const loadRegister = async (req, res) => {
   try {
-    res.render("register", { user: req.session.user });
+    const user=await User.findById(req.session.user);
+    res.render("register", { user});
   } catch (error) {
     console.log(error.message);
   }
@@ -44,9 +46,10 @@ const loadRegister = async (req, res) => {
 
 const insertUser = async (req, res) => {
   try {
+    const user=await User.findById(req.session.user);
     const exitstingUser = await User.findOne({ email: req.body.email });
     if (exitstingUser) {
-      return res.render("register", {user:req.session.user, message: "User already exists" });
+      return res.render("register", {user, message: "User already exists" });
     } else {
       const otp = generateOtp();
       console.log(otp);
@@ -96,8 +99,6 @@ const verifyOTP = async (req, res) => {
 
     if (req.session.details.otp == req.body.otp) {
       console.log("OTP is correct");
-      console.log("Current time (Date.now()):", Date.now());
-      console.log("OTP Expiration time (req.session.details.otpExpiration):", req.session.details.otpExpiration-Date.now());
       if ( req.session.details.otpExpiration < (Date.now()) ) {
         console.log("expired");
         return res.json({ expired: true });
@@ -116,7 +117,9 @@ const verifyOTP = async (req, res) => {
         res.json({ redirect: "/login" });
       }
     } else {
-      res.render("otp", { message: "Invalid OTP" });
+      console.log("Wrong OTP");
+      const message= "Invalid OTP";
+      return res.json( { message });
     }
   } catch (error) {
     console.log(error.message);
@@ -143,10 +146,10 @@ const resendOTP = async (req, res) => {
         console.log("Email sent", info.response);
       }
     });
-    res.json({ sucess: true });
+    res.json({ success: true });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ sucess: false, error: "Internal server error" });
+    res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
 
@@ -165,13 +168,14 @@ const verifyLogin = async (req, res) => {
             message: "User blocked",
           });
         } else {
-          req.session.user = userData;
+          req.session.user = userData._id;
           console.log(userData);
           res.redirect("/");
         }
       } else {
         return res.render("login", {
-          message: "Email and password is incorrect",
+          message: "Email and password are incorrect",
+          user:req.session.user
         });
       }
     } else {
@@ -187,7 +191,8 @@ const verifyLogin = async (req, res) => {
 
 const loadLogin = async (req, res) => {
   try {
-    res.render("login", { user: req.session.user, message: "" });
+    const user= User.findById(req.session.user);
+    res.render("login", { user, message: "" });
   } catch (error) {
     console.log(error.message);
   }
@@ -206,7 +211,8 @@ const loadShopPage=async(req,res)=>{
   try{
     const product = await Product.find({isListed:"Active"})
     const category=await Category.find({isListed:"Active"})
-   res.render("shop",{user:req.session.user,pro:product,cat:category});
+    const user=await User.findById(req.session.user)
+   res.render("shop",{user,pro:product,cat:category});
   }catch(error){
     console.log(error.message);
   }
@@ -216,6 +222,7 @@ const loadProductPage=async(req,res)=>{
   try{
     let id=req.query.id;
     const product= await Product.findById(id);
+    const user = await User.findById(req.session.user);
     const relatedProducts = await Product.find({
       $or: [
         { category: product.category },
@@ -224,12 +231,41 @@ const loadProductPage=async(req,res)=>{
       _id: { $ne: id } // Exclude the current product
     });
 
-    res.render("prodView",{user:req.session.user,pro:product,relProduct:relatedProducts});
+    res.render("prodView",{user,pro:product,relProduct:relatedProducts});
 
   }catch(error){
     console.log(error.message);
   }
 }
+
+const loadProfile=async(req,res)=>{
+  try{  
+
+    const user = await User.findById(req.session.user)
+    res.render("userProfile",{user});
+
+  }catch(error){
+    console.log(error.message);
+  }
+}
+
+const editDetails=async(req,res)=>{
+  try{
+    const userId=req.session.user ;
+    const {name,email}=req.body;
+    const user = await User.findByIdAndUpdate(userId, { name, email }, { new: true });
+    if(!user){
+      return res.status(404).send({success:false,error:"User not found"})
+    }
+    await user.save();
+    res.status(200).json({success:true})
+    // res.redirect("/account")
+  }catch(error){
+    console.log(error.message);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+}
+
 module.exports = {
   loadLandingPage,
   loadLogin,
@@ -241,5 +277,7 @@ module.exports = {
   userLogout,
   resendOTP,
   loadShopPage,
-  loadProductPage
+  loadProductPage,
+  loadProfile,
+  editDetails
 };

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Evara - eCommerce HTML Template</title>
+    <title>BookHive-Buy your Favourite Books</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -358,10 +358,13 @@
                     </ul>
                   </li> -->
                    <% if(user) { %>
-                    <li> 
-                      <i class="fi-rs-user"></i
-                      ><a href="/login"><%=user.name%></a>
-                    </li>
+                    <li class="dropdown">
+                      <i class="fi-rs-user"></i>
+                      <a href="/account" class="dropdown-toggle" id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><%= user.name %></a>
+                      <div  class="dropdown-menu" aria-labelledby="userDropdown">
+                          <a style="color: black;" class="dropdown-item" href="/account">Settings</a>
+                      </div>
+                  </li>
                     <li>
                       <i class=""></i
                       ><a href="/logout">Log Out</a>
@@ -1112,3 +1115,7 @@
         </div>
       </div>
     </header>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

@@ -74,9 +74,7 @@
   <body>
     <div class="container">
       <h1>OTP Verification</h1>
-      <% if(message){ %>
-      <p style="color: red"><%= message %></p>
-      <% } %>
+      <p id="errorMessage" style="color: red"></p>
       <form action="/otpVerify" method="post" onsubmit="verifyOTP(event)">
         <input
           type="number"
@@ -117,14 +115,18 @@
       }
       //function reset timer
       function resetTimer() {
+        console.log("Timer reseted")
         clearInterval(timer);
         countDown = 60;
-        document.getElementById("resendBtn").disabled = true; // Disable the button again
+        document.getElementById("resendBtn").hidden = true;
         // Show the timer text
         startTimer(); // Restart the timer
       }
+      
       // start of timer
       startTimer();
+
+      
       //   document
       //     .getElementById("verifyBtn")
       //     .addEventListener("click", verifyOTP());
@@ -145,13 +147,13 @@
             if (data.expired) {
               // OTP is expired, disable timer and resend button
               clearInterval(timer);
-              document.getElementById("resendBtn").disabled = true;
+              document.getElementById("resendBtn").disabled = false;
               document.getElementById("timer").innerText = "OTP expired";
               console.log("OTP expired");
             } else if (data.redirect) {
               window.location.href = data.redirect;
-            } else {
-              console.log("OTP not expired");
+            } else if(data.message=="Invalid OTP") {
+              document.getElementById("errorMessage").innerText=data.message;
             }
           })
           .catch((error) => {
@@ -169,9 +171,11 @@
         })
           .then((response) => response.json())
           .then((data) => {
-            if (data.success) {
-              // Reset timer
-             resetTimer()
+            
+            if (data.success) {   
+              console.log("OTP resend succesful")    
+              resetTimer()
+
             } else {
               console.error("Failed to resend OTP");
             }

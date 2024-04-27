@@ -21,7 +21,9 @@ user_route.post('/otpVerify',userController.verifyOTP);
 user_route.post('/resendOTP',userController.resendOTP);
 user_route.get('/logout',auth.isLogin,userController.userLogout);
 user_route.get("/shop_page",userController.loadShopPage);
-user_route.get("/product_page",userController.loadProductPage)
+user_route.get("/product_page",userController.loadProductPage);
+user_route.get("/account",userController.loadProfile);
+user_route.post("/edit_details",userController.editDetails);
 
 
 module.exports=user_route;
