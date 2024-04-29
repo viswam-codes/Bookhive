@@ -266,6 +266,97 @@ const editDetails=async(req,res)=>{
   }
 }
 
+const resetPassword=async(req,res)=>{
+  try{
+    const user= await User.findById(req.session.user);
+    const {currentPassword,newPassword}=req.body;
+  
+    const validPassword=await bcrypt.compare(currentPassword,user.password)
+    if(!validPassword){
+      return res.json({ notMatch:true, message: 'Current password is incorrect' });
+    }
+    
+    const spassword=await securePassword(newPassword);
+    user.password=spassword;
+    await user.save();
+
+    return res.status(200).json({ success: true, message: 'Password reset successful' });
+
+
+
+  }catch(error){
+    console.log(error.message);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+}
+
+const addAddress = async (req, res) => {
+  try {
+      const userId = req.session.user;
+      const { houseName, street, city, state, country, postalCode, phoneNo, addressType } = req.body;
+
+      // Create address object
+      const address = {
+          houseName: houseName,
+          street: street,
+          city: city,
+          state: state,
+          country: country,
+          postalCode: postalCode,
+          phoneNumber: phoneNo,
+          type: addressType
+      };
+
+      // Find user by ID and update the address array
+      const updatedUser = await User.findByIdAndUpdate(userId, {
+          $push: { address: address }
+      }, { new: true });
+
+      if (!updatedUser) {
+          return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      return res.status(200).json({ success: true, message: 'Address added successfully', address: address });
+  } catch (error) {
+      console.log(error.message);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+}
+
+const editAddress= async(req,res)=>{
+  try{
+    const user= await User.findById(req.session.user);
+    const {id, houseName, street, city, state, country, postalCode, phoneNumber, addressType } = req.body;
+   console.log(id);
+    const addressIndex = user.address.findIndex(addr => addr._id.toString() === id);
+
+    if (addressIndex !== -1) {
+      // Update address fields
+      user.address[addressIndex].houseName = houseName;
+      user.address[addressIndex].street = street;
+      user.address[addressIndex].city = city;
+      user.address[addressIndex].state = state;
+      user.address[addressIndex].country = country;
+      user.address[addressIndex].postalCode = postalCode;
+      user.address[addressIndex].phoneNumber = phoneNumber;
+      user.address[addressIndex].type = addressType;
+
+      // Save the updated user document
+      await user.save();
+
+      res.json({ success: true, message: 'Address updated successfully' });
+    } else {
+      // Address not found
+      res.status(404).json({ success: false, message: 'Address not found' });
+  }
+  }catch(error){
+    console.log(error.message);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+}
+
+
+
 module.exports = {
   loadLandingPage,
   loadLogin,
@@ -279,5 +370,8 @@ module.exports = {
   loadShopPage,
   loadProductPage,
   loadProfile,
-  editDetails
+  editDetails,
+  resetPassword,
+  addAddress,
+  editAddress
 };

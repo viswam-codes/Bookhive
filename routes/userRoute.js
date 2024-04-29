@@ -24,6 +24,9 @@ user_route.get("/shop_page",userController.loadShopPage);
 user_route.get("/product_page",userController.loadProductPage);
 user_route.get("/account",userController.loadProfile);
 user_route.post("/edit_details",userController.editDetails);
+user_route.post("/reset_password",userController.resetPassword);
+user_route.post("/add_address",userController.addAddress);
+user_route.post("/edit_address",userController.editAddress);
 
 
 module.exports=user_route;
