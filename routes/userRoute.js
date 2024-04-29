@@ -27,6 +27,7 @@ user_route.post("/edit_details",userController.editDetails);
 user_route.post("/reset_password",userController.resetPassword);
 user_route.post("/add_address",userController.addAddress);
 user_route.post("/edit_address",userController.editAddress);
+user_route.post("/delete_address",userController.deleteAddress);
 
 
 module.exports=user_route;

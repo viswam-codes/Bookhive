@@ -462,7 +462,7 @@
                                                     <a type="button" class="btn-small" data-bs-toggle="modal" data-bs-target="#editAddressModal" onclick="populateEditForm('<%=add._id%>', '<%=add.houseName%>', '<%=add.street%>', '<%=add.city%>', '<%=add.state%>', '<%=add.country%>', '<%=add.postalCode%>', '<%=add.phoneNumber%>', '<%=add.type%>')">Edit</a>
 
 
-                                                    <a href="#" class="btn-small ml-15">Delete</a>
+                                                    <a type="button" class="btn-small ml-15" onclick="confirmDelete('<%=add._id%>')">Delete</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -907,7 +907,41 @@ function updateAddress() {
     });
 }
 
+// delete address sweet alert and fetch operation
+function confirmDelete(addressId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Are you sure about deleting the address?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Perform fetch operation to delete address
+                fetch(`/delete_address?id=${addressId}`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Deleted!', 'The address has been deleted.', 'success').then(() => {
+                // Hide the modal after the SweetAlert
+                location.reload()
 
+            });
+                        // Optional: You can reload the page or update the UI as needed
+                    } else {
+                        Swal.fire('Error!', 'Failed to delete the address.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error!', 'An error occurred while deleting the address.', 'error');
+                });
+            }
+        });
+    }
 
 
 

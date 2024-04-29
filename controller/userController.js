@@ -355,6 +355,28 @@ const editAddress= async(req,res)=>{
   }
 }
 
+const deleteAddress= async(req,res)=>{
+  try{ 
+    const user= await User.findById(req.session.user);
+    const id=req.query.id;
+
+    const addressIndex = user.address.findIndex(addr => addr._id.toString() === id);
+
+    if (addressIndex !== -1) {
+      user.address.splice(addressIndex, 1); 
+      await user.save(); 
+      res.json({ success: true, message: 'Address deleted successfully' });
+  } else {
+      // Address not found
+      res.status(404).json({ success: false, message: 'Address not found' });
+  }
+ 
+
+  }catch(error){
+    console.log(error.message);
+  }
+}
+
 
 
 module.exports = {
@@ -373,5 +395,6 @@ module.exports = {
   editDetails,
   resetPassword,
   addAddress,
-  editAddress
+  editAddress,
+  deleteAddress
 };
