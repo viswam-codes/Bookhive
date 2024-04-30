@@ -1,6 +1,7 @@
 const User = require("../model/userModel");
 const Product = require("../model/productModel");
 const Category=require('../model/categoryModel')
+const Cart=require("../model/cartModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 
@@ -169,6 +170,7 @@ const verifyLogin = async (req, res) => {
           });
         } else {
           req.session.user = userData._id;
+          req.session.user==true;
           console.log(userData);
           res.redirect("/");
         }
@@ -377,6 +379,51 @@ const deleteAddress= async(req,res)=>{
   }
 }
 
+const loadCart= async(req,res)=>{
+  try{
+    const userId=req.session.user;
+     const user=await User.findById(userId);
+     const cart=await Cart.findOne({userId:userId}).populate("product.productId");
+     res.render("cart",{user,cart});
+  }catch(error){
+    console.log(error.message)
+  }
+}
+
+const addToCart=async(req,res)=>{
+  try{
+
+    const{userId,productId}=req.query;
+    const user= await User.findById(req.session.user)
+
+    if(!userId || !productId){
+      return res.status(400).json({message:"userId and ProductId are required"});
+    }
+
+    let cart=await Cart.findOne({userId});
+
+    if(!cart){
+      cart= new Cart({userId});
+    }
+
+    const productIndex=cart.product.findIndex(item=>item.productId.toString()===productId);
+
+    if(productIndex !==-1){
+      //if the product exists increase the quantitiy by one
+      cart.product[productIndex].quantity +=1;
+    }else{
+      cart.product.push({productId, quantity:1});
+    }
+
+    await cart.save();
+   res.json({success:true});
+
+  }catch(error){
+    console.log(error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
 
 
 module.exports = {
@@ -396,5 +443,7 @@ module.exports = {
   resetPassword,
   addAddress,
   editAddress,
-  deleteAddress
+  deleteAddress,
+  loadCart,
+  addToCart
 };

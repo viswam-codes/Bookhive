@@ -28,6 +28,8 @@ user_route.post("/reset_password",userController.resetPassword);
 user_route.post("/add_address",userController.addAddress);
 user_route.post("/edit_address",userController.editAddress);
 user_route.post("/delete_address",userController.deleteAddress);
+user_route.get("/cart",auth.isLogin,userController.loadCart);
+user_route.post("/addToCart",userController.addToCart);
 
 
 module.exports=user_route;

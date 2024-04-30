@@ -258,13 +258,8 @@
                         
                                     <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                                     <div class="detail-extralink">
-                                        <div class="detail-qty border radius">
-                                            <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                                            <span class="qty-val">1</span>
-                                            <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
-                                        </div>
                                         <div class="product-extra-link2">
-                                            <button type="submit" class="button button-add-to-cart">Add to cart</button>
+                                            <button type="submit" class="button button-add-to-cart" onclick="addToCart('<%=user._id%>','<%=pro._id %>')">Add to cart</button>
                                             <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
                                             <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
                                         </div>
@@ -496,6 +491,37 @@
         </div>
     </section>
 </main>
+<script>
+    function addToCart(userId, productId) {
+        fetch(`/addToCart?userId=${userId}&productId=${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Handle success response
+            if(data.success){
+                window.location.href="/cart";
+                console.log('Added to cart:', data);
+            }
+
+            
+            
+            // Optionally, you can redirect the user to the cart page or show a success message
+        })
+        .catch(error => {
+            // Handle error
+            console.error('There was a problem with your fetch operation:', error);
+        });
+    }
+</script>
 </body>
 
 
