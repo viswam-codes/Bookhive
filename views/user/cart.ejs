@@ -187,65 +187,31 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td class="image product-thumbnail"><img src="user_assets/imgs/shop/product-1-2.jpg" alt="#"></td>
-                                    <td class="product-des product-name">
-                                        <h5 class="product-name"><a href="shop-product-right.html">J.Crew Mercantile Women's Short-Sleeve</a></h5>
-                                        <p class="font-xs">Maboriosam in a tonto nesciung eget<br> distingy magndapibus.
-                                        </p>
-                                    </td>
-                                    <td class="price" data-title="Price"><span>$65.00 </span></td>
-                                    <td class="text-center" data-title="Stock">
-                                        <div class="detail-qty border radius  m-auto">
-                                            <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                                            <span class="qty-val">1</span>
-                                            <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
-                                        </div>
-                                    </td>
-                                    <td class="text-right" data-title="Cart">
-                                        <span>$65.00 </span>
-                                    </td>
-                                    <td class="action" data-title="Remove"><a href="#" class="text-muted"><i class="fi-rs-trash"></i></a></td>
-                                </tr>
-                                <tr>
-                                    <td class="image"><img src="user_assets/imgs/shop/product-11-2.jpg" alt="#"></td>
-                                    <td class="product-des">
-                                        <h5 class="product-name"><a href="shop-product-right.html">Amazon Essentials Women's Tank</a></h5>
-                                        <p class="font-xs">Sit at ipsum amet clita no est,<br> sed amet sadipscing et gubergren</p>
-                                    </td>
-                                    <td class="price" data-title="Price"><span>$75.00 </span></td>
-                                    <td class="text-center" data-title="Stock">
-                                        <div class="detail-qty border radius  m-auto">
-                                            <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                                            <span class="qty-val">2</span>
-                                            <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
-                                        </div>
-                                    </td>
-                                    <td class="text-right" data-title="Cart">
-                                        <span>$150.00 </span>
-                                    </td>
-                                    <td class="action" data-title="Remove"><a href="#" class="text-muted"><i class="fi-rs-trash"></i></a></td>
-                                </tr>
-                                <tr>
-                                    <td class="image"><img src="user_assets/imgs/shop/product-6-1.jpg" alt="#"></td>
-                                    <td class="product-des">
-                                        <h5 class="product-name"><a href="shop-product-right.html">Amazon Brand - Daily Ritual Women's Jersey </a></h5>
-                                        <p class="font-xs">Erat amet et et amet diam et et.<br> Justo amet at dolore
-                                        </p>
-                                    </td>
-                                    <td class="price" data-title="Price"><span>$62.00 </span></td>
-                                    <td class="text-center" data-title="Stock">
-                                        <div class="detail-qty border radius  m-auto">
-                                            <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                                            <span class="qty-val">1</span>
-                                            <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
-                                        </div>
-                                    </td>
-                                    <td class="text-right" data-title="Cart">
-                                        <span>$62.00 </span>
-                                    </td>
-                                    <td class="action" data-title="Remove"><a href="#" class="text-muted"><i class="fi-rs-trash"></i></a></td>
-                                </tr>
+                                <% cart.product.forEach(item => { %>
+                                    <tr>
+                                        <td class="image product-thumbnail">
+                                            <img src="/uploads/<%= item.productId.image[0] %>" alt="/uploads/<%= item.productId.image[0] %>">
+                                        </td>
+                                        <td class="product-des product-name">
+                                            <h5 class="product-name"><a href="<%= item.productId.title %>"><%= item.productId.title %></a></h5>
+                                            <p class="font-xs"></p>
+                                        </td>
+                                        <td class="price" id="prodPrice" data-product-id="<%= item.productId._id %>" data-title="Price"><span>$<%= item.productId.price.toFixed(2) %></span></td>
+                                        <td class="text-center" data-title="Stock">
+                                            <div class="detail-qty border radius  m-auto">
+                                                <a href="#" class="qty-down" data-product-id="<%= item.productId._id %>"><i class="fi-rs-angle-small-down"></i></a>
+                                                <span  class="qty-val" data-product-id="<%= item.productId._id %>"><%=item.quantity %></span>
+                                                <a href="#" class="qty-up" data-product-id="<%= item.productId._id %>"><i class="fi-rs-angle-small-up"></i></a> 
+                                            </div>
+                                        </td>
+                                        <td class="text-right" data-title="Subtotal" id="subtotal">
+                                            <span id="totalAmount">$<%= (item.productId.price * item.quantity).toFixed(2) %></span>
+                                        </td>
+                                        <td class="action" data-title="Remove">
+                                            <a href="#" class="text-muted"><i class="fi-rs-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                <% }); %>
                                 <tr>
                                     <td colspan="6" class="text-end">
                                         <a href="#" class="text-muted"> <i class="fi-rs-cross-small"></i> Clear Cart</a>
@@ -253,6 +219,7 @@
                                 </tr>
                             </tbody>
                         </table>
+                        
                     </div>
                     <div class="cart-action text-end">
                         <a class="btn  mr-10 mb-sm-15"><i class="fi-rs-shuffle mr-10"></i>Update Cart</a>
@@ -578,7 +545,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <a href="#" class="btn "> <i class="fi-rs-box-alt mr-10"></i> Proceed To CheckOut</a>
+                                <a href="#" class="btn" id="checkoutButton"> <i class="fi-rs-box-alt mr-10"></i> Proceed To CheckOut</a>
                             </div>
                         </div>
                     </div>
@@ -587,6 +554,160 @@
         </div>
     </section>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+    document.querySelectorAll('.qty-up').forEach(button => {
+        button.addEventListener('click', async (event) => {
+            const productId = button.getAttribute('data-product-id');
+            const quantityElement = document.querySelector(`.qty-val[data-product-id="${productId}"]`);
+            const currentQuantity = parseInt(quantityElement.textContent);
+            updateQuantity(productId, currentQuantity + 1);
+        });
+    });
+
+    document.querySelectorAll('.qty-down').forEach(button => {
+        button.addEventListener('click', async (event) => {
+            const productId = button.getAttribute('data-product-id');
+            const quantityElement = document.querySelector(`.qty-val[data-product-id="${productId}"]`);
+            const currentQuantity = parseInt(quantityElement.textContent);
+            if (currentQuantity > 1) {
+                updateQuantity(productId, currentQuantity - 1);
+            }
+        });
+    });
+
+    function updateQuantity(productId, quantity) {
+        fetch(`/updateQuantity/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ quantity })
+        })
+        .then(response => {
+            // Handle response
+            // For example, update the quantity displayed on the page if successful
+            if (response.ok) {
+                // Update quantity displayed on the page
+                const quantityElement = document.querySelector(`.qty-val[data-product-id="${productId}"]`);
+                quantityElement.textContent = quantity;
+
+                //update subtotal
+            const priceElement = document.querySelector(`#prodPrice[data-product-id="${productId}"]`);
+            const price = parseFloat(priceElement.textContent.slice(1)); // Extract price from inner text
+            console.log(price);
+            const subtotalElement = quantityElement.parentElement.parentElement.nextElementSibling; // Get next sibling (subtotal)
+            const newSubtotal = price * quantity; // Calculate new subtotal
+            console.log(newSubtotal)
+            subtotalElement.querySelector('span').textContent = `$${newSubtotal.toFixed(2)}`;
+            updateCartTotal(); 
+            // Update subtotal text
+            }else if (response.status===400) {
+                 // Product is out of stock, show SweetAlert
+        Swal.fire({
+                    title: "Unavailable",
+                    text: "This product is out of stock.",
+                    icon: "warning",
+                    confirmButtonText: "OK"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Reload the window
+                        location.reload();
+                    }
+                });
+                
+                
+    }
+            
+            else {
+                throw new Error('Failed to update quantity');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+
+    function updateCartTotal() {
+        // Get all subtotal elements
+        const subtotalElements = document.querySelectorAll('.text-right[data-title="Subtotal"] span');
+
+        // Calculate total amount
+        let subtotal = 0;
+        subtotalElements.forEach(subtotalElement => {
+            subtotal += parseFloat(subtotalElement.textContent.slice(1)); // Extract and sum subtotals
+        });
+
+        // Update cart subtotal
+        const cartSubtotalElement = document.querySelector('.cart_total_amount .font-lg');
+        cartSubtotalElement.textContent = `$${subtotal.toFixed(2)}`;
+
+        // Update total amount (assuming subtotal is the total for now)
+        const totalAmountElement = document.querySelector('.cart_total_amount .font-xl');
+        totalAmountElement.textContent = `$${subtotal.toFixed(2)}`;
+    }
+
+    // Call the function within a DOMContentLoaded event listener to execute it when the page is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCartTotal();
+    });
+
+
+    document.getElementById('checkoutButton').addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent default action of anchor tag
+
+        // Call the checkQuantity function
+        checkQuantity();
+    });
+
+
+    function checkQuantity() {
+        console.log("checkinggg")
+        // Perform fetch operation to check quantity
+        fetch('/checkQuantity', {
+            method: 'POST'
+        })
+        
+        .then(response => {
+            if (response.ok) {
+                // If response is successful, show SweetAlert with message and redirect to checkout
+                response.json().then(data => {
+                    if(data.success){
+                        window.location.href = '/checkout';
+
+                    }else{
+                        Swal.fire({
+                        title: "Oops",
+                        text: data.message,
+                        icon: "warning",
+                        showCloseButton: true, // Show close button
+                        confirmButtonText: 'Close' // Button text
+                    });  
+                    }
+                   
+                });
+            } else {
+                Swal.fire({
+                        title: "Oopss",
+                        text: data.message,
+                        icon: "warning"
+                    })
+                // If response is not successful, show error message
+                throw new Error('Failed to proceed to checkout');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: "Error",
+                text: "Failed to proceed to checkout",
+                icon: "error"
+            });
+        });
+    }   
+</script> 
+
 </body>
 
 <%- include('../partials/userFooter.ejs') %>

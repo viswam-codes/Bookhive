@@ -32,8 +32,6 @@ const upload = multer({
   fileFilter: fileFilter
 }).array("image", 10);
 
-
-
 const loadProduct=async(req,res)=>{
     try{
       const product=await Product.find({isDeleted:false});
@@ -142,9 +140,6 @@ const loadEditProduct=async(req,res)=>{
     console.log(error.message)
   }
 }
-
-
-
 
 const updateProduct = async (req, res) => {
   try {

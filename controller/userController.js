@@ -424,6 +424,53 @@ const addToCart=async(req,res)=>{
   }
 }
 
+const updateQuantity = async (req, res) => {
+  try {
+      const userId = req.session.user;
+      const { quantity } = req.body;
+      const productId = req.params.id; 
+
+      // Check if quantity is valid
+      if (quantity <= 0) {
+          return res.status(400).json({ success: false, message: 'Invalid quantity',});
+      }
+
+      // Find the product
+      const product = await Product.findById(productId);
+      if (!product) {
+          return res.status(404).json({ success: false, message: 'Product not found',curr:product.stock });
+      }
+
+      // Check if quantity is greater than stock
+      if (quantity > product.stock) {
+          return res.status(400).json({ success: false, message: 'Out of stock' });
+          
+      }
+
+      // Update quantity in the cart
+      const cart = await Cart.findOne({ userId });
+      const productIndex = cart.product.findIndex(item => item.productId.toString() === productId);
+      if (productIndex === -1) {
+          return res.status(404).json({ success: false, message: 'Product not found in cart' });
+      }
+
+      cart.product[productIndex].quantity = quantity; // Set quantity to the provided value
+
+      if (quantity === 0) {
+          // Remove product from cart if quantity becomes zero
+          cart.product.splice(productIndex, 1);
+      }
+
+      await cart.save();
+
+      res.json({ success: true, message: 'Quantity updated successfully'});
+  } catch (error) {
+      console.log(error.message);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+
 
 
 module.exports = {
@@ -445,5 +492,6 @@ module.exports = {
   editAddress,
   deleteAddress,
   loadCart,
-  addToCart
+  addToCart,
+  updateQuantity
 };
