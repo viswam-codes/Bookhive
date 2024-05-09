@@ -11,6 +11,7 @@ user_route.set("views","./views/user")
 
 const userController=require("../controller/userController")
 const checkoutController=require("../controller/checkoutController");
+const orderController=require("../controller/orderManagement");
 
 user_route.get('/',userController.loadLandingPage);
 user_route.get('/login',auth.isLogOut,userController.loadLogin);
@@ -36,12 +37,18 @@ user_route.post("/delete_address",userController.deleteAddress);
 user_route.get("/cart",auth.isLogin,userController.loadCart);
 user_route.post("/addToCart",userController.addToCart);
 user_route.post("/updateQuantity/:id",userController.updateQuantity);
+user_route.post("/checkQuantity",auth.isLogin,userController.checkQuantity);
+
+
 
 //---checkout Management
-
-user_route.post("/checkQuantity",auth.isLogin,checkoutController.checkQuantity);
 user_route.get("/checkout",auth.isLogin,checkoutController.loadCheckout);
+user_route.post("/confirmQuantity",auth.isLogin,checkoutController.confirmQuantity);
 
+
+//---order Management
+user_route.post("/placeOrder",auth.isLogin,orderController.placeOrder);
+user_route.get("/orderView",auth.isLogin,orderController.loadOrderView)
 
 
 module.exports=user_route;

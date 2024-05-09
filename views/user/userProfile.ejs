@@ -345,10 +345,7 @@
                             <div class="dashboard-menu">
                                 <ul class="nav flex-column" role="tablist">
                                     <li class="nav-item">
-                                        <a class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" href="#dashboard" role="tab" aria-controls="dashboard" aria-selected="false"><i class="fi-rs-settings-sliders mr-10"></i>Dashboard</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#account-detail" role="tab" aria-controls="account-detail" aria-selected="true"><i class="fi-rs-user mr-10"></i>Account details</a>
+                                        <a class="nav-link active" id="account-detail-tab" data-bs-toggle="tab" href="#account-detail" role="tab" aria-controls="account-detail" aria-selected="true"><i class="fi-rs-user mr-10"></i>Account details</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders" role="tab" aria-controls="orders" aria-selected="false"><i class="fi-rs-shopping-bag mr-10"></i>Orders</a>
@@ -365,38 +362,7 @@
                         </div>
                         <div class="col-md-8">
                             <div class="tab-content dashboard-content">
-                                <div class="tab-pane fade active show" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h5 class="mb-0">Hello <%=user.name %>! </h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <p>From your account dashboard. you can easily check &amp; view your <a href="#orders">recent orders</a>, manage your <a href="#address">shipping and billing addresses</a> and <a href="#account_detail">edit your password and account details.</a></p>
-
-                                            <h5>Your Addresses:</h5>
-            <% if (user.address.length > 0) { %>
-                <ul>
-                    
-                    <% user.address.forEach(function(address) { %>
-                        <h4><ul>Address</ul></h4>
-                       <li><p>
-                            <strong>House Name:</strong> <%= address.houseName %>,
-                            <strong>Street:</strong> <%= address.street %>,
-                            <strong>City:</strong> <%= address.city %>,
-                            <strong>State:</strong> <%= address.state %>,
-                            <strong>Country:</strong> <%= address.country %>,
-                            <strong>Postal Code:</strong> <%= address.postalCode %>,
-                            <strong>Phone Number:</strong> <%= address.phoneNumber %>,
-                            <strong>Type:</strong> <%= address.type %>
-                        <p></p></li>
-                    <% }); %>
-                </ul>
-            <% } else { %>
-                <p>No addresses found.</p>
-            <% } %>
-                                        </div>
-                                    </div>
-                                </div>
+                
                                 <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
                                     <div class="card">
                                         <div class="card-header">
@@ -415,34 +381,49 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr>
-                                                            <td>#1357</td>
-                                                            <td>March 45, 2020</td>
-                                                            <td>Processing</td>
-                                                            <td>$125.00 for 2 item</td>
-                                                            <td><a href="#" class="btn-small d-block">View</a></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>#2468</td>
-                                                            <td>June 29, 2020</td>
-                                                            <td>Completed</td>
-                                                            <td>$364.00 for 5 item</td>
-                                                            <td><a href="#" class="btn-small d-block">View</a></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>#2366</td>
-                                                            <td>August 02, 2020</td>
-                                                            <td>Completed</td>
-                                                            <td>$280.00 for 3 item</td>
-                                                            <td><a href="#" class="btn-small d-block">View</a></td>
-                                                        </tr>
+                                                        <% if (order && order.length > 0) { %>
+                                                            <% order.forEach((orderItem, index) => { %>
+                                                                <tr>
+                                                                    <td>
+                                                                        <% let imageCount = 0; %>
+                                                                        <% orderItem.items.forEach((prod, prodIndex)=> { %>
+                                                                            <% if(imageCount % 2 === 0 && imageCount !== 0) { %>
+                                                                                <br>
+                                                                            <% } %>
+                                                                            <img src="/uploads/<%= prod.image[0] %>" alt="Product Image" style="max-width: 50px; display: inline-block; margin-right: 10px;">
+                                                                            <% imageCount++; %>
+                                                                        <% }) %>
+                                                                    </td>
+                                                                    <td><%= orderItem.orderDate.toDateString() %></td>
+                                                                    <td><%=order._id %></td>
+                                                                    <td>
+                                                                        <% let totalPrice = 0; %>
+                                                                        <% orderItem.items.forEach(item => { %>
+                                                                            <% totalPrice += item.productPrice * item.quantity; %>
+                                                                        <% }); %>
+                                                                        $<%= totalPrice.toFixed(2) %> for <%= orderItem.items.length %> item(s)
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="/orderView?id=<%=order.orderId %>" class="btn-small d-block">View</a>
+                                                                    </td>
+                                                                </tr>
+                                                            <% }); %>
+                                                        <% } else { %>
+                                                            <tr>
+                                                                <td colspan="5">No orders found</td>
+                                                            </tr>
+                                                        <% } %>
                                                     </tbody>
+                                                    
+                                                    
+                                                    
                                                 </table>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
+                                
+                                <div class="tab-pane fade active show" id="address" role="tabpanel" aria-labelledby="address-tab">
                                     <!-- Add Address button -->
                                     <div class="text-end mb-3">
                                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAddressModal">Add Address</button>

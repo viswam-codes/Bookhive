@@ -2,6 +2,7 @@ const User = require("../model/userModel");
 const Product = require("../model/productModel");
 const Category=require('../model/categoryModel')
 const Cart=require("../model/cartModel");
+const Order=require("../model/orderModel")
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 
@@ -171,7 +172,6 @@ const verifyLogin = async (req, res) => {
         } else {
           req.session.user = userData._id;
           req.session.user==true;
-          console.log(userData);
           res.redirect("/");
         }
       } else {
@@ -242,9 +242,10 @@ const loadProductPage=async(req,res)=>{
 
 const loadProfile=async(req,res)=>{
   try{  
-
-    const user = await User.findById(req.session.user)
-    res.render("userProfile",{user});
+    const userId=req.session.user;
+    const user = await User.findById(userId);
+    const order = await Order.find({user:userId} ); 
+    res.render("userProfile", { user, order: order });
 
   }catch(error){
     console.log(error.message);
@@ -329,7 +330,6 @@ const editAddress= async(req,res)=>{
   try{
     const user= await User.findById(req.session.user);
     const {id, houseName, street, city, state, country, postalCode, phoneNumber, addressType } = req.body;
-   console.log(id);
     const addressIndex = user.address.findIndex(addr => addr._id.toString() === id);
 
     if (addressIndex !== -1) {
@@ -384,6 +384,10 @@ const loadCart= async(req,res)=>{
     const userId=req.session.user;
      const user=await User.findById(userId);
      const cart=await Cart.findOne({userId:userId}).populate("product.productId");
+     
+     if (!cart || cart.product.length === 0) {
+      return res.render("cart",{message: 'Cart is empty',user,cart});
+  } 
      res.render("cart",{user,cart});
   }catch(error){
     console.log(error.message)
@@ -470,6 +474,38 @@ const updateQuantity = async (req, res) => {
   }
 };
 
+const checkQuantity = async (req, res) => {
+  try {
+      const userId = req.session.user;
+      const cart = await Cart.findOne({ userId });
+      // Check if the cart exists and is not empty
+      if (!cart || cart.product.length === 0) {
+          return res.json({ success: false, message: 'Cart is empty' });
+      }
+
+      // Iterate through each product in the cart
+      for (const item of cart.product) {
+          const product = await Product.findById(item.productId);
+
+          // Check if the product exists
+          if (!product) {
+              return res.json({ success: false, message: 'Product not found' });
+          }
+
+          // Check if the quantity is greater than zero and less than or equal to the stock
+          if (item.quantity <= 0 || item.quantity > product.stock) {
+              return res.json({ success: false, message: 'Quantity is invalid or out of stock' });
+          }
+      }
+
+      // If all checks pass, return success
+      return res.json({ success: true, message: 'Updated to checkout' });
+  } catch (error) {
+      console.log(error.message);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
 
 
 
@@ -493,5 +529,6 @@ module.exports = {
   deleteAddress,
   loadCart,
   addToCart,
-  updateQuantity
+  updateQuantity,
+  checkQuantity
 };
