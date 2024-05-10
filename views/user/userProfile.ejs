@@ -386,7 +386,11 @@
                                                                 <tr>
                                                                     <td>
                                                                         <% let imageCount = 0; %>
+                                                                        <% let allItemsCancelled = true; %>
                                                                         <% orderItem.items.forEach((prod, prodIndex)=> { %>
+                                                                            <% if (prod.status !== 'Cancelled') { %>
+                                                                                <% allItemsCancelled = false; %>
+                                                                            <% } %>
                                                                             <% if(imageCount % 2 === 0 && imageCount !== 0) { %>
                                                                                 <br>
                                                                             <% } %>
@@ -395,16 +399,21 @@
                                                                         <% }) %>
                                                                     </td>
                                                                     <td><%= orderItem.orderDate.toDateString() %></td>
-                                                                    <td><%=order._id %></td>
+                                                                      
+                                                                   
                                                                     <td>
-                                                                        <% let totalPrice = 0; %>
-                                                                        <% orderItem.items.forEach(item => { %>
-                                                                            <% totalPrice += item.productPrice * item.quantity; %>
-                                                                        <% }); %>
-                                                                        $<%= totalPrice.toFixed(2) %> for <%= orderItem.items.length %> item(s)
+                                                                        <% if (allItemsCancelled) { %>
+                                                                            Cancelled
+                                                                        <% } else { %>
+                                                                            <%= orderItem.orderStatus %>
+                                                                        <% } %>
+                                                                        
                                                                     </td>
                                                                     <td>
-                                                                        <a href="/orderView?id=<%=order.orderId %>" class="btn-small d-block">View</a>
+                                                                        <%= orderItem.billTotal %> for <%= orderItem.items.length %> item(s)
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="/orderView?id=<%= orderItem._id %>" class="btn-small d-block">View</a>
                                                                     </td>
                                                                 </tr>
                                                             <% }); %>

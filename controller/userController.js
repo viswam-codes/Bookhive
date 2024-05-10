@@ -27,6 +27,109 @@ const securePassword = async (password) => {
   }
 };
 
+const loadForgotPassword= async(req,res)=>{
+  try{
+    const user=await User.findById(req.session.user);
+    res.render("forgotPassword",{user,message:""});
+
+  }catch(error){
+    console.log(error.message);
+  }
+}
+
+const otpSendForgot=async(req,res)=>{
+  try{
+
+    const {email} = req.body;
+    const user= await User.findOne({email:email});
+    
+    if(!user){
+      res.render("forgotPassword",{message:"User Not found",user});
+    }
+  else{
+    const otp =generateOtp();
+    const otpExpiry=Date.now() + 60*1000;
+    console.log(otp);
+   const mailoptions = {
+    from: "jithviswa24@gmail.com",
+    to: email,
+    subject: "OTP verification",
+    text: `Your OTP for verification is :${otp}`,
+  };
+  transport.sendMail(mailoptions, function (error, info) {
+    if (error) {
+      console.log("Error occured:", error);
+    } else {
+      console.log("Email sent", info.response);
+    }
+  });
+  req.session.forgotOtp=otp;
+  req.session.otpExpiry=otpExpiry;
+  req.session.email=email;
+ res.redirect("/verify_otp_forgot");
+
+  }
+   
+  }catch(error){
+    console.log(error.message);
+
+  }
+}
+
+const loadForgotOtpPage=async(req,res)=>{
+  try{
+    res.render("verifyForgotOtp",{message:""});
+
+  }catch(error){
+    console.log(error.message);
+  }
+}
+
+const otpVerifyForgot=async(req,res)=>{
+  try{
+     if(req.session.forgotOtp == req.body.otp){
+      console.log("OTP entered is correct");
+      if(req.session.otpExpiration < Date.now()){
+        console.log("otp Expired");
+        return res.json({expired:true});
+      }else{
+        console.log("Otp is valid and not expired");
+        
+      }
+    res.json({success:true,message:"Otp verified successfully"})
+     }else{
+      console.log("Wrong Otp");
+      res.json({success:false,message:"Invalid OTP"});
+     }
+  }catch(error){
+    console.log(error.message)
+  }
+}
+
+const resetForgotPassword=async(req,res)=>{
+  try{
+
+    const user=await User.findOne({email:req.session.email});
+    const {newPassword}=req.body;
+
+    const spassword= await securePassword(newPassword);
+
+    user.password=spassword;
+    await user.save();
+
+    res.json({success:true,message:"Password updated succesfully"})
+
+
+
+
+    
+  }catch(error){
+    console.log(error.message);
+    
+  }
+}
+
+
 const loadLandingPage = async (req, res) => {
   try {
     const user=await User.findById(req.session.user);
@@ -244,7 +347,8 @@ const loadProfile=async(req,res)=>{
   try{  
     const userId=req.session.user;
     const user = await User.findById(userId);
-    const order = await Order.find({user:userId} ); 
+    const order = await Order.find({user:userId});
+    console.log("order in loadProfile:",order); 
     res.render("userProfile", { user, order: order });
 
   }catch(error){
@@ -399,6 +503,16 @@ const addToCart=async(req,res)=>{
 
     const{userId,productId}=req.query;
     const user= await User.findById(req.session.user)
+    const product= await Product.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (product.stock == 0) {
+      return res.json({ success:false, message: "Out of Stock" });
+    }
+
 
     if(!userId || !productId){
       return res.status(400).json({message:"userId and ProductId are required"});
@@ -406,11 +520,16 @@ const addToCart=async(req,res)=>{
 
     let cart=await Cart.findOne({userId});
 
+
     if(!cart){
       cart= new Cart({userId});
     }
 
     const productIndex=cart.product.findIndex(item=>item.productId.toString()===productId);
+
+    
+
+   
 
     if(productIndex !==-1){
       //if the product exists increase the quantitiy by one
@@ -506,6 +625,33 @@ const checkQuantity = async (req, res) => {
   }
 };
 
+const removeFromCart=async(req,res)=>{
+  try{
+    const {productId} = req.body;
+    const userId=req.session.user;
+    console.log(productId);
+    
+
+    const cart = await Cart.findOne({userId});
+
+    const productIndex = cart.product.findIndex(item => item.productId.toString() === productId);
+
+    if (productIndex === -1) {
+      return res.status(404).json({ success: false, message: 'Product not found in cart' });
+    }
+    cart.product.splice(productIndex, 1);
+    res.status(200).json({ success: true, message: 'Product removed from cart' });
+    await cart.save();
+  }catch(error){
+    console.log(error.message);
+  }
+}
+
+
+
+
+
+
 
 
 
@@ -530,5 +676,11 @@ module.exports = {
   loadCart,
   addToCart,
   updateQuantity,
-  checkQuantity
+  checkQuantity,
+  loadForgotPassword,
+  otpSendForgot,
+  loadForgotOtpPage,
+  otpVerifyForgot,
+  resetForgotPassword,
+  removeFromCart
 };

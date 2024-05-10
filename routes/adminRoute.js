@@ -4,6 +4,7 @@ const adminController=require("../controller/adminController");
 const userManagement=require("../controller/userManagement");
 const categoryManagement=require('../controller/categoryManagement');
 const productManagement=require('../controller/productManagement');
+const orderManagement=require('../controller/orderManagement');
 const auth=require("../middlewares/adminAuth")
 
 
@@ -33,6 +34,11 @@ admin_route.get("/editProduct",auth.isLogin,productManagement.loadEditProduct);
 admin_route.post("/editProduct",productManagement.updateProduct);
 admin_route.post("/deleteImage",productManagement.deleteImage);
 admin_route.post("/deleteProduct/:id",productManagement.deleteProduct)
+
+
+//--order management
+
+admin_route.get("/order_management",auth.isLogin,orderManagement.loadOrderList)
 
 
 module.exports=admin_route

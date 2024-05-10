@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OTP Verification</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .container {
+        width: 400px;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+        color: #088178;
+      }
+
+      input[type="text"] {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        background-color: #088178;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin: 0 5px;
+      }
+
+      button:hover {
+        background-color: #075b5b;
+      }
+
+      #resendBtn {
+        font-size: 14px;
+        color: #088178;
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+        text-decoration: underline;
+        margin-top: 10px;
+        outline: none;
+      }
+
+      #timer {
+        font-size: 24px;
+        color: #088178;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>OTP Verification</h1>
+      <p id="errorMessage" style="color: red"></p>
+      <form action="/otpVerify_forgot" method="post" onsubmit="verifyOTP(event)">
+        <input
+          type="number"
+          id="otpInput"
+          placeholder="Enter OTP"
+          name="otp"
+          required
+        />
+        <button type="submit" id="verifyBtn" >Verify OTP</button>
+        <div style="margin-top: 20px"><span id="timer">00:60</span></div>
+        <button type="button" id="resendBtn" onclick="resendOTP()">
+          Resend OTP
+        </button>
+      </form>
+    </div>
+    <!--OTP timer script-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.6.15/sweetalert2.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.6.15/sweetalert2.min.js"></script>
+    <script>
+      let countDown = 60;
+      let timer;
+      document.getElementById("resendBtn").disabled = true;
+      document.getElementById("resendBtn").hidden = true;
+      //function start timer
+      function startTimer() {
+        timer = setInterval(() => {
+          if (countDown === 0) {
+            //Enable resend otp button and clear timer
+            document.getElementById("resendBtn").hidden =false;
+            document.getElementById("resendBtn").disabled = false;
+            document.getElementById("timer").innerText = "";
+            clearInterval(timer);
+          } else {
+            document.getElementById("resendBtn").hidden =true;
+            countDown--;
+            document.getElementById("timer").innerText =
+              "Resend OTP in " + countDown + " seconds";
+          }
+        }, 1000);
+      }
+      //function reset timer
+      function resetTimer() {
+        console.log("Timer reseted")
+        clearInterval(timer);
+        countDown = 60;
+        document.getElementById("resendBtn").hidden = true;
+        // Show the timer text
+        startTimer(); // Restart the timer
+      }
+      
+      // start of timer
+      startTimer();
+
+      
+      //   document
+      //     .getElementById("verifyBtn")
+      //     .addEventListener("click", verifyOTP());
+      function verifyOTP(event) {
+        event.preventDefault();
+        const enteredOTP = document.getElementById("otpInput").value;
+        console.log(enteredOTP);
+        fetch("/otpVerify_forgot", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ otp: enteredOTP }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("data in fetch", data);
+            if(data.success){
+              Swal.fire({
+          title: 'Reset Password',
+          html: `
+            <input id="newPassword" type="password" class="swal2-input" placeholder="New Password">
+            <input id="confirmPassword" type="password" class="swal2-input" placeholder="Confirm Password">
+          `,
+          confirmButtonText: 'Reset Password',
+          focusConfirm: false,
+          preConfirm: () => {
+            const newPassword = Swal.getPopup().querySelector('#newPassword').value;
+            const confirmPassword = Swal.getPopup().querySelector('#confirmPassword').value;
+
+            if (!newPassword || !confirmPassword) {
+              Swal.showValidationMessage(`Please enter your new password and confirm password.`);
+            }
+
+            if (newPassword !== confirmPassword) {
+              Swal.showValidationMessage(`New password and confirm password do not match.`);
+            }
+
+            return { newPassword, confirmPassword };
+          }
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const newPassword = result.value.newPassword;
+            const confirmPassword = result.value.confirmPassword;
+
+            // Send the new password to the server for resetting
+            fetch('/resetForgot_Password', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ newPassword })
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire('Password Reset', 'Your password has been reset successfully.', 'success');
+                window.location.href="/login";
+              } else {
+                Swal.fire('Error', 'An error occurred while resetting the password.', 'error');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              Swal.fire('Error', 'An error occurred while resetting the password.', 'error');
+            });
+          }
+        });
+
+
+
+
+            }
+             else if (data.expired) {
+              // OTP is expired, disable timer and resend button
+              clearInterval(timer);
+              document.getElementById("resendBtn").disabled = false;
+              document.getElementById("timer").innerText = "OTP expired";
+              console.log("OTP expired");
+            } else if(!data.success) {
+              document.getElementById("errorMessage").innerText=data.message;
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+
+      function resendOTP() {
+        fetch("/resendOTP", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            
+            if (data.success) {   
+              console.log("OTP resend succesful")    
+              resetTimer()
+
+            } else {
+              console.error("Failed to resend OTP");
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+    </script>
+  </body>
+</html>
