@@ -20,9 +20,7 @@ const blockUnblockUser=async(req,res)=>{
    }
    
    user.is_verified=!user.is_verified;
-   if(user.is_verified==false){
-    req.session.user==null; 
-   }
+  
    await user.save();
    res.status(200).json({success:true,message:"User blocked succesfully",user,is_verified:user.is_verified});
 

@@ -602,10 +602,12 @@
             },
             body: JSON.stringify({ quantity })
         })
-        .then(response => {
+        .then(response => response.json())
+        .then(data=> {
+            console.log(data);
             // Handle response
             // For example, update the quantity displayed on the page if successful
-            if (response.ok) {
+            if (data.success) {
                 // Update quantity displayed on the page
                 const quantityElement = document.querySelector(`.qty-val[data-product-id="${productId}"]`);
                 quantityElement.textContent = quantity;
@@ -620,27 +622,22 @@
             subtotalElement.querySelector('span').textContent = `$${newSubtotal.toFixed(2)}`;
             updateCartTotal(); 
             // Update subtotal text
-            }else if (response.status===400) {
-                 // Product is out of stock, show SweetAlert
+            }else if (!data.success) {
+                const quantityElement = document.querySelector(`.qty-val[data-product-id="${productId}"]`);
+                quantityElement.textContent = quantity -1;
         Swal.fire({
-                    title: "Unavailable",
-                    text: "This product is out of stock.",
-                    icon: "warning",
-                    confirmButtonText: "OK"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Reload the window
-                        location.reload();
-                    }
-                });
-                
-                
-    }
-            
-            else {
-                throw new Error('Failed to update quantity');
-            }
-        })
+          title: "Unavailable",
+          text: data.message,
+          icon: "warning",
+          confirmButtonText: "OK"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            location.reload();
+          }
+        });
+    }   
+        
+    })
         .catch(error => {
             console.error('Error:', error);
         });

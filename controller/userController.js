@@ -133,6 +133,17 @@ const resetForgotPassword=async(req,res)=>{
 const loadLandingPage = async (req, res) => {
   try {
     const user=await User.findById(req.session.user);
+    
+
+    if (!user || !user.is_verified) {
+      // If the user is blocked or not found, destroy the session and redirect to the login page
+      req.session.destroy((err) => {
+        if (err) {
+          console.error(err);
+        }
+      });
+    }
+
     const product = await Product.find().limit(8);
     return res.render("home", { user, pro: product });
   } catch (err) {
@@ -557,6 +568,11 @@ const updateQuantity = async (req, res) => {
       if (quantity <= 0) {
           return res.status(400).json({ success: false, message: 'Invalid quantity',});
       }
+      if(quantity > 10){
+        console.log("max reached")
+         return res.json({success:false,message:"Maximum quantity reached"});
+    }
+
 
       // Find the product
       const product = await Product.findById(productId);
@@ -569,7 +585,6 @@ const updateQuantity = async (req, res) => {
           return res.status(400).json({ success: false, message: 'Out of stock' });
           
       }
-
       // Update quantity in the cart
       const cart = await Cart.findOne({ userId });
       const productIndex = cart.product.findIndex(item => item.productId.toString() === productId);

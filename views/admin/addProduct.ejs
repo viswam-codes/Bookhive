@@ -296,19 +296,16 @@
                     <div id="imageError" class="error-message"></div>
                   </div>
                 </div>
-                <div class="card mb-4">
+                <div class="card mb-4;">
                   <div class="card-header">
-                    <h4>Image Preview</h4>
+                      <h4>Image Preview</h4>
                   </div>
-                  <div class="card-body" style="height: 300px; width: 200px">
-                    <div
-                      id="image-preview"
-                      style="white-space: nowrap; display: flex"
-                    >
-                      <!-- Placeholder for image preview -->
-                    </div>
+                  <div class="card-body" style="overflow-x: auto;">
+                      <div id="image-preview" style="display: flex; flex-wrap: wrap;">
+                          <!-- Placeholder for image preview -->
+                      </div>
                   </div>
-                </div>
+              </div>
 
                 <button
                   type="submit"
@@ -442,6 +439,64 @@
             return false;
           }
         }
+
+     // Function to update image preview container size and layout
+// Function to update image preview container size and layout
+function updateImagePreview() {
+    const imagePreview = document.getElementById('image-preview');
+    const input = document.getElementById('image');
+    const images = input.files;
+
+    // Clear previous images
+    imagePreview.innerHTML = '';
+
+    // Loop through selected images
+    for (let i = 0; i < images.length; i++) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            // Create image element
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.alt = 'Image Preview';
+            img.style.maxWidth = '100px'; // Adjust as needed
+            img.style.maxHeight = '100px'; // Adjust as needed
+            img.style.margin = '5px'; // Adjust as needed
+
+            // Append image to preview
+            imagePreview.appendChild(img);
+        };
+
+        // Read image as Data URL
+        reader.readAsDataURL(images[i]);
+    }
+
+    // Adjust the size of the image preview container
+    adjustImagePreviewSize();
+}
+
+// Function to adjust the size of the image preview container
+function adjustImagePreviewSize() {
+    const imagePreview = document.getElementById('image-preview');
+    const images = imagePreview.querySelectorAll('img');
+
+    // Calculate the number of images per row
+    const imagesPerRow = 2;
+
+    // Calculate the width of the container based on the number of images per row
+    const containerWidth = imagesPerRow * (images.length > 0 ? images[0].clientWidth + 10 : 0); // 10px margin between images
+
+    // Set the width of the image preview container
+    imagePreview.style.width = containerWidth + 'px';
+}
+
+// Call the updateImagePreview function when the page loads and when new images are selected
+document.addEventListener('DOMContentLoaded', updateImagePreview);
+document.getElementById('image').addEventListener('change', updateImagePreview);
+
+  
+
+
       </script>
     </section>
     <%- include('../partials/adminFooter.ejs') %>
