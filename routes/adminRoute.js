@@ -35,10 +35,11 @@ admin_route.post("/editProduct",productManagement.updateProduct);
 admin_route.post("/deleteImage",productManagement.deleteImage);
 admin_route.post("/deleteProduct/:id",productManagement.deleteProduct)
 
-
 //--order management
 
-admin_route.get("/order_management",auth.isLogin,orderManagement.loadOrderList)
+admin_route.get("/order_management",auth.isLogin,orderManagement.loadOrderList);
+admin_route.put("/changeStatus",auth.isLogin,orderManagement.changeOrderStatus);
+admin_route.get("/orderDetails",auth.isLogin,orderManagement.loadOrderDetails)
 
 
 module.exports=admin_route

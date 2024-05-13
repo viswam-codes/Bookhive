@@ -3,63 +3,58 @@
   <div class="screen-overlay"></div>
   <aside class="navbar-aside" id="offcanvas_aside">
     <div class="aside-top">
-      <a href="index.html" class="brand-wrap">
-        <img
-          src="/admin_assets/imgs/theme/logo.svg"
-          class="logo"
-          alt="Evara Dashboard"
-        />
-      </a>
-      <div>
-        <button class="btn btn-icon btn-aside-minimize">
-          <i class="text-muted material-icons md-menu_open"></i>
-        </button>
-      </div>
+        <a href="index.html" class="brand-wrap">
+            <img src="/admin_assets/imgs/theme/logo.svg" class="logo" alt="Evara Dashboard">
+        </a>
+        <div>
+            <button class="btn btn-icon btn-aside-minimize"> <i class="text-muted material-icons md-menu_open"></i> </button>
+        </div>
     </div>
     <nav>
-      <ul class="menu-aside">
-        <li class="menu-item">
-          <a class="menu-link" href="/admin/home">
-            <i class="icon material-icons md-home"></i>
-            <span class="text">Dashboard</span>
-          </a>
-        </li>
-        <li class="menu-item">
-          <a class="menu-link" href="/admin/user_management">
-            <i class="icon material-icons md-person"></i>
-            <span class="text">User Management</span>
-          </a>
-        </li>
-        <li class="menu-item active">
-          <a class="menu-link" href="/admin/product_management">
-            <i class="icon material-icons md-shopping_bag"></i>
-            <span class="text">Products Management</span>
-          </a>
-        </li>
-        <li class="menu-item">
-          <a class="menu-link" href="/admin/category_management">
-            <i class="icon material-icons md-stars"></i>
-            <span class="text">Category Management</span>
-          </a>
-        </li>
-      </ul>
-      <hr />
-      <ul class="menu-aside">
-        <li class="menu-item has-submenu">
-          <a class="menu-link" href="#">
-            <i class="icon material-icons md-settings"></i>
-            <span class="text">Settings</span>
-          </a>
-          <div class="submenu">
-            <a href="page-settings-1.html">Setting sample 1</a>
-            <a href="page-settings-2.html">Setting sample 2</a>
-          </div>
-        </li>
-      </ul>
-      <br />
-      <br />
+        <ul class="menu-aside">
+            <li class="menu-item ">
+                <a class="menu-link" href="index.html"> <i class="icon material-icons md-home"></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-item ">
+                <a class="menu-link" href="/admin/user_management"> <i class="icon material-icons md-person"></i>
+                    <span class="text">User Management</span>
+                </a>
+                
+            </li>
+            <li class="menu-item active">
+                <a class="menu-link" href="/admin/product_management"> <i class="icon material-icons md-shopping_bag"></i>
+                    <span class="text">Products Management</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a class="menu-link" href="/admin/category_management"> <i class="icon material-icons md-stars"></i>
+                    <span class="text">Category Management</span> </a>
+            </li>
+            <li class="menu-item ">
+                <a class="menu-link" href="/admin/order_management"> <i class="icon material-icons md-shopping_cart"></i>
+                    <span class="text">Orders</span>
+                </a>
+            </li>
+           
+        </ul>
+        <hr>
+        <ul class="menu-aside">
+            <li class="menu-item has-submenu">
+                <a class="menu-link" href="#"> <i class="icon material-icons md-settings"></i>
+                    <span class="text">Settings</span>
+                </a>
+                <div class="submenu">
+                    <a href="page-settings-1.html">Setting sample 1</a>
+                    <a href="page-settings-2.html">Setting sample 2</a>
+                </div>
+            </li>
+        </ul>
+        <br>
+        <br>
     </nav>
-  </aside>
+</aside>
   <main class="main-wrap">
     <header class="main-header navbar">
       <div class="col-search">
@@ -286,7 +281,7 @@
               </div>
               <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
                 <a
-                  href="/admin/editProduct?id=<%=prod._id %>"
+                  href="/admin/editProduct?id=<%=prod._id %>" 
                   class="btn btn-sm font-sm rounded btn-brand"
                 >
                   <i class="material-icons md-edit"></i> Edit
@@ -307,24 +302,17 @@
         <!-- card-body end// -->
       </div>
       <!-- card end// -->
-      <div class="pagination-area mt-30 mb-50">
+      <div class="pagination-area mt-15 mb-50">
         <nav aria-label="Page navigation example">
-          <ul class="pagination justify-content-start">
-            <li class="page-item active">
-              <a class="page-link" href="#">01</a>
-            </li>
-            <li class="page-item"><a class="page-link" href="#">02</a></li>
-            <li class="page-item"><a class="page-link" href="#">03</a></li>
-            <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-            <li class="page-item"><a class="page-link" href="#">16</a></li>
-            <li class="page-item">
-              <a class="page-link" href="#"
-                ><i class="material-icons md-chevron_right"></i
-              ></a>
-            </li>
-          </ul>
+            <ul class="pagination justify-content-start">
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="/admin/product_management?page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } %>
+            </ul>
         </nav>
-      </div>
+    </div>
     </section>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>

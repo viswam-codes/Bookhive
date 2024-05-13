@@ -97,7 +97,6 @@ const loadOrderView=async(req,res)=>{
 const  cancelOrder = async (req, res) => {
     try {
         const { orderId, itemId,cancellationReason } = req.body;
-
         // Find the order by orderId
         const order = await Order.findById(orderId);
 
@@ -121,6 +120,15 @@ const  cancelOrder = async (req, res) => {
 
         // Decrease the item price from the billTotal
         order.billTotal -= item.productPrice * item.quantity;
+
+
+         // Check if all items in the order are cancelled
+         const allItemsCancelled = order.items.every(item => item.status === 'Cancelled');
+
+         // If all items are cancelled, update the order status to 'Cancelled'
+         if (allItemsCancelled) {
+             order.orderStatus = 'Cancelled';
+         }
 
         // Save the updated order
         await order.save();

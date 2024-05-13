@@ -325,10 +325,20 @@ const userLogout = async (req, res) => {
 
 const loadShopPage=async(req,res)=>{
   try{
-    const product = await Product.find({isListed:"Active"})
+    const page=parseInt(req.query.page) || 1;
+    const perPage=12;
+
+    const totalProductCount= await Product.countDocuments({});
+    const totalPages = Math.ceil(totalProductCount / perPage);
+
+    const skip = (page - 1) * perPage;
+
+
+
+    const product = await Product.find({isListed:"Active"}).skip(skip).limit(perPage);
     const category=await Category.find({isListed:"Active"})
     const user=await User.findById(req.session.user)
-   res.render("shop",{user,pro:product,cat:category});
+   res.render("shop",{user,pro:product,cat:category,currentPage: page, totalPages});
   }catch(error){
     console.log(error.message);
   }

@@ -34,9 +34,19 @@ const upload = multer({
 
 const loadProduct=async(req,res)=>{
     try{
-      const product=await Product.find({isDeleted:false});
-        res.render("product",{pro:product})
+      const page= parseInt(req.query.page) || 1;
+      const perPage=10;
 
+      const totalProductCount= await Product.countDocuments({ isDeleted: false });
+      const totalPages = Math.ceil(totalProductCount / perPage);
+
+      // Calculate the number of documents to skip based on the page number
+      const skip = (page - 1) * perPage;
+
+
+      const product=await Product.find({isDeleted:false}).skip(skip).limit(perPage);
+        res.render("product",{pro:product ,currentPage: page, totalPages })
+ 
     }catch(error){
         console.log(error.message);
     }

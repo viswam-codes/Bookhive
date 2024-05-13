@@ -19,18 +19,18 @@
         </div>
         <nav>
             <ul class="menu-aside">
-                <li class="menu-item">
-                    <a class="menu-link" href="/admin/home"> <i class="icon material-icons md-home"></i>
+                <li class="menu-item ">
+                    <a class="menu-link" href="index.html"> <i class="icon material-icons md-home"></i>
                         <span class="text">Dashboard</span>
                     </a>
                 </li>
-                <li class="menu-item active">
-                    <a class="menu-link" href=""> <i class="icon material-icons md-person"></i>
+                <li class="menu-item active ">
+                    <a class="menu-link" href="/admin/user_management"> <i class="icon material-icons md-person"></i>
                         <span class="text">User Management</span>
                     </a>
                     
                 </li>
-                <li class="menu-item">
+                <li class="menu-item ">
                     <a class="menu-link" href="/admin/product_management"> <i class="icon material-icons md-shopping_bag"></i>
                         <span class="text">Products Management</span>
                     </a>
@@ -39,7 +39,11 @@
                     <a class="menu-link" href="/admin/category_management"> <i class="icon material-icons md-stars"></i>
                         <span class="text">Category Management</span> </a>
                 </li>
-              
+                <li class="menu-item ">
+                    <a class="menu-link" href="/admin/order_management"> <i class="icon material-icons md-shopping_cart"></i>
+                        <span class="text">Orders</span>
+                    </a>
+                </li>
                
             </ul>
             <hr>
@@ -188,15 +192,15 @@
             <div class="pagination-area mt-15 mb-50">
                 <nav aria-label="Page navigation example">
                     <ul class="pagination justify-content-start">
-                        <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                        <li class="page-item"><a class="page-link" href="#">02</a></li>
-                        <li class="page-item"><a class="page-link" href="#">03</a></li>
-                        <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                        <li class="page-item"><a class="page-link" href="#">16</a></li>
-                        <li class="page-item"><a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a></li>
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                <a class="page-link" href="/admin/user_management?page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
                     </ul>
                 </nav>
             </div>
+            
         </section> <!-- content-main end// -->
 <footer class="main-footer font-xs">
     <div class="row pb-30 pt-15">
