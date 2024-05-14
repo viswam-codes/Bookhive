@@ -672,6 +672,50 @@ const removeFromCart=async(req,res)=>{
   }
 }
 
+const filterProduct = async (req, res) => {
+  try {
+    const { search, sortOption, filterOption, prevSearchResults } = req.body;
+    console.log(filterOption);
+    console.log(sortOption);
+
+    // Base query
+    let query = { isDeleted: false, isListed: "Active" };
+
+    // Filter based on previous search results
+    if (prevSearchResults && prevSearchResults.length > 0) {
+      query._id = { $in: prevSearchResults.map(product => product._id) };
+    }
+
+    // Search query
+    if (search) {
+      query.title = { $regex: search, $options: 'i' }; // Case-insensitive search
+    }
+
+    // Sorting
+    let sort = {};
+    if (sortOption === 'Price: High to Low') {
+      sort.price = -1; // Sort by price high to low
+    } else if (sortOption === 'Price: Low to High') {
+      sort.price = 1; // Sort by price low to high
+    } else if (sortOption === 'Release Date') {
+      sort.createdAt = -1; // Sort by createdAt (latest first)
+    }
+
+    // Category filter
+    if (filterOption && filterOption.trim().length > 0) {
+      query.category = filterOption.trim();
+    }
+
+
+    // Fetch products based on the query and sort criteria
+    const products = await Product.find(query).sort(sort);
+
+    res.json(products);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
 
 
 
@@ -707,5 +751,6 @@ module.exports = {
   loadForgotOtpPage,
   otpVerifyForgot,
   resetForgotPassword,
-  removeFromCart
+  removeFromCart,
+  filterProduct
 };

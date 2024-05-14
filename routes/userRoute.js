@@ -30,6 +30,7 @@ user_route.get("/verify_otp_forgot",auth.isLogOut,userController.loadForgotOtpPa
 user_route.post("/otpVerify_forgot",userController.otpVerifyForgot);
 user_route.post("/resetForgot_Password",userController.resetForgotPassword);
 user_route.post("/removeProduct",userController.removeFromCart);
+user_route.post("/filter_product",userController.filterProduct);
 
 //-----User Profile 
 user_route.get("/account",auth.isLogin,userController.loadProfile);

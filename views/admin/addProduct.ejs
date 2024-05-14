@@ -356,89 +356,87 @@
       </script>
 
       <script>
-        function validateForm() {
-          var title = document.getElementById("product_name").value;
-          var author = document.getElementById("author").value;
-          var description = document.getElementById("description").value;
-          var price = document.getElementById("price").value;
-          var stock = document.getElementById("stock").value;
-          var image = document.getElementById("image").value;
-          var category = document.querySelector(
-            'select[name="category"]'
-          ).value;
-          var valid = true;
+     function validateForm() {
+    var title = document.getElementById("product_name").value;
+    var author = document.getElementById("author").value;
+    var description = document.getElementById("description").value;
+    var price = document.getElementById("price").value;
+    var stock = document.getElementById("stock").value;
+    var image = document.getElementById("image").value;
+    var category = document.querySelector('select[name="category"]').value;
+    var valid = true;
 
-          // Username validation
-          if (!title) {
-            document.getElementById("usernameError").innerText =
-              "Title is required";
-            document.getElementById("usernameError").style.color = "red"; // Set color to red
-            valid = false;
-          } else {
-            document.getElementById("usernameError").innerText = "";
-          }
+    // Username validation
+    if (!title) {
+        document.getElementById("usernameError").innerText = "Title is required";
+        document.getElementById("usernameError").style.color = "red"; // Set color to red
+        valid = false;
+    } else {
+        document.getElementById("usernameError").innerText = "";
+    }
 
-          if (!author) {
-            document.getElementById("authorError").innerText =
-              "Author is required";
-            document.getElementById("authorError").style.color = "red"; // Set color to red
-            valid = false;
-          } else {
-            document.getElementById("authorError").innerText = "";
-          }
+    if (!author) {
+        document.getElementById("authorError").innerText = "Author is required";
+        document.getElementById("authorError").style.color = "red"; // Set color to red
+        valid = false;
+    } else {
+        document.getElementById("authorError").innerText = "";
+    }
 
-          if (!description) {
-            document.getElementById("descriptionError").innerText =
-              "Description is required";
-            document.getElementById("descriptionError").style.color = "red";
-            valid = false;
-          } else {
-            document.getElementById("descriptionError").innerText = "";
-          }
+    if (!description) {
+        document.getElementById("descriptionError").innerText = "Description is required";
+        document.getElementById("descriptionError").style.color = "red";
+        valid = false;
+    } else {
+        document.getElementById("descriptionError").innerText = "";
+    }
 
-          if (!price || parseFloat(price) < 0) {
-            document.getElementById("priceError").innerText = "Price must be a non-negative number";
-            document.getElementById("priceError").style.color = "red";
-            valid = false;
-        } else {
-            document.getElementById("priceError").innerText = "";
-        }
+    if (!price || parseFloat(price) < 0) {
+        document.getElementById("priceError").innerText = "Price must be a non-negative number";
+        document.getElementById("priceError").style.color = "red";
+        valid = false;
+    } else {
+        document.getElementById("priceError").innerText = "";
+    }
 
-          
+    if (!stock || parseFloat(stock) < 0) {
+        document.getElementById("stockError").innerText = "Stock must be a non-negative number";
+        document.getElementById("stockError").style.color = "red";
+        valid = false;
+    } else {
+        document.getElementById("stockError").innerText = "";
+    }
 
-        if (!stock || parseFloat(stock) < 0) {
-            document.getElementById("stockError").innerText = "Stock must be a non-negative number";
-            document.getElementById("stockError").style.color = "red";
-            valid = false;
-        } else {
-            document.getElementById("stockError").innerText = "";
-        }
+    if (!category) {
+        document.getElementById("categoryError").innerText = "Category is required";
+        document.getElementById("categoryError").style.color = "red";
+        valid = false;
+    } else {
+        document.getElementById("categoryError").innerText = "";
+    }
 
-          if (!category) {
-            document.getElementById("categoryError").innerText =
-              "Category is required";
-            document.getElementById("categoryError").style.color = "red";
-            valid = false;
-          } else {
-            document.getElementById("categoryError").innerText = "";
-          }
-
-          if (!image) {
-            document.getElementById("imageError").innerText =
-              "Stock is required";
+    // Image validation
+    if (!image) {
+        document.getElementById("imageError").innerText = "Image is required";
+        document.getElementById("imageError").style.color = "red";
+        valid = false;
+    } else {
+        var allowedExtensions = /(\.jpeg|\.jpg|\.png|\.webp)$/i;
+        if (!allowedExtensions.exec(image)) {
+            document.getElementById("imageError").innerText = "Only files with extensions .jpeg, .jpg, .png, .webp are allowed";
             document.getElementById("imageError").style.color = "red";
             valid = false;
-          } else {
+        } else {
             document.getElementById("imageError").innerText = "";
-          }
-
-         
-
-          // Password validation
-          if (!valid) {
-            return false;
-          }
         }
+    }
+
+    // Password validation
+    if (!valid) {
+        return false;
+    }
+}
+
 
      // Function to update image preview container size and layout
 // Function to update image preview container size and layout
