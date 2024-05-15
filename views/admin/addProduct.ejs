@@ -1,5 +1,19 @@
 <%- include('../partials/adminHeader.ejs') %>
 
+<style>
+  .image-container {
+    width: 50%; /* Each image container takes up half of the row */
+    box-sizing: border-box;
+    padding: 5px;
+    float: left;
+}
+
+@media (max-width: 768px) {
+    .image-container {
+        width: 100%; /* On smaller screens, make each image container take up the full width */
+    }
+}
+</style>
 <body>
   <div class="screen-overlay"></div>
   <aside class="navbar-aside" id="offcanvas_aside">
@@ -321,40 +335,92 @@
           <!-- card end// -->
         </div>
       </div>
-      <script>
-        function previewImages() {
-          var preview = document.getElementById("image-preview");
-          var files = document.querySelector("input[type=file]").files;
+    <script>
+  // Array to keep track of selected files
+  let selectedFiles = [];
 
-          preview.innerHTML = ""; // Clear existing preview
+  function previewImages() {
+    let preview = document.getElementById("image-preview");
+    let filesInput = document.querySelector("input[type=file]");
+    let files = filesInput.files;
 
-          // Loop through selected files
-          for (var i = 0; i < files.length; i++) {
-            var file = files[i];
-            var reader = new FileReader();
+    preview.innerHTML = ""; // Clear existing preview
 
-            // Closure to capture the file information
-            reader.onload = (function (file) {
-              return function (e) {
-                // Create image element
-                var img = document.createElement("img");
-                img.src = e.target.result;
-                img.classList.add("img-fluid", "mb-2");
-                preview.appendChild(img);
-              };
-            })(file);
+    // Loop through selected files
+    for (let i = 0; i < files.length; i++) {
+      let file = files[i];
+      let reader = new FileReader();
 
-            // Read in the image file as a data URL
-            reader.readAsDataURL(file);
-          }
-        }
+      // Closure to capture the file information
+      reader.onload = (function (file) {
+        return function (e) {
+          // Create image container
+          let imageContainer = document.createElement("div");
+          imageContainer.classList.add("image-container");
 
-        // Bind previewImages function to file input change event
-        document
-          .querySelector("input[type=file]")
-          .addEventListener("change", previewImages);
-      </script>
+          // Create image element
+          let img = document.createElement("img");
+          img.src = e.target.result;
+          img.classList.add("img-fluid", "mb-2");
 
+          // Resize image
+          img.style.maxWidth = "100%";
+          img.style.height = "auto";
+
+          // Create delete button
+          let deleteButton = document.createElement("button");
+          deleteButton.innerHTML = "Delete";
+          deleteButton.classList.add("btn", "btn-danger", "mb-2");
+          deleteButton.addEventListener("click", function () {
+  // Remove image container when delete button is clicked
+  imageContainer.remove();
+
+  // Remove file from selectedFiles array
+  let index = selectedFiles.indexOf(file);
+  if (index !== -1) {
+    selectedFiles.splice(index, 1);
+  }
+
+  // Call the deleteFile function to remove the file from the file input
+  deleteFile(index);
+});
+
+
+function deleteFile(index) {
+  // Create a new FileList object from the selectedFiles array, excluding the file at the specified index
+  let newFiles = new DataTransfer();
+  for (let i = 0; i < selectedFiles.length; i++) {
+    if (i !== index) {
+      newFiles.items.add(selectedFiles[i]);
+    }
+  }
+
+  // Update the file input with the new FileList object
+  let filesInput = document.querySelector("input[type=file]");
+  filesInput.files = newFiles.files;
+}
+
+
+          // Append image and delete button to image container
+          imageContainer.appendChild(img);
+          imageContainer.appendChild(deleteButton);
+
+          // Append image container to preview
+          preview.appendChild(imageContainer);
+        };
+      })(file);
+
+      // Read in the image file as a data URL
+      reader.readAsDataURL(file);
+
+      // Add file to selected files array
+      selectedFiles.push(file);
+    }
+  }
+
+  // Bind previewImages function to file input change event
+  document.querySelector("input[type=file]").addEventListener("change", previewImages);
+</script>
       <script>
      function validateForm() {
     var title = document.getElementById("product_name").value;
@@ -437,62 +503,6 @@
     }
 }
 
-
-     // Function to update image preview container size and layout
-// Function to update image preview container size and layout
-function updateImagePreview() {
-    const imagePreview = document.getElementById('image-preview');
-    const input = document.getElementById('image');
-    const images = input.files;
-
-    // Clear previous images
-    imagePreview.innerHTML = '';
-
-    // Loop through selected images
-    for (let i = 0; i < images.length; i++) {
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            // Create image element
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.alt = 'Image Preview';
-            img.style.maxWidth = '100px'; // Adjust as needed
-            img.style.maxHeight = '100px'; // Adjust as needed
-            img.style.margin = '5px'; // Adjust as needed
-
-            // Append image to preview
-            imagePreview.appendChild(img);
-        };
-
-        // Read image as Data URL
-        reader.readAsDataURL(images[i]);
-    }
-
-    // Adjust the size of the image preview container
-    adjustImagePreviewSize();
-}
-
-// Function to adjust the size of the image preview container
-function adjustImagePreviewSize() {
-    const imagePreview = document.getElementById('image-preview');
-    const images = imagePreview.querySelectorAll('img');
-
-    // Calculate the number of images per row
-    const imagesPerRow = 2;
-
-    // Calculate the width of the container based on the number of images per row
-    const containerWidth = imagesPerRow * (images.length > 0 ? images[0].clientWidth + 10 : 0); // 10px margin between images
-
-    // Set the width of the image preview container
-    imagePreview.style.width = containerWidth + 'px';
-}
-
-// Call the updateImagePreview function when the page loads and when new images are selected
-document.addEventListener('DOMContentLoaded', updateImagePreview);
-document.getElementById('image').addEventListener('change', updateImagePreview);
-
-  
 
 
       </script>

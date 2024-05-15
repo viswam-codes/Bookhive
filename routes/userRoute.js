@@ -31,6 +31,10 @@ user_route.post("/otpVerify_forgot",userController.otpVerifyForgot);
 user_route.post("/resetForgot_Password",userController.resetForgotPassword);
 user_route.post("/removeProduct",userController.removeFromCart);
 user_route.post("/filter_product",userController.filterProduct);
+user_route.get("/wish_list",auth.isLogin,userController.loadWishList);
+user_route.post("/addToWishList",auth.isLogin,userController.addToWishList)
+user_route.post("/remove_product",auth.isLogin,userController.removeFromWishList)
+
 
 //-----User Profile 
 user_route.get("/account",auth.isLogin,userController.loadProfile);

@@ -82,11 +82,16 @@ const placeOrder = async (req, res) => {
 
 const loadOrderView=async(req,res)=>{
     try{
-        const user= await User.findById(req.session.user);
+        const userId=req.session.user;
+        const user= await User.findById(userId);
         const {id}=req.query;
         const order= await Order.findById(id);
-        console.log('ooo', order);
-        res.render("orderView",{user,order})
+        const cart=await Cart.findOne({userId});
+        let cartCount=0;
+        if(cart){
+           cartCount=cart.product.length;
+        }
+        res.render("orderView",{user,order,cartCount})
         
 
     }catch(error){

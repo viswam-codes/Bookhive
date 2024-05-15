@@ -8,7 +8,12 @@ const loadCheckout=async(req,res)=>{
         const userId=req.session.user;
         const user=await User.findById(userId);
         const cart=await Cart.findOne({userId:userId}).populate("product.productId");
-        res.render("checkout",{user,cart})
+        
+        let cartCount=0;
+        if(cart){
+           cartCount=cart.product.length;
+        }
+        res.render("checkout",{user,cart,cartCount})
 
     }catch(error){
         console.log(error.message);

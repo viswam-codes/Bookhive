@@ -400,15 +400,16 @@
                 </form>
               </div>
               <div class="header-action-right">
+                <% if(user) { %>
                 <div class="header-action-2">
                   <div class="header-action-icon-2">
-                    <a href="shop-wishlist.html">
+                    <a href="/wish_list">
                       <img
                         class="svgInject"
                         alt="Evara"
                         src="user_assets/imgs/theme/icons/icon-heart.svg"
                       />
-                      <span class="pro-count blue">4</span>
+                      <span class="pro-count blue">0</span>
                     </a>
                   </div>
                   <div class="header-action-icon-2">
@@ -417,10 +418,36 @@
                         alt="Evara"
                         src="user_assets/imgs/theme/icons/icon-cart.svg"
                       />
-                      <span class="pro-count blue">2</span>
+                      <span class="pro-count blue"><%=cartCount%></span>
                     </a>
                   </div>
                 </div>
+                <% } else { %>
+                  <div class="header-action-2">
+                    <div class="header-action-icon-2">
+                      <a href="/wish_list">
+                        <img
+                          class="svgInject"
+                          alt="Evara"
+                          src="user_assets/imgs/theme/icons/icon-heart.svg"
+                        />
+                        <span class="pro-count blue">0</span>
+                      </a>
+                    </div>
+                
+                    <div class="header-action-icon-2">
+                      <a class="mini-cart-icon" href="/cart">
+                        <img
+                          alt="Evara"
+                          src="user_assets/imgs/theme/icons/icon-cart.svg"
+                        />
+                        <span class="pro-count blue">0</span>
+                      </a>
+                    </div>
+                    
+                  </div>
+                  <% } %>
+
               </div>
             </div>
           </div>

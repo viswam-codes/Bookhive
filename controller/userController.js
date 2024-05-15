@@ -3,6 +3,7 @@ const Product = require("../model/productModel");
 const Category=require('../model/categoryModel')
 const Cart=require("../model/cartModel");
 const Order=require("../model/orderModel")
+const WishList=require("../model/wishListModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 
@@ -30,7 +31,9 @@ const securePassword = async (password) => {
 const loadForgotPassword= async(req,res)=>{
   try{
     const user=await User.findById(req.session.user);
-    res.render("forgotPassword",{user,message:""});
+    const userId=req.session.user;
+    const cartCount=await Cart.findOne({userId}).countDocuments()
+    res.render("forgotPassword",{user,message:"",cartCount});
 
   }catch(error){
     console.log(error.message);
@@ -132,9 +135,10 @@ const resetForgotPassword=async(req,res)=>{
 
 const loadLandingPage = async (req, res) => {
   try {
+    const userId=req.session.user;
     const user=await User.findById(req.session.user);
     
-
+    
     if (!user || !user.is_verified) {
       // If the user is blocked or not found, destroy the session and redirect to the login page
       req.session.destroy((err) => {
@@ -145,7 +149,15 @@ const loadLandingPage = async (req, res) => {
     }
 
     const product = await Product.find().limit(8);
-    return res.render("home", { user, pro: product });
+   
+    const cart=await Cart.findOne({userId});
+    let cartCount=0;
+    if(cart){
+       cartCount=cart.product.length;
+    }
+    
+    
+    return res.render("home", { user, pro: product,cartCount });
   } catch (err) {
     console.log(err.message);
   }
@@ -153,8 +165,12 @@ const loadLandingPage = async (req, res) => {
 
 const loadRegister = async (req, res) => {
   try {
-    const user=await User.findById(req.session.user);
-    res.render("register", { user});
+
+    const userId=req.session.user;
+    const user=await User.findById(userId);
+    
+    const cartCount=await Cart.findOne({userId}).countDocuments()
+    res.render("register", { user,cartCount});
   } catch (error) {
     console.log(error.message);
   }
@@ -308,7 +324,13 @@ const verifyLogin = async (req, res) => {
 const loadLogin = async (req, res) => {
   try {
     const user= User.findById(req.session.user);
-    res.render("login", { user, message: "" });
+    const userId=req.session.user;
+    const cart=await Cart.findOne({userId});
+    let cartCount=0;
+    if(cart){
+       cartCount=cart.product.length;
+    }
+    res.render("login", { user, message: "",cartCount });
   } catch (error) {
     console.log(error.message);
   }
@@ -325,6 +347,9 @@ const userLogout = async (req, res) => {
 
 const loadShopPage=async(req,res)=>{
   try{
+    console.log(`loading shop page...`)
+    const userId=req.session.user;
+    console.log("shop",userId)
     const page=parseInt(req.query.page) || 1;
     const perPage=12;
 
@@ -338,7 +363,14 @@ const loadShopPage=async(req,res)=>{
     const product = await Product.find({isListed:"Active"}).skip(skip).limit(perPage);
     const category=await Category.find({isListed:"Active"})
     const user=await User.findById(req.session.user)
-   res.render("shop",{user,pro:product,cat:category,currentPage: page, totalPages});
+    console.log("Das pro",user);
+    
+    const cart=await Cart.findOne({userId});
+    let cartCount=0;
+    if(cart){
+       cartCount=cart.product.length;
+    }
+   res.render("shop",{user,pro:product,cat:category,currentPage: page, totalPages,cartCount});
   }catch(error){
     console.log(error.message);
   }
@@ -347,6 +379,7 @@ const loadShopPage=async(req,res)=>{
 const loadProductPage=async(req,res)=>{
   try{
     let id=req.query.id;
+    const userId=req.session.user;
     const product= await Product.findById(id);
     const user = await User.findById(req.session.user);
     const relatedProducts = await Product.find({
@@ -356,8 +389,13 @@ const loadProductPage=async(req,res)=>{
       ],
       _id: { $ne: id } // Exclude the current product
     });
+    const cart=await Cart.findOne({userId});
+    let cartCount=0;
+    if(cart){
+       cartCount=cart.product.length;
+    }
 
-    res.render("prodView",{user,pro:product,relProduct:relatedProducts});
+    res.render("prodView",{user,pro:product,relProduct:relatedProducts,cartCount});
 
   }catch(error){
     console.log(error.message);
@@ -370,8 +408,14 @@ const loadProfile=async(req,res)=>{
     const user = await User.findById(userId);
     const order = await Order.find({user:userId});
     console.log("order in loadProfile:",order); 
-    res.render("userProfile", { user, order: order });
-
+    
+    const cart=await Cart.findOne({userId});
+    let cartCount=0;
+    if(cart){
+       cartCount=cart.product.length;
+    }
+    res.render("userProfile", { user, order: order,cartCount });
+    
   }catch(error){
     console.log(error.message);
   }
@@ -509,11 +553,17 @@ const loadCart= async(req,res)=>{
     const userId=req.session.user;
      const user=await User.findById(userId);
      const cart=await Cart.findOne({userId:userId}).populate("product.productId");
-     
+     let cartCount="0";
+        if(cart){
+           cartCount=cart.product.length;
+        }
      if (!cart || cart.product.length === 0) {
-      return res.render("cart",{message: 'Cart is empty',user,cart});
+      return res.render("cart",{message: 'Cart is empty',user,cart,cartCount});
   } 
-     res.render("cart",{user,cart});
+  
+  
+        
+     res.render("cart",{user,cart,cartCount});
   }catch(error){
     console.log(error.message)
   }
@@ -717,6 +767,104 @@ const filterProduct = async (req, res) => {
   }
 }
 
+const loadWishList = async (req, res) => {
+  try {
+      const userId = req.session.user;
+      const user= await User.findById(userId);
+      // Find the wishlist entries for the user and populate the products
+      const wishlist = await WishList.findOne({ userId: userId }).populate('products.productId');
+
+      if (!wishlist) {
+          // If wishlist is empty, render the wishlist page with an empty array of products
+          return res.render("wishList", { user,products: [] });
+      }
+
+      const products = wishlist.products.map(item => item.productId);
+      const cart=await Cart.findOne({userId});
+      let cartCount=0;
+      if(cart){
+         cartCount=cart.product.length;
+      }
+      res.render("wishList", { products,user,cartCount });
+  } catch (error) {
+      console.error(error);
+      // Handle errors appropriately, e.g., render an error page
+      // res.render("errorPage", { error: "Internal server error" });
+  }
+}
+
+const addToWishList = async (req, res) => {
+  try {
+      const userId = req.session.user; // Assuming userId is stored in req.session.user
+      const { productId } = req.query;
+
+      // Find the wishlist for the user
+      let wishlist = await WishList.findOne({ userId: userId });
+
+      if (!wishlist) {
+          // If wishlist does not exist for the user, create a new one
+          wishlist = new WishList({
+              userId: userId,
+              products: [{ productId: productId }]
+          });
+      } else {
+          // If wishlist already exists, check if the product is already in the wishlist
+          const existingProduct = wishlist.products.find(product => String(product.productId) === productId);
+
+          if (existingProduct) {
+              return res.status(200).json({ success: false, message: 'Product already exists in wishlist' });
+          }
+
+          // Add the new product to the existing wishlist
+          wishlist.products.push({ productId: productId });
+      }
+
+      // Save the wishlist
+      await wishlist.save();
+
+      res.status(200).json({ success: true, message: 'Product added to wishlist successfully' });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+}
+
+
+
+const removeFromWishList = async (req, res) => {
+    try {
+        const { productId } = req.query;
+        const userId = req.session.user;
+
+        // Find the wishlist for the user
+        const wishlist = await WishList.findOne({ userId });
+
+        if (!wishlist) {
+            return res.status(404).json({ success: false, message: 'Wishlist not found' });
+        }
+
+        // Find the index of the product to remove from the wishlist
+        const indexToRemove = wishlist.products.findIndex(product => String(product.productId) === productId);
+
+        if (indexToRemove === -1) {
+            return res.status(404).json({ success: false, message: 'Product not found in wishlist' });
+        }
+
+        // Remove the product from the wishlist
+        wishlist.products.splice(indexToRemove, 1);
+
+        // Save the updated wishlist
+        await wishlist.save();
+
+        res.status(200).json({success: true, message: 'Product removed from wishlist successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+}
+
+
+
 
 
 
@@ -752,5 +900,8 @@ module.exports = {
   otpVerifyForgot,
   resetForgotPassword,
   removeFromCart,
-  filterProduct
+  filterProduct,
+  loadWishList,
+  addToWishList,
+  removeFromWishList
 };
