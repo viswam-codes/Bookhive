@@ -341,7 +341,10 @@
                                     </tr>
                                 </thead>
                                 <tbody id="cart-items">
+                                    <% let totalAmount=0 %>
                                     <% cart.product.forEach(item => { %>
+                                        <% let itemTotal = item.productId.price * item.quantity %>
+                                        <% totalAmount += itemTotal %>
                                     <tr>
                                         <td class="image product-thumbnail"><img src="/uploads/<%= item.productId.image[0] %>" alt="#"></td>
                                         <td>
@@ -352,16 +355,18 @@
                                     <% }); %>
                                     <tr>
                                         <th>SubTotal</th>
-                                        <td class="product-subtotal" colspan="2">$<span id="subtotal">0.00</span></td>
+                                        <td class="product-subtotal" colspan="2">$<span id="subtotal"><%= totalAmount.toFixed(2) %></span></td>
                                     </tr>
                                     <tr>
                                         <th>Shipping</th>
                                         <td colspan="2"><em>Free Shipping</em></td>
                                     </tr>
                                     <tr>
+            
                                         <th>Total</th>
-                                        <td colspan="2" class="product-subtotal"><span class="font-xl text-brand fw-900">$<span id="total">0.00</span></span></td>
+                                        <td colspan="2" class="product-subtotal" id="subTotal"><span class="font-xl text-brand fw-900">$<span id="total"><%= totalAmount.toFixed(2) %></span></span></td>
                                     </tr>
+                                  
                                 </tbody>
                                 
                             </table>
@@ -381,8 +386,8 @@
                                     </div>
                                 </div>
                                 <div class="custome-radio">
-                                    <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios5" checked="">
-                                    <label class="form-check-label" for="exampleRadios5" data-bs-toggle="collapse" data-target="#paypal" aria-controls="paypal">Paypal</label>
+                                    <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios5" value="razorpay" checked="">
+                                    <label class="form-check-label" for="exampleRadios5" data-bs-toggle="collapse" data-target="#paypal" aria-controls="paypal">Razorpay</label>
                                     <div class="form-group collapse in" id="paypal">
                                         <p class="text-muted mt-5">Pay via PayPal; you can pay with your credit card if you don't have a PayPal account.</p>
                                     </div>
@@ -400,6 +405,7 @@
 
 <!-- SweetAlert JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
     function validateAddress() {
@@ -530,6 +536,7 @@
 
     document.addEventListener("DOMContentLoaded", function() {
         calculateSubtotal();
+      
     });
 
     function calculateSubtotal() {
@@ -550,18 +557,14 @@
     });
 
     function confirmQuantity() {
-
-        const selectedAddressIndex = document.querySelector('input[name="selectedAddress"]:checked'); 
-        if(!selectedAddressIndex){
-            Swal.fire({
-                icon: 'warning',
-                title: 'Order Placement Failed',
-                text: "Select an appropriate address for shipment",
-            });
-        }
-    // For example, check if the user has selected a shipping address
-
-    // Assuming the validation passes, perform the fetch POST operation to the backend
+    const selectedAddressIndex = document.querySelector('input[name="selectedAddress"]:checked'); 
+    if (!selectedAddressIndex) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Order Placement Failed',
+            text: "Select an appropriate address for shipment",
+        });
+    }
     fetch('/confirmQuantity', {
         method: 'POST',
         headers: {
@@ -577,49 +580,114 @@
         if (data.success) {
             const selectedAddressIndex = document.querySelector('input[name="selectedAddress"]:checked').value;
             const selectedPaymentMethod = document.querySelector('input[name="payment_option"]:checked').value;
+            const totalAmount = document.getElementById("total").innerText;
+            
+            console.log(totalAmount);
             console.log(selectedPaymentMethod);
-            // Perform the POST request to /placeOrder with the selected address index and payment method
-            fetch('/placeOrder', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    addressIndex: selectedAddressIndex,
-                    paymentMethod: selectedPaymentMethod
+            console.log(selectedAddressIndex);
+            if (selectedPaymentMethod === "Cash On Delivery") {
+                fetch('/placeOrder', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        addressIndex: selectedAddressIndex,
+                        paymentMethod: selectedPaymentMethod,
+                        totalAmount: totalAmount
+                    })
                 })
-            })
-            .then(response => {
-                // Parse the JSON response
-                return response.json();
-            })
-            .then(data => {
-                // Handle the response from /placeOrder
-                if (data.success) {
-                    Swal.fire({
-                        icon:"success",
-                        title:data.message,
-                        text:"View My orders",
-                        confirmButtonText: "OK"
-                        
-                    }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Reload the window
-                        window.location.href="/account"
+                .then(response => {
+                    // Parse the JSON response
+                    return response.json();
+                })
+                .then(data => {
+                    // Handle the response from /placeOrder
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: data.message,
+                            text: "View My orders",
+                            confirmButtonText: "OK"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Reload the window
+                                window.location.href = "/account";
+                            }
+                        });
+                    } else {
+                        // Handle errors if the order couldn't be placed
+                        // Show a SweetAlert with a warning and the error message
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Order Placement Failed',
+                            text: data.message
+                        });
                     }
                 });
-
-                } else {
-                    // Handle errors if the order couldn't be placed
-                    // Show a SweetAlert with a warning and the error message
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Order Placement Failed',
-                        text: data.message,
-                       
+            } else if (selectedPaymentMethod === "razorpay") {
+                fetch("/placeOrder", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        addressIndex: selectedAddressIndex,
+                        paymentMethod: selectedPaymentMethod,
+                        totalAmount: totalAmount
                     })
-                }
-            });
+                })
+                .then(response => {
+                    // Parse the JSON response
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Proceed with Razorpay payment
+                        const options = {
+                            key: data.key_id,
+                            amount: data.amount,
+                            currency: "INR",
+                            name: "Book Hive",
+                            description: data.description,
+                            image: "user_assets/myimgs/bookHivelogo.png",
+                            order_id: data.order_id,
+                            handler: function (response) {
+                                console.log(response);
+                                window.location.href = `/onlinePlaceorder?paymentStatus=Confirmed&addressId=${addressId}&totalAmt=${totalAmount}`;
+                            },
+                            prefill: {
+                                contact: data.contact,
+                                name: data.name,
+                                email: data.email
+                            },
+                            notes: {
+                                description: data.description
+                            },
+                            theme: {
+                                color: "#00cc66"
+                            }
+                        };
+                        const razorpayObject = new Razorpay(options);
+                        console.log(razorpayObject);
+                        razorpayObject.open();
+                    } else {
+                        // Handle errors if the order couldn't be placed
+                        // Show a SweetAlert with a warning and the error message
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Order Placement Failed',
+                            text: data.msg
+                        });
+                    }
+                })
+                .catch(error => {
+                    // Handle any network or other errors
+                    console.error('Error placing order:', error);
+                });
+            } else if (paymentMethod === "wallet") {
+                // Handle wallet payment
+            }
         } else {
             // Handle errors if the order couldn't be placed
             // Show a SweetAlert with a warning and the error message
@@ -635,6 +703,7 @@
         console.error('Error placing order:', error);
     });
 }
+
 
 
 </script>

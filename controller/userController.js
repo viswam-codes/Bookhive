@@ -407,7 +407,6 @@ const loadProfile=async(req,res)=>{
     const userId=req.session.user;
     const user = await User.findById(userId);
     const order = await Order.find({user:userId});
-    console.log("order in loadProfile:",order); 
     
     const cart=await Cart.findOne({userId});
     let cartCount=0;
