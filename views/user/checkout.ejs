@@ -631,7 +631,8 @@
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({
+                    body: JSON.stringify(
+                       {
                         addressIndex: selectedAddressIndex,
                         paymentMethod: selectedPaymentMethod,
                         totalAmount: totalAmount
@@ -654,7 +655,7 @@
                             order_id: data.order_id,
                             handler: function (response) {
                                 console.log(response);
-                                window.location.href = `/onlinePlaceorder?paymentStatus=Confirmed&addressId=${addressId}&totalAmt=${totalAmount}`;
+                                OrderAfterPayment(selectedAddressIndex, totalAmount,selectedPaymentMethod); 
                             },
                             prefill: {
                                 contact: data.contact,
@@ -685,7 +686,7 @@
                     // Handle any network or other errors
                     console.error('Error placing order:', error);
                 });
-            } else if (paymentMethod === "wallet") {
+            } else if (paymentMethod === "wallet") { 
                 // Handle wallet payment
             }
         } else {
@@ -701,6 +702,44 @@
     .catch(error => {
         // Handle any network or other errors
         console.error('Error placing order:', error);
+    });
+}
+
+function OrderAfterPayment(addressIndex,totalAmount,paymentMethod){
+    fetch(`/onlineOrderPlacing?addressIndex=${addressIndex}&status=Success&totalAmount=${totalAmount}&paymentMethod=${paymentMethod}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: "success",
+                title: 'Order Confirmed',
+                text: "Your payment was successful and the order has been placed.",
+                confirmButtonText: "OK"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/account";
+                }
+            });
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Order Placement Failed',
+                text: data.message
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error confirming order:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Order Placement Failed',
+            text: 'There was an error confirming your order. Please try again.'
+        });
     });
 }
 

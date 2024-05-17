@@ -2,6 +2,7 @@ const User = require("../model/userModel");
 const Product = require("../model/productModel");
 const Cart = require("../model/cartModel");
 const Order = require("../model/orderModel");
+const Wallet=require("../model/walletModel");
 const Razorpay = require("razorpay");
 const { v4: uuidv4 } = require("uuid");
 const { RAZOR_PAY_KEY, RAZOR_PAY_SECRET } = process.env;
@@ -123,6 +124,78 @@ const placeOrder = async (req, res) => {
   }
 };
 
+const onlinePlaceOrder=async(req,res)=>{
+  try{
+     const userId=req.session.user;
+     
+     const cart= await Cart.findOne({userId}).populate("product.productId");
+    
+     if (!cart || !cart.product.length) {
+      return res.status(400).json({ success: false, message: "Cart is empty" });
+    }
+    const orderId = uuidv4();
+
+    const user=await User.findById(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+   
+   
+    const {addressIndex,status,totalAmount,paymentMethod}=req.query;
+    const selectedAddress=user.address[addressIndex];
+
+    const newOrder = new Order({
+      orderId,
+      user: userId,
+      items: cart.product.map((item) => ({
+        productId: item.productId._id,
+        title: item.productId.title,
+        image: item.productId.image,
+        productPrice: item.productId.price,
+        quantity: item.quantity,
+        price: item.productId.price * item.quantity,
+        status:"Confirmed"
+        // Or any default status you prefer
+      })),
+      billTotal:totalAmount,
+      shippingAddress: {
+        houseName: selectedAddress.houseName,
+        street: selectedAddress.street,
+        city: selectedAddress.city,
+        state: selectedAddress.state,
+        country: selectedAddress.country,
+        postalCode: selectedAddress.postalCode,
+      },
+      paymentMethod,
+      paymentStatus:status
+    });
+    
+    await newOrder.save();
+
+    for(const item of newOrder.items){
+      const product = await Product.findById(item.productId);
+      if (!product) {
+        throw new Error(`Product with id ${item.productId} not found`);
+      }
+      product.stock -= item.quantity;
+      await product.save();
+    }
+
+    await Cart.findOneAndDelete({ userId });
+      
+    res
+      .status(201)
+      .json({ success: true, message: "Order placed successfully" });
+
+  }catch(error){
+    console.log(error.message)
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}
+
 const loadOrderView = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -145,7 +218,7 @@ const cancelOrder = async (req, res) => {
     const { orderId, itemId, cancellationReason } = req.body;
     // Find the order by orderId
     const order = await Order.findById(orderId);
-
+    const userId=req.session.user;
     // If order is not found
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
@@ -161,11 +234,11 @@ const cancelOrder = async (req, res) => {
 
     // Update the status of the item to 'Cancelled'
     item.status = "Cancelled";
-
     item.cancellationReason = cancellationReason;
 
     // Decrease the item price from the billTotal
-    order.billTotal -= item.productPrice * item.quantity;
+    const refundAmount=item.productPrice * item.quantity;
+    order.billTotal -= refundAmount;
 
     // Check if all items in the order are cancelled
     const allItemsCancelled = order.items.every(
@@ -187,6 +260,28 @@ const cancelOrder = async (req, res) => {
     product.stock += item.quantity;
     await product.save();
 
+    if(order.paymentMethod === 'razorpay'){
+      const wallet = await Wallet.findOne({user:userId});
+      console.log(wallet);
+      if(!wallet){
+        throw new Error(`Wallet for user ${order.user._id} not found`);
+      }
+
+      const transaction={
+        amount:refundAmount,
+        description:`Refund for ${item.title} ${orderId}`,
+        type:"Refund",
+        transcationDate: new Date()
+      }
+      wallet.transactions.push(transaction);
+
+      wallet.walletBalance += refundAmount;
+
+      await wallet.save();
+    }
+
+   
+
     res
       .status(200)
       .json({ message: "Order item cancelled successfully", order });
@@ -201,4 +296,5 @@ module.exports = {
   placeOrder,
   loadOrderView,
   cancelOrder,
+  onlinePlaceOrder
 };

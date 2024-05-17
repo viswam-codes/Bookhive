@@ -1,5 +1,64 @@
 <%- include('../partials/userHeader.ejs') %>
+<style>
+    .wallet-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
+.wallet-container h2 {
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+.wallet-balance {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+}
+
+.wallet-balance span {
+    margin: 0 10px;
+}
+
+.transaction-history {
+    margin-top: 20px;
+}
+
+.transaction-history h3 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.transaction-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.transaction-table th, .transaction-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.transaction-table th {
+    background-color: #f2f2f2;
+    color: #333;
+}
+
+.transaction-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.transaction-table td {
+    color: #555;
+}
+
+</style>
 <!-- Modal for resetting password -->
 <div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -348,11 +407,15 @@
                                         <a class="nav-link active" id="account-detail-tab" data-bs-toggle="tab" href="#account-detail" role="tab" aria-controls="account-detail" aria-selected="true"><i class="fi-rs-user mr-10"></i>Account details</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders" role="tab" aria-controls="orders" aria-selected="false"><i class="fi-rs-shopping-bag mr-10"></i>Orders</a>
+                                        <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders" role="tab" aria-controls="orders" aria-selected="false"><i class="fi-rs-shopping-cart-check mr-10"></i>Orders</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address" role="tab" aria-controls="address" aria-selected="true"><i class="fi-rs-marker mr-10"></i>My Address</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#wallet" role="tab" aria-controls="address" aria-selected="true"><i class="fi-rs-shopping-bag mr-10"></i>Wallet</a>
+                                    </li>
+                        
                                    
                                     <li class="nav-item">
                                         <a class="nav-link" href="page-login-register.html"><i class="fi-rs-sign-out mr-10"></i>Logout</a>
@@ -492,6 +555,48 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="tab-pane fade " id="wallet" role="tabpanel" aria-labelledby="address-tab">
+                            <div class="wallet-container">
+                                <h2>Your Wallet</h2>
+                                <div class="wallet-balance">
+                                  <span>Wallet Balance:</span>
+                                  <span id="walletBalance"><%= wallet ? wallet.walletBalance.toFixed(2) : '0.00' %></span>
+                                </div>
+                                <div class="transaction-history">
+                                  <h3>Transaction History</h3>
+                                  <table class="transaction-table">
+                                    <thead>
+                                      <tr>
+                                        <th>Order</th>
+                                        <th>Description</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody id="transactionTableBody">
+                                      <% if (wallet && wallet.transactions.length > 0) { %>
+                                        <% wallet.transactions.forEach((transaction, index) => { %>
+                                          <tr>
+                                            <td><%= index + 1 %></td>
+                                            <td><%= transaction.description %></td>
+                                            <td><%= transaction.type %></td>
+                                            <td>$<%= transaction.amount.toFixed(2) %></td>
+                                          </tr>
+                                        <% }); %>
+                                      <% } else { %>
+                                        <tr>
+                                          <td colspan="4">No transactions found.</td>
+                                        </tr>
+                                      <% } %>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                          
+                        </div>
+
+
                     </div>
                 </div>
             </div>

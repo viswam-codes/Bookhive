@@ -3,6 +3,7 @@ const Product = require("../model/productModel");
 const Category=require('../model/categoryModel')
 const Cart=require("../model/cartModel");
 const Order=require("../model/orderModel")
+const Wallet=require("../model/walletModel")
 const WishList=require("../model/wishListModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
@@ -227,7 +228,6 @@ const loadOTP = async (req, res) => {
 const verifyOTP = async (req, res) => {
   try {
     console.log(req.body.otp);
-   
 
     if (req.session.details.otp == req.body.otp) {
       console.log("OTP is correct");
@@ -246,6 +246,12 @@ const verifyOTP = async (req, res) => {
         });
 
         await user.save();
+        
+        const wallet= new Wallet({
+          user:user._id
+        })
+
+        await wallet.save();
         res.json({ redirect: "/login" });
       }
     } else {
@@ -407,13 +413,15 @@ const loadProfile=async(req,res)=>{
     const userId=req.session.user;
     const user = await User.findById(userId);
     const order = await Order.find({user:userId});
+
+    const wallet= await Wallet.findOne({user:userId})
     
     const cart=await Cart.findOne({userId});
     let cartCount=0;
     if(cart){
        cartCount=cart.product.length;
     }
-    res.render("userProfile", { user, order: order,cartCount });
+    res.render("userProfile", { user, order: order,cartCount,wallet});
     
   }catch(error){
     console.log(error.message);
