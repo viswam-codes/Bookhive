@@ -62,6 +62,8 @@ user_route.post("/placeOrder",auth.isLogin,orderController.placeOrder);
 user_route.get("/orderView",auth.isLogin,orderController.loadOrderView);
 user_route.post("/cancelOrder",auth.isLogin,orderController.cancelOrder);
 user_route.post("/onlineOrderPlacing",auth.isLogin,orderController.onlinePlaceOrder)
+user_route.put("/checkWalletBalance",auth.isLogin,orderController.checkWalletBalance);
+user_route.post("/walletOrder",auth.isLogin,orderController.walletPlaceOrder);
 
 
 module.exports=user_route;

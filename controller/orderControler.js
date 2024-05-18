@@ -157,7 +157,7 @@ const onlinePlaceOrder=async(req,res)=>{
         productPrice: item.productId.price,
         quantity: item.quantity,
         price: item.productId.price * item.quantity,
-        status:"Confirmed"
+        status:status==="Success"?"Confirmed":"Pending"
         // Or any default status you prefer
       })),
       billTotal:totalAmount,
@@ -174,21 +174,31 @@ const onlinePlaceOrder=async(req,res)=>{
     });
     
     await newOrder.save();
+    if(newOrder.paymentStatus=="Success"){
 
-    for(const item of newOrder.items){
-      const product = await Product.findById(item.productId);
-      if (!product) {
-        throw new Error(`Product with id ${item.productId} not found`);
+      for(const item of newOrder.items){
+        const product = await Product.findById(item.productId);
+        if (!product) {
+          throw new Error(`Product with id ${item.productId} not found`);
+        }
+        product.stock -= item.quantity;
+        await product.save();
       }
-      product.stock -= item.quantity;
-      await product.save();
+  
+      await Cart.findOneAndDelete({ userId });
+        
+      res
+        .status(201)
+        .json({ success: true, message: "Order placed successfully" });
+
+    }else if(newOrder.paymentStatus === "Failed"){
+      await Cart.findOneAndDelete({ userId });
+      res
+      .status(201)
+      .json({ success: true, message: "Payment failed retry" });
     }
 
-    await Cart.findOneAndDelete({ userId });
-      
-    res
-      .status(201)
-      .json({ success: true, message: "Order placed successfully" });
+    
 
   }catch(error){
     console.log(error.message)
@@ -250,8 +260,10 @@ const cancelOrder = async (req, res) => {
       order.orderStatus = "Cancelled";
     }
 
+    
+
     // Save the updated order
-    await order.save();
+   
 
     const product = await Product.findById(item.productId);
     if (!product) {
@@ -260,7 +272,8 @@ const cancelOrder = async (req, res) => {
     product.stock += item.quantity;
     await product.save();
 
-    if(order.paymentMethod === 'razorpay'){
+    if(order.paymentMethod === 'razorpay' || order.paymentMethod === 'wallet'){
+      
       const wallet = await Wallet.findOne({user:userId});
       console.log(wallet);
       if(!wallet){
@@ -276,9 +289,12 @@ const cancelOrder = async (req, res) => {
       wallet.transactions.push(transaction);
 
       wallet.walletBalance += refundAmount;
-
+      
+      order.paymentStatus = 'Refunded'
       await wallet.save();
     }
+
+    await order.save()
 
    
 
@@ -292,9 +308,127 @@ const cancelOrder = async (req, res) => {
       .json({ message: "An error occurred while cancelling the order item" });
   }
 };
+
+const checkWalletBalance = async(req,res) => {
+  try{ 
+    const userId=req.session.user;
+    const totalAmount = parseFloat(req.query.totalAmount);
+
+    const wallet = await Wallet.findOne({user:userId});
+
+    if(!wallet){
+      return res.status(404).json({ success: false, message: 'Wallet not found' });
+    }
+
+    if(wallet.walletBalance >= totalAmount){
+      res.json({success:true});
+    }else{
+      res.json({success:false,message:"Insufficent wallet balance"});
+    }
+
+  }catch(error){
+    console.log("Error checking wallet",error.message);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+}
+
+const walletPlaceOrder = async(req,res)=>{
+  try{
+   
+    const userId=req.session.user;
+    const cart = await Cart.findOne({userId}).populate("product.productId");
+   
+    if (!cart || !cart.product.length) {
+      return res.status(400).json({ success: false, message: "Cart is empty" });
+    }
+
+    
+    
+
+    const orderId = uuidv4();
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const {addressIndex,totalAmount,paymentMethod} = req.body;
+    const {status}= req.query;
+    const selectedAddress=user.address[addressIndex];
+
+    
+    const newOrder = new Order({
+      orderId,
+      user: userId,
+      items: cart.product.map((item) => ({
+        productId: item.productId._id,
+        title: item.productId.title,
+        image: item.productId.image,
+        productPrice: item.productId.price,
+        quantity: item.quantity,
+        price: item.productId.price * item.quantity,
+        status:"Confirmed"
+        // Or any default status you prefer
+      })),
+      billTotal:totalAmount,
+      shippingAddress: {
+        houseName: selectedAddress.houseName,
+        street: selectedAddress.street,
+        city: selectedAddress.city,
+        state: selectedAddress.state,
+        country: selectedAddress.country,
+        postalCode: selectedAddress.postalCode,
+      },
+      paymentMethod,
+      paymentStatus:status
+    });
+
+    await newOrder.save();
+    
+    console.log("reached order:",newOrder)
+    for(const item of newOrder.items){
+      const product = await Product.findById(item.productId);
+      if (!product) {
+        throw new Error(`Product with id ${item.productId} not found`);
+      }
+      product.stock -= item.quantity;
+      await product.save();
+    }
+
+
+    await Cart.findOneAndDelete({ userId });
+
+    const wallet = await Wallet.findOne({user:userId});
+
+    const transaction={
+      amount:totalAmount,
+      description:`Purchased product Order id:${newOrder._id}`,
+      type:"Debit",
+      transcationDate: new Date()
+    }
+    wallet.transactions.push(transaction);
+
+    wallet.walletBalance -= totalAmount;
+
+    await wallet.save()
+
+    res
+      .status(201)
+      .json({ success: true, message: "Order placed successfully" });
+
+
+
+  }catch(error){
+    console.log(error.message)
+  }
+}
 module.exports = {
   placeOrder,
   loadOrderView,
   cancelOrder,
-  onlinePlaceOrder
+  onlinePlaceOrder,
+  checkWalletBalance,
+  walletPlaceOrder
 };

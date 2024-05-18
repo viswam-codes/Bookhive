@@ -1,12 +1,66 @@
 <%- include('../partials/adminHeader.ejs') %>
-<style>
-    .custom-btn {
-    border: 1px solid red;
-    color: #088178;
-}
-
-</style>
 <body>
+<!-- Modal Structure -->
+<div class="modal fade" id="couponModal" tabindex="-1" aria-labelledby="couponModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="couponModalLabel">Create New Coupon</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="couponName">Coupon Name</label>
+                            <input type="text" class="form-control" id="couponName" placeholder="Enter coupon name">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="couponCode">Coupon Code</label>
+                            <input type="text" class="form-control" id="couponCode" placeholder="Enter coupon code">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="discountAmount">Discount Amount</label>
+                            <input type="number" class="form-control" id="discountAmount" placeholder="Enter discount amount">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="startDate">Start Date</label>
+                            <input type="date" class="form-control" id="startDate">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="endDate">End Date</label>
+                            <input type="date" class="form-control" id="endDate">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="minimumAmount">Minimum Amount</label>
+                            <input type="number" class="form-control" id="minimumAmount" placeholder="Enter minimum amount">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="statusOptions" id="activeStatus" value="active">
+                                <label class="form-check-label" for="activeStatus">Active</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="statusOptions" id="inactiveStatus" value="inactive">
+                                <label class="form-check-label" for="inactiveStatus">Inactive</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
     <div class="screen-overlay"></div>
     <aside class="navbar-aside" id="offcanvas_aside">
         <div class="aside-top">
@@ -24,7 +78,7 @@
                         <span class="text">Dashboard</span>
                     </a>
                 </li>
-                <li class="menu-item active ">
+                <li class="menu-item  ">
                     <a class="menu-link" href="/admin/user_management"> <i class="icon material-icons md-person"></i>
                         <span class="text">User Management</span>
                     </a>
@@ -44,7 +98,7 @@
                         <span class="text">Orders</span>
                     </a>
                 </li>
-                <li class="menu-item ">
+                <li class="menu-item active ">
                     <a class="menu-link" href="/admin/coupen_management"> <i class="icon material-icons md-shopping_bag"></i>
                         <span class="text">Coupen</span>
                     </a>
@@ -125,11 +179,13 @@
         </header> -->
         <section class="content-main">
             <div class="content-header">
-                <h2 class="content-title">Sellers list</h2>
-                <div>
-                    <a href="#" class="btn btn-primary"><i class="material-icons md-plus"></i> Create new</a>
-                </div>
-            </div>
+    <h2 class="content-title">Sellers list</h2>
+    <div>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#couponModal">
+            <i class="material-icons md-plus"></i> Create new
+        </button>
+    </div>
+</div>
             <div class="card mb-4">
                 <header class="card-header">
                     <div class="row gx-3">
@@ -158,38 +214,18 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Customers</th>
-                                    <th>Email</th>
+                                    <th>Name</th>
+                                    <th>Code</th>
+                                    <th>Discount Amount</th>
+                                    <th>Start Date</th>
+                                    <th>End date</th>
                                     <th>Status</th>
-                                    <th>Registered</th>
+                                    <th>Minimum Amount</th>
                                     <th class="text-end"> Action </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <% users.forEach(function(user) { %>
-                                <tr>
-                                    <td width="40%">
-                                        <a href="#" class="itemside">
-                                            
-                                            <div class="info pl-3">
-                                                <h6 class="mb-0 title"><%= user.name %></h6>
-                                                
-                                            </div>
-                                        </a>
-                                    </td>
-                                    <td><%= user.email %></td>
-                                    <td><span id="status_<%= user._id %>" class="badge rounded-pill <%= user.is_verified ? 'bg-success' : 'bg-danger' %>">
-                                        <%= user.is_verified ? 'Active' : 'Blocked' %>
-                                    </span></td>
-                                    <td>08.07.2022</td>
-                                    <td class="text-end">
-                                        <a class="btn btn-sm rounded font-sm mt-15 custom-btn" onclick="confirmBlock('<%= user._id %>')" data-user-id="<%= user._id %>">
-                                            <%= user.is_verified ? 'Block' : 'Unblock' %>
-                                        </a>
-
-                                       </td> 
-                                </tr>
-                                <% }); %>
+                               
                             </tbody>
                         </table> <!-- table-responsive.// -->
                     </div>
@@ -198,11 +234,7 @@
             <div class="pagination-area mt-15 mb-50">
                 <nav aria-label="Page navigation example">
                     <ul class="pagination justify-content-start">
-                        <% for (let i = 1; i <= totalPages; i++) { %>
-                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                                <a class="page-link" href="/admin/user_management?page=<%= i %>"><%= i %></a>
-                            </li>
-                        <% } %>
+                       
                     </ul>
                 </nav>
             </div>
@@ -226,90 +258,21 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 <script>
-    function confirmBlock(userId) {
-        console.log(userId,"user id ");
-       const button=document.getElementById(`status_${userId}`)
-       const buttonText= button.innerText.trim();
-       let title,text;
+    // Function to set the minimum date to today
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').setAttribute('min', today);
+        document.getElementById('endDate').setAttribute('min', today);
+    });
+</script>
 
-       if(buttonText==='Active'){
-        title='Are you sure?';
-        text='Are you sure you want to block this user?';
-       }else if (buttonText === 'Blocked'){
-        title='Are you sure?';
-        text='Are you sure you want to unblock this user?';
-       }
-       console.log(buttonText,"button text")
-        Swal.fire({
-            title: title,
-            text: text,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Confirm',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                blockUser(userId);
-                
-            }
-        });
-    }
-    
-    function blockUser(userId) {
-        // Send a request to block the user
-        console.log(userId,"jskjf")
-        fetch(`/admin/user_management/${userId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Display success message
-                Swal.fire('Success', 'Operation successfully', 'success');
-                location.reload();
-                updateButtonAndStatus(userId,data.is_verified);
-                  
-            } else {
-                // Display error message
-                Swal.fire('Error', 'Failed to block user', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error blocking user:', error);
-            // Display error message
-            Swal.fire('Error', 'Failed to block user', 'error');
-        });
-    }
 
-  function updateButtonAndStatus(userId,isVerified){
-    console.log(isVerified);
-    const button=document.querySelector(`.custom-btn[data-user-id="${userId}"]`)
-    const statusSpan=document.getElementById(`status_${userId}`)
 
-    if(button && statusSpan){
-        if(isVerified){
-            button.innerText='Block';
-            button.classList.remove('btn-warning');
-            button.classList.add('custom-btn');
-            statusSpan.textContent='Active';
-            statusSpan.classList.remove('bg-danger');
-            statusSpan.classList.add('bg-success');
-        }else{
-            button.innerText='Unblock';
-            button.classList.remove('custom-btn');
-            button.classList.add('btn-warning');
-            statusSpan.textContent = 'Blocked';
-            statusSpan.classList.remove('bg-success');
-            statusSpan.classList.add('bg-danger');
-            
-        }
-    }
-  }
-
-    </script>
-    <%- include('../partials/adminFooter.ejs') %>
-    
+<%- include('../partials/adminFooter.ejs') %>

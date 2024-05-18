@@ -68,17 +68,26 @@
                     <td><%= item.quantity %></td>
                     <td>$<%= (item.productPrice * item.quantity).toFixed(2) %></td>
                     <td>
-                        <% if (item .status!="Cancelled") { %>
-                            <% if (item.status === 'Pending' || item.status === 'Confirmed') { %>
-                                <button onclick="showCancelConfirmation('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>"  >Cancel</button>
-                            <% } else { %>
-                                -
-                            <% } %>
-                        
+
+                        <% if(order.paymentStatus=== "Failed") { %>
+                            <button onclick="retryPayment('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>" >Retry</button>
                         <%} else { %>
-                            <button onclick="showCancelConfirmation('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>" disabled >order Cancelled</button>
-                        
-                        <% } %>
+                            <% if (item .status!="Cancelled") { %>
+                                <% if (item.status === 'Pending' || item.status === 'Confirmed') { %>
+                                    <button onclick="showCancelConfirmation('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>"  >Cancel</button>
+                                <% } else { %>
+                                    -
+                                <% } %>
+                            
+                            <%} else { %>
+                                <button onclick="showCancelConfirmation('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>" disabled >order Cancelled</button>
+                            
+                            <% } %>
+
+                        <%}%>
+
+
+                       
                        
                     </td>
                 </tr>
@@ -125,7 +134,7 @@
                 const cancelButton = document.querySelector(`button[data-input-id="${itemId}"]`);
                 cancelButton.innerHTML = 'Order Cancelled';
                 cancelButton.disabled = true; // Disable button after cancellation
-
+            location.reload()
             } else {
                 // Handle error
                 Swal.fire('Error', data.message, 'error');

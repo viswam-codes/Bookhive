@@ -392,6 +392,13 @@
                                         <p class="text-muted mt-5">Pay via PayPal; you can pay with your credit card if you don't have a PayPal account.</p>
                                     </div>
                                 </div>
+                                <div class="custome-radio">
+                                    <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios5" value="wallet" checked="">
+                                    <label class="form-check-label" for="exampleRadios5" data-bs-toggle="collapse" data-target="#paypal" aria-controls="paypal">Wallet</label>
+                                    <div class="form-group collapse in" id="paypal">
+                                        <p class="text-muted mt-5">Pay via PayPal; you can pay with your credit card if you don't have a PayPal account.</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <a href="#" id="placeOrderBtn" class="btn btn-fill-out btn-block mt-30">Place Order</a>
@@ -582,9 +589,7 @@
             const selectedPaymentMethod = document.querySelector('input[name="payment_option"]:checked').value;
             const totalAmount = document.getElementById("total").innerText;
             
-            console.log(totalAmount);
-            console.log(selectedPaymentMethod);
-            console.log(selectedAddressIndex);
+          
             if (selectedPaymentMethod === "Cash On Delivery") {
                 fetch('/placeOrder', {
                     method: 'POST',
@@ -655,7 +660,7 @@
                             order_id: data.order_id,
                             handler: function (response) {
                                 console.log(response);
-                                OrderAfterPayment(selectedAddressIndex, totalAmount,selectedPaymentMethod); 
+                                OrderAfterPayment(selectedAddressIndex, totalAmount,selectedPaymentMethod,"Success"); 
                             },
                             prefill: {
                                 contact: data.contact,
@@ -667,11 +672,18 @@
                             },
                             theme: {
                                 color: "#00cc66"
-                            }
+                            },
+                          
                         };
+
                         const razorpayObject = new Razorpay(options);
                         console.log(razorpayObject);
                         razorpayObject.open();
+
+                        razorpayObject.on('payment.failed', function (response) {
+                        console.error(response.error);
+                        OrderAfterPayment(selectedAddressIndex, totalAmount, selectedPaymentMethod, "Failed");
+            });
                     } else {
                         // Handle errors if the order couldn't be placed
                         // Show a SweetAlert with a warning and the error message
@@ -686,8 +698,9 @@
                     // Handle any network or other errors
                     console.error('Error placing order:', error);
                 });
-            } else if (paymentMethod === "wallet") { 
-                // Handle wallet payment
+            } else if (selectedPaymentMethod === "wallet") { 
+                confirmWalletBalance(selectedAddressIndex, totalAmount, selectedPaymentMethod);
+             
             }
         } else {
             // Handle errors if the order couldn't be placed
@@ -705,8 +718,8 @@
     });
 }
 
-function OrderAfterPayment(addressIndex,totalAmount,paymentMethod){
-    fetch(`/onlineOrderPlacing?addressIndex=${addressIndex}&status=Success&totalAmount=${totalAmount}&paymentMethod=${paymentMethod}`, {
+function OrderAfterPayment(addressIndex,totalAmount,paymentMethod,status){
+    fetch(`/onlineOrderPlacing?addressIndex=${addressIndex}&status=${status}&totalAmount=${totalAmount}&paymentMethod=${paymentMethod}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -715,7 +728,8 @@ function OrderAfterPayment(addressIndex,totalAmount,paymentMethod){
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            Swal.fire({
+            if(data.message === "Order placed successfully"){
+                Swal.fire({
                 icon: "success",
                 title: 'Order Confirmed',
                 text: "Your payment was successful and the order has been placed.",
@@ -725,6 +739,20 @@ function OrderAfterPayment(addressIndex,totalAmount,paymentMethod){
                     window.location.href = "/account";
                 }
             });
+
+            }else if (data.message ==="Payment failed retry" ){
+                Swal.fire({
+                icon: "error",
+                title: 'Payment Failed',
+                text: data.message,
+                confirmButtonText: "Orders"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/account";
+                }
+            });
+            }
+            
         } else {
             Swal.fire({
                 icon: 'warning',
@@ -743,7 +771,73 @@ function OrderAfterPayment(addressIndex,totalAmount,paymentMethod){
     });
 }
 
+function confirmWalletBalance(selectedAddressIndex, totalAmount, selectedPaymentMethod){
+    
+                fetch(`/checkWalletBalance?totalAmount=${totalAmount}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("success")
+            walletPlaceOrder(selectedAddressIndex, selectedPaymentMethod, totalAmount);
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Insufficient Wallet Balance',
+                text: data.message,
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error checking wallet balance:', error);
+    });
+                
+              }  
 
+  function walletPlaceOrder(addressIndex,paymentMethod,totalAmount,){
+ 
+    fetch(`/walletOrder?status=Success`,{
+        method: "POST",
+        headers:{
+            'Content-Type':'application/json'
+        },
+        body: JSON.stringify({
+            addressIndex: addressIndex,
+            paymentMethod: paymentMethod,
+            totalAmount: totalAmount,
+
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("testing resp",data)
+        if(data.success){
+            Swal.fire({
+                icon:"success",
+                title: data.message,
+                text:"View My Orders",
+                confirmButtonText :"OK"
+            }).then((result) => {
+                if(result.isConfirmed){
+                    window.location.href = "/account";
+                }
+            });
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Order Placement Failed',
+                text: data.message
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error placing order:', error);
+    });
+  }
 
 </script>
 </body>
