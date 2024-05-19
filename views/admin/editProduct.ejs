@@ -205,128 +205,140 @@
             </div>
             <div class="card-body">
               <form
-                action="/admin/editProduct?id=<%=pro._id %>"
-                method="post"
-                enctype="multipart/form-data"
-              >
-                <div class="mb-4">
+              action="/admin/editProduct?id=<%=pro._id %>"
+              method="post"
+              enctype="multipart/form-data"
+          >
+              <div class="mb-4">
                   <label for="product_name" class="form-label">Title</label>
                   <input
-                    type="text"
-                    class="form-control"
-                    id="title"
-                    name="title"
-                    value="<%= pro.title %>"
+                      type="text"
+                      class="form-control"
+                      id="title"
+                      name="title"
+                      value="<%= pro.title %>"
                   />
-                </div>
-                <div class="mb-4">
+              </div>
+              <div class="mb-4">
                   <label for="author" class="form-label">Author</label>
                   <input
-                    type="text"
-                    class="form-control"
-                    id="author"
-                    name="author"
-                    value="<%= pro.author %>"
+                      type="text"
+                      class="form-control"
+                      id="author"
+                      name="author"
+                      value="<%= pro.author %>"
                   />
-                </div>
-                <div class="mb-4">
+              </div>
+              <div class="mb-4">
                   <label class="form-label">Full description</label>
                   <textarea
-                    class="form-control"
-                    rows="4"
-                    id="description"
-                    name="description"
-                    required
-                  >
-<%= pro.description %></textarea
-                  >
-                </div>
-                <div class="row">
+                      class="form-control"
+                      rows="4"
+                      id="description"
+                      name="description"
+                      required
+                  ><%= pro.description %></textarea>
+              </div>
+              <div class="row">
                   <div class="col-lg-4">
-                    <div class="mb-4">
-                      <label class="form-label">Regular price</label>
-                      <div class="row gx-2">
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="price"
-                          name="price"
-                          value="<%= pro.price %>"
-                          required
-                        />
+                      <div class="mb-4">
+                          <label class="form-label">Regular price</label>
+                          <div class="row gx-2">
+                              <input
+                                  type="text"
+                                  class="form-control"
+                                  id="price"
+                                  name="price"
+                                  value="<%= pro.price %>"
+                                  required
+                              />
+                          </div>
                       </div>
-                    </div>
                   </div>
                   <div class="col-lg-4">
-                    <div class="mb-4">
-                      <label class="form-label">Stock</label>
-                      <input
-                        type="number"
-                        class="form-control"
-                        id="stock"
-                        name="stock"
-                        value="<%= pro.stock %>"
-                        required
-                      />
-                    </div>
+                      <div class="mb-4">
+                          <label class="form-label">Discount</label>
+                          <input
+                              type="text"
+                              class="form-control"
+                              id="discount"
+                              name="discount"
+                              value="<%= pro.discount %>"
+                              placeholder="Enter discount"
+                          />
+                      </div>
                   </div>
                   <div class="col-lg-4">
-                    <div class="mb-4">
-                      <label class="form-label">Category</label>
-                      <select
-                        class="form-select"
-                        id="category"
-                        name="category"
-                        required
-                      >
-                        <option value="<%= pro.category %>" selected>
-                          <%= pro.category %>
-                        </option>
-                        <% cat.forEach(function(category) { %>
-                        <option value="<%= category.name %>">
-                          <%= category.name %>
-                        </option>
-                        <% }); %>
-                      </select>
-                    </div>
+                      <div class="mb-4">
+                          <label class="form-label">Stock</label>
+                          <input
+                              type="number"
+                              class="form-control"
+                              id="stock"
+                              name="stock"
+                              value="<%= pro.stock %>"
+                              required
+                          />
+                      </div>
                   </div>
-                </div>
-                <div class="card mb-4">
+                  <div class="col-lg-4">
+                      <div class="mb-4">
+                          <label class="form-label">Category</label>
+                          <select
+                              class="form-select"
+                              id="category"
+                              name="category"
+                              required
+                          >
+                              <option value="<%= pro.category %>" selected>
+                                  <%= pro.category %>
+                              </option>
+                              <% cat.forEach(function(category) { %>
+                              <option value="<%= category.name %>">
+                                  <%= category.name %>
+                              </option>
+                              <% }); %>
+                          </select>
+                      </div>
+                  </div>
+              </div>
+              <div class="card mb-4">
                   <div class="card-header">
-                    <h4>Media</h4>
+                      <h4>Media</h4>
                   </div>
                   <div class="card-body">
-                    <div class="input-upload">
-                      <input
-                        class="form-control"
-                        type="file"
-                        id="images"
-                        name="image"
-                        multiple
-                      />
-                    </div>
+                      <div class="input-upload">
+                          <input
+                              class="form-control"
+                              type="file"
+                              id="images"
+                              name="image"
+                              multiple
+                          />
+                      </div>
                   </div>
-                </div>
-                <div class="card mb-4">
+              </div>
+              <div class="card mb-4">
                   <div class="card-header">
-                    <h4>Image Preview</h4>
+                      <h4>Image Preview</h4>
                   </div>
                   <div class="card-body" style="height: 300px; width: 200px">
-                    <div
-                      id="image-preview"
-                      style="white-space: nowrap; display: flex"
-                    >
-                      <!-- Placeholder for image preview -->
-                    </div>
+                      <div
+                          id="image-preview"
+                          style="white-space: nowrap; display: flex"
+                      >
+                          <!-- Placeholder for image preview -->
+                      </div>
                   </div>
-                </div>
-                <button
+              </div>
+              <button
                   type="submit"
                   class="btn btn-md rounded font-sm hover-up"
-                >
+              >
                   Publish
-                </button>
-              </form>
+              </button>
+          </form>
+          
             </div>
           </div>
           <!-- card end// -->

@@ -203,7 +203,15 @@ const updateProduct = async (req, res) => {
           stock,
           category,
           images,
+          discount
         } = req.body;
+        
+        let discountedPrice = price;
+        if(discount && discount >0){
+          discountedPrice = price -(price * discount /100);
+        }
+
+
         const processedImageFilenames = processedImages.map(image => image.filename);
 
         const existingProduct = await Product.findById(id);
@@ -225,6 +233,7 @@ const updateProduct = async (req, res) => {
             stock: stock,
             category: category,
             $set:{image:updatedImages},
+            discountPrice:discountedPrice,
           },
           { new: true }
         );

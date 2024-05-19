@@ -355,9 +355,17 @@
                         <span>90%</span>
                       </span>
                     </div>
-                    <div class="product-price">
-                      <span><%=prod.price %> </span>
+                    <% if(prod.discountPrice) { %>
+                      <div class="product-price">
+                        <span><%=prod.discountPrice %> </span>
+                        <span class="old-price"><%=prod.price %></span>
                     </div>
+                    
+                   <% } else { %>
+                    <div class="product-price">
+                      <span><%=prod.price %></span>
+                    </div>
+                    <% } %>
                     <div class="product-action-1 show">
                       <a
                         aria-label="Add To Cart"
@@ -472,6 +480,8 @@
       });
     });
 
+    const currentPage=1;
+
     // Add event listener for search input
     const searchInput = document.getElementById("searchInput");
     searchInput.addEventListener("input", function () {
@@ -509,7 +519,7 @@ categoryLinks.forEach(link => {
 
   function applyFilters(sortOptionValue, category) {
     // Get sort option
-
+   
  
 
     console.log(sortOptionValue);

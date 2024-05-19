@@ -78,12 +78,12 @@ const placeOrder = async (req, res) => {
               productId: item.productId._id,
               title: item.productId.title,
               image: item.productId.image,
-              productPrice: item.productId.price,
+              productPrice:item.productId.discountPrice >0 ? item.productId.discountPrice:item.productId.price,
               quantity: item.quantity,
-              price: item.productId.price * item.quantity,
+              price: item.productId.discountPrice >0 ? item.productId.discountPrice * item.quantity:item.productId.price * item.quantity,
               // Or any default status you prefer
             })),
-            billTotal,
+            billTotal:parseFloat(totalAmount),
             shippingAddress: {
               houseName: selectedAddress.houseName,
               street: selectedAddress.street,
@@ -154,9 +154,9 @@ const onlinePlaceOrder=async(req,res)=>{
         productId: item.productId._id,
         title: item.productId.title,
         image: item.productId.image,
-        productPrice: item.productId.price,
+        productPrice: item.productId.discountPrice >0 ? item.productId.discountPrice:item.productId.price,
         quantity: item.quantity,
-        price: item.productId.price * item.quantity,
+        price: item.productId.discountPrice >0 ? item.productId.discountPrice * item.quantity:item.productId.price * item.quantity,
         status:status==="Success"?"Confirmed":"Pending"
         // Or any default status you prefer
       })),
@@ -366,9 +366,9 @@ const walletPlaceOrder = async(req,res)=>{
         productId: item.productId._id,
         title: item.productId.title,
         image: item.productId.image,
-        productPrice: item.productId.price,
+        productPrice: item.productId.discountPrice >0 ? item.productId.discountPrice:item.productId.price,
         quantity: item.quantity,
-        price: item.productId.price * item.quantity,
+        price: item.productId.discountPrice >0 ? item.productId.discountPrice * item.quantity:item.productId.price * item.quantity,
         status:"Confirmed"
         // Or any default status you prefer
       })),

@@ -583,6 +583,8 @@ const addToCart=async(req,res)=>{
     const user= await User.findById(req.session.user)
     const product= await Product.findById(productId);
 
+  
+
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -762,6 +764,8 @@ const filterProduct = async (req, res) => {
     if (filterOption && filterOption.trim().length > 0) {
       query.category = filterOption.trim();
     }
+
+    
 
 
     // Fetch products based on the query and sort criteria

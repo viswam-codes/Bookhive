@@ -207,7 +207,12 @@
                                                         <h5 class="product-name"><a href="<%= item.productId.title %>"><%= item.productId.title %></a></h5>
                                                         <p class="font-xs"></p>
                                                     </td>
-                                                    <td class="price" id="prodPrice" data-product-id="<%= item.productId._id %>" data-title="Price"><span>$<%= item.productId.price.toFixed(2) %></span></td>
+                                                    <% if(item.productId.discountPrice){ %>
+                                                        <td class="price" id="prodPrice" data-product-id="<%= item.productId._id %>" data-title="Price"><span>$<%= item.productId.discountPrice.toFixed(2) %></span></td>
+                                                    <%} else {%>
+                                                        <td class="price" id="prodPrice" data-product-id="<%= item.productId._id %>" data-title="Price"><span>$<%= item.productId.price.toFixed(2) %></span></td>
+                                                        <% } %>
+                                                   
                                                     <td class="text-center" data-title="Stock">
                                                         <div class="detail-qty border radius  m-auto">
                                                             <a href="#" class="qty-down" data-product-id="<%= item.productId._id %>"><i class="fi-rs-angle-small-down"></i></a>
@@ -215,9 +220,17 @@
                                                             <a href="#" class="qty-up" data-product-id="<%= item.productId._id %>"><i class="fi-rs-angle-small-up"></i></a> 
                                                         </div>
                                                     </td>
-                                                    <td class="text-right" data-title="Subtotal" id="subtotal">
-                                                        <span id="totalAmount">$<%= (item.productId.price * item.quantity).toFixed(2) %></span>
-                                                    </td>
+
+                                                    <% if(item.productId.discountPrice){ %>
+                                                        <td class="text-right" data-title="Subtotal" id="subtotal">
+                                                            <span id="totalAmount">$<%= (item.productId.discountPrice * item.quantity).toFixed(2) %></span>
+                                                        </td>
+                                                    <%} else {%>
+                                                        <td class="text-right" data-title="Subtotal" id="subtotal">
+                                                            <span id="totalAmount">$<%= (item.productId.price * item.quantity).toFixed(2) %></span>
+                                                        </td>
+                                                        <% } %>
+                                                   
                                                     <td class="action" data-title="Remove">
                                                         <a href="#"  id="removeBtn" data-product-id="<%= item.productId._id %>" class="text-muted" name="removeProduct" onclick="removeSweetAlert('<%= item.productId._id %>')"><i class="fi-rs-trash"></i></a>
                                                     </td>

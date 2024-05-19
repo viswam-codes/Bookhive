@@ -518,9 +518,17 @@
                       <span>90%</span>
                     </span>
                   </div>
+                  <% if(prod.discountPrice) { %>
+                    <div class="product-price">
+                      <span><%=prod.discountPrice %> </span>
+                      <span class="old-price"><%=prod.price %></span>
+                  </div>
+                  
+                 <% } else { %>
                   <div class="product-price">
                     <span><%=prod.price %></span>
                   </div>
+                  <% } %>
                   <% if(user) { %>
                   <div class="product-action-1 show">
                     <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="addToWhish('<%=prod._id %>')"><i class="fi-rs-heart"></i></a>

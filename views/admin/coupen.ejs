@@ -1,6 +1,15 @@
 <%- include('../partials/adminHeader.ejs') %>
+<style>
+    .error-message {
+        color: red;
+        font-size: 0.875em;
+    }
+
+    </style>
 <body>
 <!-- Modal Structure -->
+
+
 <div class="modal fade" id="couponModal" tabindex="-1" aria-labelledby="couponModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -11,35 +20,41 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form>
+                <form id="couponForm">
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="couponName">Coupon Name</label>
                             <input type="text" class="form-control" id="couponName" placeholder="Enter coupon name">
+                            <div class="error-message" id="couponNameError"></div>
                         </div>
                         <div class="form-group col-md-6">
                             <label for="couponCode">Coupon Code</label>
                             <input type="text" class="form-control" id="couponCode" placeholder="Enter coupon code">
+                            <div class="error-message" id="couponCodeError"></div>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="discountAmount">Discount Amount</label>
                             <input type="number" class="form-control" id="discountAmount" placeholder="Enter discount amount">
+                            <div class="error-message" id="discountAmountError"></div>
                         </div>
                         <div class="form-group col-md-6">
                             <label for="startDate">Start Date</label>
                             <input type="date" class="form-control" id="startDate">
+                            <div class="error-message" id="startDateError"></div>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="endDate">End Date</label>
                             <input type="date" class="form-control" id="endDate">
+                            <div class="error-message" id="endDateError"></div>
                         </div>
                         <div class="form-group col-md-6">
                             <label for="minimumAmount">Minimum Amount</label>
                             <input type="number" class="form-control" id="minimumAmount" placeholder="Enter minimum amount">
+                            <div class="error-message" id="minimumAmountError"></div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -53,14 +68,16 @@
                                 <input class="form-check-input" type="radio" name="statusOptions" id="inactiveStatus" value="inactive">
                                 <label class="form-check-label" for="inactiveStatus">Inactive</label>
                             </div>
+                            <div class="error-message" id="statusError"></div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-primary" id="saveChangesButton">Save changes</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
     <div class="screen-overlay"></div>
     <aside class="navbar-aside" id="offcanvas_aside">
         <div class="aside-top">
@@ -221,11 +238,25 @@
                                     <th>End date</th>
                                     <th>Status</th>
                                     <th>Minimum Amount</th>
-                                    <th class="text-end"> Action </th>
+                                    <th class="text-end">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                               
+                                <% coupons.forEach(coupon => { %>
+                                    <tr>
+                                        <td><%= coupon.couponname %></td>
+                                        <td><%= coupon.couponcode %></td>
+                                        <td><%= coupon.discountamount %></td>
+                                        <td><%= coupon.startDate.toDateString() %></td>
+                                        <td><%= coupon.endDate.toDateString() %></td>
+                                        <td><%= coupon.status %></td>
+                                        <td><%= coupon.minimumamount %></td>
+                                        <td class="text-end">
+                                            <button class="btn btn-primary" onclick="changeStatus('<%= coupon._id %>')">Change Status</button>
+                                            <button class="btn btn-danger" onclick="deleteCoupon('<%= coupon._id %>')">Delete</button>
+                                        </td>
+                                    </tr>
+                                <% }) %>
                             </tbody>
                         </table> <!-- table-responsive.// -->
                     </div>
@@ -264,6 +295,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
+
 <script>
     // Function to set the minimum date to today
     document.addEventListener('DOMContentLoaded', (event) => {
@@ -271,6 +303,140 @@
         document.getElementById('startDate').setAttribute('min', today);
         document.getElementById('endDate').setAttribute('min', today);
     });
+
+
+    document.getElementById('saveChangesButton').addEventListener('click', function() {
+    // Clear previous error messages
+    document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+
+    // Get form values
+    const couponName = document.getElementById('couponName').value.trim();
+    const couponCode = document.getElementById('couponCode').value.trim();
+    const discountAmount = document.getElementById('discountAmount').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    const minimumAmount = document.getElementById('minimumAmount').value;
+    const status = document.querySelector('input[name="statusOptions"]:checked');
+
+    // Validation
+    let isValid = true;
+
+    if (!couponName) {
+        document.getElementById('couponNameError').textContent = 'Coupon Name is required';
+        isValid = false;
+    }
+    if (!couponCode) {
+        document.getElementById('couponCodeError').textContent = 'Coupon Code is required';
+        isValid = false;
+    }
+    if (discountAmount === '' || discountAmount < 0) {
+        document.getElementById('discountAmountError').textContent = 'Discount Amount is required and should not be below zero';
+        isValid = false;
+    }
+    if (!startDate) {
+        document.getElementById('startDateError').textContent = 'Start Date is required';
+        isValid = false;
+    }
+    if (!endDate) {
+        document.getElementById('endDateError').textContent = 'End Date is required';
+        isValid = false;
+    }
+    if (minimumAmount === '' || minimumAmount < 0) {
+        document.getElementById('minimumAmountError').textContent = 'Minimum Amount is required and should not be below zero';
+        isValid = false;
+    }
+    if (!status) {
+        document.getElementById('statusError').textContent = 'Status is required';
+        isValid = false;
+    }
+
+    if (isValid) {
+        const couponData = {
+            couponName,
+            couponCode,
+            discountAmount: Number(discountAmount),
+            startDate,
+            endDate,
+            minimumAmount: Number(minimumAmount),
+            status: status.value
+        };
+
+        // Perform the fetch operation
+        fetch('/admin/add_coupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(couponData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Handle success or error response
+            if (data.message === "Existing coupon") {
+                document.getElementById('couponNameError').textContent = 'Coupon already exists';
+            } else if (data.message === "Existing Discount") {
+                document.getElementById('discountAmountError').textContent = 'Discount already exists';
+            } else if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Coupon added successfully',
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload();
+                    }
+                });
+            }
+           
+            // You can add code here to close the modal and display a success message
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle the error
+        });
+    }
+});
+
+</script>
+
+<script>
+    function changeStatus(couponId) {
+        // Add AJAX call or redirect to change status route
+        console.log(couponId);
+        fetch(`/admin/couponStatus?couponId=${couponId}`, {
+            method: 'PUT'
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Something went wrong',
+                    confirmButtonText: 'OK'
+                })
+            }
+        });
+    }
+
+    function deleteCoupon(couponId) {
+        // Add AJAX call or redirect to delete route
+        fetch(`/admin/coupon_delete?couponId=${couponId}`, {
+            method: 'DELETE'
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Something went wrong',
+                    confirmButtonText: 'OK'
+                })
+            }
+        });
+    }
 </script>
 
 

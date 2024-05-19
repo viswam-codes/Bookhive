@@ -343,14 +343,26 @@
                                 <tbody id="cart-items">
                                     <% let totalAmount=0 %>
                                     <% cart.product.forEach(item => { %>
+                                        <% if(item.productId.discountPrice){ %>
+                                            <% let itemTotal = item.productId.discountPrice * item.quantity %>
+                                            <% totalAmount += itemTotal %>
+                                            <% }else {%>
                                         <% let itemTotal = item.productId.price * item.quantity %>
                                         <% totalAmount += itemTotal %>
+                                        <%}%>
+
+                                        
                                     <tr>
                                         <td class="image product-thumbnail"><img src="/uploads/<%= item.productId.image[0] %>" alt="#"></td>
                                         <td>
                                             <h5><a href="shop-product-full.html"><%= item.productId.title %></a></h5> <span class="product-qty">x<%=item.quantity %></span>
                                         </td>
-                                        <td class="prod_price">$<span class="item-price"><%= (item.productId.price * item.quantity).toFixed(2) %></span></td>
+                                        <% if(item.productId.discountPrice){ %>
+                                            <td class="prod_price">$<span class="item-price"><%= (item.productId.discountPrice * item.quantity).toFixed(2) %></span></td>
+                                            <% }else {%>
+                                                <td class="prod_price">$<span class="item-price"><%= (item.productId.price * item.quantity).toFixed(2) %></span></td>
+                                                <%}%>
+                                       
                                     </tr>
                                     <% }); %>
                                     <tr>

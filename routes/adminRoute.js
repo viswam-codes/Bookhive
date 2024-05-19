@@ -46,6 +46,9 @@ admin_route.get("/orderDetails",auth.isLogin,orderManagement.loadOrderDetails);
 //---coupen management
 
 admin_route.get("/coupen_management",auth.isLogin,coupenManagement.loadCoupenList);
+admin_route.post("/add_coupon",auth.isLogin,coupenManagement.addCoupon);
+admin_route.put("/couponStatus",auth.isLogin,coupenManagement.couponStatusChange);
+admin_route.delete("/coupon_delete",auth.isLogin,coupenManagement.deleteCoupon);
 
 
 module.exports=admin_route
