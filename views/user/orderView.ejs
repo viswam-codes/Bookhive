@@ -69,6 +69,11 @@
                     <td>$<%= (item.productPrice * item.quantity).toFixed(2) %></td>
                     <td>
 
+                        <% if(item.status==="Delivered") {%>
+                            <button onclick="returnOrder('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>" >Return</button>
+
+                        <%}%>
+
                         <% if(order.paymentStatus=== "Failed") { %>
                             <button onclick="retryPayment('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>" >Retry</button>
                         <%} else { %>
@@ -92,6 +97,21 @@
                     </td>
                 </tr>
             <% }); %>
+        </tbody>
+    </table>
+
+    <table id="summary-table" style="margin-top: 20px;">
+        <tbody>
+            <% if(order.couponAmount>0) { %>
+                <tr>
+                    <th>Coupon Amount</th>
+                    <td id="couponAmount"><%=order.couponAmount %></td>
+                </tr>
+            <%}%>
+            <tr>
+                <th>Grand Total</th>
+                <td id="grandTotal">$<%= order.billTotal.toFixed(2) %></td>
+            </tr>
         </tbody>
     </table>
     

@@ -266,6 +266,9 @@
                               value="<%= pro.discount %>"
                               placeholder="Enter discount"
                           />
+                          <% if (typeof errorMessage !== 'undefined') { %>
+                            <div class="text-danger"><%= errorMessage %></div>
+                          <% } %>
                       </div>
                   </div>
                   <div class="col-lg-4">

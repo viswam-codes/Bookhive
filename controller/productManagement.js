@@ -154,7 +154,7 @@ const loadEditProduct=async(req,res)=>{
 const updateProduct = async (req, res) => {
   try {
     let id=req.query.id;
-    upload(req, res, async function (err) {
+    upload(req, res, async function (err) { 
       if (err instanceof multer.MulterError) {
         console.log(`Multer error: ${err}`);
         res.status(500).send("Error Uploading the images");
@@ -205,11 +205,39 @@ const updateProduct = async (req, res) => {
           images,
           discount
         } = req.body;
-        
-        let discountedPrice = price;
+
+
+        const categoryObj = await Category.findOne({ name: category });
+        if (!categoryObj) {
+          console.log("Category not found");
+          res.status(404).send("Category not found");
+          return;
+        }
+
+        let discountedPrice = 0;
         if(discount && discount >0){
           discountedPrice = price -(price * discount /100);
+          if (categoryObj.discount && discount < categoryObj.discount) {
+            const product = await Product.findById(id);
+            const categories = await Category.find(); // Fetch categories for the dropdown
+            return res.render('editProduct', {
+              pro: product,
+              cat: categories,
+              errorMessage: `Better category discount available`,
+            });
+          }
+
         }
+
+        
+
+
+       
+
+        
+
+
+
 
 
         const processedImageFilenames = processedImages.map(image => image.filename);

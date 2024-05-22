@@ -3,6 +3,7 @@ const Product = require("../model/productModel");
 const Cart = require("../model/cartModel");
 const Order = require("../model/orderModel");
 const Wallet=require("../model/walletModel");
+const Coupon=require("../model/coupenModel");
 const Razorpay = require("razorpay");
 const { v4: uuidv4 } = require("uuid");
 const { RAZOR_PAY_KEY, RAZOR_PAY_SECRET } = process.env;
@@ -38,8 +39,9 @@ const placeOrder = async (req, res) => {
     }
 
     // Fetch shipping address using addressIndex from req.body
-    const { addressIndex, paymentMethod, totalAmount } = req.body;
+    const { addressIndex, paymentMethod, totalAmount,couponId,subtotal } = req.body;
     const selectedAddress = user.address[addressIndex];
+   
 
     if (paymentMethod == "razorpay") {
       console.log("online payment");
@@ -49,8 +51,7 @@ const placeOrder = async (req, res) => {
         receipt: `reciept_${cart._id}`,
       };
       razorpayInstance.orders.create(options, function (err, order) {
-        console.log("order", order);
-        console.log("options", options);
+        
         if (!err) {
           res.status(200).json({
             success: true,
@@ -70,7 +71,14 @@ const placeOrder = async (req, res) => {
         }
       });
     }else if(paymentMethod=="Cash On Delivery"){
-
+     let couponAmount=0;
+     let couponCode=0;
+     if(couponId){
+      const coupon=await Coupon.findById(couponId);
+      couponAmount=parseInt(subtotal)*coupon.discountamount/100;
+      console.log(couponAmount)
+      couponCode=coupon.couponcode;
+     }
         const newOrder = new Order({
             orderId,
             user: userId,
@@ -83,7 +91,7 @@ const placeOrder = async (req, res) => {
               price: item.productId.discountPrice >0 ? item.productId.discountPrice * item.quantity:item.productId.price * item.quantity,
               // Or any default status you prefer
             })),
-            billTotal:parseFloat(totalAmount),
+            billTotal:couponId?parseInt(totalAmount):parseInt(subtotal),
             shippingAddress: {
               houseName: selectedAddress.houseName,
               street: selectedAddress.street,
@@ -93,6 +101,8 @@ const placeOrder = async (req, res) => {
               postalCode: selectedAddress.postalCode,
             },
             paymentMethod,
+            couponAmount,
+            couponCode
           });
       
           // Save order to the database
@@ -145,7 +155,18 @@ const onlinePlaceOrder=async(req,res)=>{
    
    
     const {addressIndex,status,totalAmount,paymentMethod}=req.query;
+
+    const{couponId,subtotal}=req.body;
+    
     const selectedAddress=user.address[addressIndex];
+
+    let couponAmount=0;
+     let couponCode=0;
+     if(couponId){
+      const coupon=await Coupon.findById(couponId);
+      couponAmount=parseInt(subtotal)*coupon.discountamount/100;
+      couponCode=coupon.couponcode;
+     }
 
     const newOrder = new Order({
       orderId,
@@ -160,7 +181,7 @@ const onlinePlaceOrder=async(req,res)=>{
         status:status==="Success"?"Confirmed":"Pending"
         // Or any default status you prefer
       })),
-      billTotal:totalAmount,
+      billTotal:couponId?parseInt(totalAmount):parseInt(subtotal),
       shippingAddress: {
         houseName: selectedAddress.houseName,
         street: selectedAddress.street,
@@ -170,7 +191,9 @@ const onlinePlaceOrder=async(req,res)=>{
         postalCode: selectedAddress.postalCode,
       },
       paymentMethod,
-      paymentStatus:status
+      paymentStatus:status,
+      couponAmount,
+      couponCode
     });
     
     await newOrder.save();
@@ -354,9 +377,19 @@ const walletPlaceOrder = async(req,res)=>{
         .json({ success: false, message: "User not found" });
     }
 
-    const {addressIndex,totalAmount,paymentMethod} = req.body;
+    const {addressIndex,totalAmount,paymentMethod,couponId,subtotal} = req.body;
+    console.log(subtotal);
     const {status}= req.query;
+    console.log("wallet",couponId)
     const selectedAddress=user.address[addressIndex];
+    let couponAmount=0;
+    let couponCode=0;
+    if(couponId){
+      const coupon=await Coupon.findById(couponId);
+      couponAmount=parseInt(subtotal)*coupon.discountamount/100;
+      couponCode=coupon.couponcode;
+     }
+
 
     
     const newOrder = new Order({
@@ -372,7 +405,7 @@ const walletPlaceOrder = async(req,res)=>{
         status:"Confirmed"
         // Or any default status you prefer
       })),
-      billTotal:totalAmount,
+      billTotal:couponId?parseInt(totalAmount):parseInt(subtotal),
       shippingAddress: {
         houseName: selectedAddress.houseName,
         street: selectedAddress.street,
@@ -382,12 +415,14 @@ const walletPlaceOrder = async(req,res)=>{
         postalCode: selectedAddress.postalCode,
       },
       paymentMethod,
-      paymentStatus:status
+      paymentStatus:status,
+      couponAmount,
+      couponCode
     });
 
     await newOrder.save();
     
-    console.log("reached order:",newOrder)
+    
     for(const item of newOrder.items){
       const product = await Product.findById(item.productId);
       if (!product) {

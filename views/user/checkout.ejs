@@ -1,5 +1,58 @@
 <%- include('../partials/userHeader.ejs') %>
 
+<style>
+    .coupon-option {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .coupon-option input[type="radio"] {
+        width: auto;
+        margin-right: 0.5rem;
+    }
+
+    .coupon-option label {
+        margin: 0;
+    }
+</style>
+<!-- Apply Coupon Modal -->
+
+<div class="modal fade" id="applyCouponModal" tabindex="-1" aria-labelledby="applyCouponModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="applyCouponModalLabel">Apply Coupon</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="couponForm">
+                    <div class="mb-3">
+                      
+                        <label class="form-check-label">Select a coupon:</label>
+                        <%  coupon.forEach((coup)=>{ %>
+                          <div class="coupon-option">
+                            <input type="radio"  name="coupon" value="<%=coup._id %>" class="form-check-input">
+                            <label  class="form-check-label"><%=coup.couponname%> - <%=coup.discountamount%>% Off</label>
+                        </div>
+                       
+                        <%})%>
+                        
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="applyCouponBtnModal">Apply Coupon</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
 <!-- modal for adding address -->
 <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -376,13 +429,16 @@
                                     <tr>
             
                                         <th>Total</th>
-                                        <td colspan="2" class="product-subtotal" id="subTotal"><span class="font-xl text-brand fw-900">$<span id="total"><%= totalAmount.toFixed(2) %></span></span></td>
+                                        <td colspan="2" class="product-subtotal" ><span class="font-xl text-brand fw-900">$<span id="total"><%= totalAmount.toFixed(2) %></span></span></td>
                                     </tr>
                                   
                                 </tbody>
                                 
                             </table>
+                           
                         </div>
+                        <button class="btn btn-fill-out mt-2" id="applyCouponBtn">Apply Coupon</button>
+                        <button class="btn btn-fill-out mt-2" id="removeCouponBtn" disabled>Remove Coupon</button>
                        
                         <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                         <div class="payment_method">
@@ -426,6 +482,123 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let couponApplied=false;
+    let couponIdApplied=null;
+    document.addEventListener('DOMContentLoaded', function () {
+        // Event listener for the Apply Coupon button to show the modal
+        document.getElementById('applyCouponBtn').addEventListener('click', function () {
+
+            var myModal = new bootstrap.Modal(document.getElementById('applyCouponModal'), {
+                keyboard: false
+            });
+            myModal.show();
+        });
+
+        // Event listener for the Apply Coupon button inside the modal
+        document.getElementById('applyCouponBtnModal').addEventListener('click', function () {
+            const couponId = document.querySelector('input[name="coupon"]:checked').value;
+            const subTotal = document.getElementById('subtotal').textContent;
+             console.log(subTotal)
+
+            if (couponId) {
+              console.log(subTotal);
+              console.log(couponId);
+
+                // Fetch operation to the backend
+                fetch(`/apply_coupon?couponId=${couponId}&subTotal=${subTotal}`, {
+                    method: 'POST',
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                icon:"success",
+                title: data.message,
+                text:"Coupon Applied",
+                confirmButtonText :"OK"
+            })
+                        // Handle success (e.g., update the total amount on the page)
+                       
+                        // Update the total amount based on the response
+                        const discountRow= document.createElement('tr');
+                        discountRow.innerHTML = `
+                        <th id="discountHead">Discount</th>
+                        <td colspan="2" class="product-subtotal" id="discountRow" >- $<span>${data.discountAmount}</span></td>
+                    `;
+                    document.querySelector('#cart-items').appendChild(discountRow);
+
+
+                    document.getElementById('total').textContent = data. differenceAmount;
+
+                    couponApplied=true;
+
+                    
+                    couponIdApplied=couponId;
+                    document.getElementById('applyCouponBtn').disabled = true;
+                    document.getElementById('removeCouponBtn').disabled = false;
+
+
+
+
+
+                    } else if(!data.success) {
+                        // Handle failure (e.g., show an error message)
+                        Swal.fire({
+                icon: 'warning',
+                title: 'Failed to add coupon',
+                text: data.message
+            });
+                        
+                    }
+                    // Close the modal
+                    var myModalEl = document.getElementById('applyCouponModal');
+                    var modal = bootstrap.Modal.getInstance(myModalEl);
+                    modal.hide();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while applying the coupon.');
+                });
+            } else {
+                alert('Please select a coupon.');
+            }
+        });
+
+        document.getElementById('removeCouponBtn').addEventListener('click', function () {
+            if (couponApplied) {
+                // Remove the discount row
+                const discountRow = document.getElementById('discountRow');
+                const discounthead=document.getElementById('discountHead');
+                if (discountRow) {
+                    discountRow.remove();
+                    discounthead.remove();
+                }
+
+                // Recalculate the total amount without the coupon discount
+                const subTotal = parseFloat(document.getElementById('subtotal').textContent);
+                document.getElementById('total').textContent = subTotal.toFixed(2);
+
+                couponApplied = false;
+                couponIdApplied = null;
+                document.getElementById('applyCouponBtn').disabled = false;
+                document.getElementById('removeCouponBtn').disabled = true;
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Coupon Removed',
+                    text: 'The coupon has been successfully removed.',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+
+
+    });
+</script>
 <script>
     function validateAddress() {
         // Reset previous error messages
@@ -600,8 +773,13 @@
             const selectedAddressIndex = document.querySelector('input[name="selectedAddress"]:checked').value;
             const selectedPaymentMethod = document.querySelector('input[name="payment_option"]:checked').value;
             const totalAmount = document.getElementById("total").innerText;
-            
-          
+            const subtotal=document.getElementById("subtotal").innerText;
+           let couponId=null;
+           if(couponApplied){
+             couponId=couponIdApplied
+           }
+           console.log("here it comes",couponId);
+        
             if (selectedPaymentMethod === "Cash On Delivery") {
                 fetch('/placeOrder', {
                     method: 'POST',
@@ -611,7 +789,9 @@
                     body: JSON.stringify({
                         addressIndex: selectedAddressIndex,
                         paymentMethod: selectedPaymentMethod,
-                        totalAmount: totalAmount
+                        totalAmount: totalAmount,
+                        couponId,
+                        subtotal
                     })
                 })
                 .then(response => {
@@ -652,7 +832,9 @@
                        {
                         addressIndex: selectedAddressIndex,
                         paymentMethod: selectedPaymentMethod,
-                        totalAmount: totalAmount
+                        totalAmount: totalAmount,
+                    
+                        
                     })
                 })
                 .then(response => {
@@ -672,7 +854,7 @@
                             order_id: data.order_id,
                             handler: function (response) {
                                 console.log(response);
-                                OrderAfterPayment(selectedAddressIndex, totalAmount,selectedPaymentMethod,"Success"); 
+                                OrderAfterPayment(selectedAddressIndex, totalAmount,selectedPaymentMethod,"Success",couponId,subtotal); 
                             },
                             prefill: {
                                 contact: data.contact,
@@ -694,7 +876,7 @@
 
                         razorpayObject.on('payment.failed', function (response) {
                         console.error(response.error);
-                        OrderAfterPayment(selectedAddressIndex, totalAmount, selectedPaymentMethod, "Failed");
+                        OrderAfterPayment(selectedAddressIndex, totalAmount, selectedPaymentMethod, "Failed",couponId,subtotal);
             });
                     } else {
                         // Handle errors if the order couldn't be placed
@@ -711,7 +893,7 @@
                     console.error('Error placing order:', error);
                 });
             } else if (selectedPaymentMethod === "wallet") { 
-                confirmWalletBalance(selectedAddressIndex, totalAmount, selectedPaymentMethod);
+                confirmWalletBalance(selectedAddressIndex, totalAmount, selectedPaymentMethod,couponId,subtotal);
              
             }
         } else {
@@ -730,12 +912,19 @@
     });
 }
 
-function OrderAfterPayment(addressIndex,totalAmount,paymentMethod,status){
+function OrderAfterPayment(addressIndex,totalAmount,paymentMethod,status,couponId,subtotal){
     fetch(`/onlineOrderPlacing?addressIndex=${addressIndex}&status=${status}&totalAmount=${totalAmount}&paymentMethod=${paymentMethod}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify(
+                       {
+                       couponId,
+                       subtotal
+                    
+                        
+                    })
     })
     .then(response => response.json())
     .then(data => {
@@ -783,7 +972,7 @@ function OrderAfterPayment(addressIndex,totalAmount,paymentMethod,status){
     });
 }
 
-function confirmWalletBalance(selectedAddressIndex, totalAmount, selectedPaymentMethod){
+function confirmWalletBalance(selectedAddressIndex, totalAmount, selectedPaymentMethod,couponId,subtotal){
     
                 fetch(`/checkWalletBalance?totalAmount=${totalAmount}`, {
         method: 'PUT',
@@ -795,7 +984,7 @@ function confirmWalletBalance(selectedAddressIndex, totalAmount, selectedPayment
     .then(data => {
         if (data.success) {
             console.log("success")
-            walletPlaceOrder(selectedAddressIndex, selectedPaymentMethod, totalAmount);
+            walletPlaceOrder(selectedAddressIndex, selectedPaymentMethod, totalAmount,couponId,subtotal);
         } else {
             Swal.fire({
                 icon: 'warning',
@@ -810,7 +999,7 @@ function confirmWalletBalance(selectedAddressIndex, totalAmount, selectedPayment
                 
               }  
 
-  function walletPlaceOrder(addressIndex,paymentMethod,totalAmount,){
+  function walletPlaceOrder(addressIndex,paymentMethod,totalAmount,couponId,subtotal){
  
     fetch(`/walletOrder?status=Success`,{
         method: "POST",
@@ -821,6 +1010,8 @@ function confirmWalletBalance(selectedAddressIndex, totalAmount, selectedPayment
             addressIndex: addressIndex,
             paymentMethod: paymentMethod,
             totalAmount: totalAmount,
+            couponId,
+            subtotal
 
         })
     })
@@ -852,6 +1043,8 @@ function confirmWalletBalance(selectedAddressIndex, totalAmount, selectedPayment
   }
 
 </script>
+
+
 </body>
 
 

@@ -18,6 +18,10 @@ const categorySchema=mongoose.Schema({
         type:Boolean,
         required:true,
         default:false
+    },
+    discount:{
+        type:Number,
+        default:0
     }
 })
 

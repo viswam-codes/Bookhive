@@ -518,7 +518,7 @@
                       <span>90%</span>
                     </span>
                   </div>
-                  <% if(prod.discountPrice) { %>
+                  <% if(prod.discountPrice>0) { %>
                     <div class="product-price">
                       <span><%=prod.discountPrice %> </span>
                       <span class="old-price"><%=prod.price %></span>
@@ -2052,7 +2052,7 @@
                             <i class="fi-rs-eye"></i
                           ></a>
                           <a
-                            aria-label="Add To Wishlist"
+                            aria-label="Add To Wishlist" 
                             class="action-btn small hover-up"
                             href="shop-wishlist.html"
                             ><i class="fi-rs-heart"></i

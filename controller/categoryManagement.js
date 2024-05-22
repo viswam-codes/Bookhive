@@ -1,4 +1,5 @@
 const Category=require('../model/categoryModel');
+const Product=require('../model/productModel');
 
 const loadCategory=async(req,res)=>{
     try{
@@ -42,15 +43,26 @@ const addCategory = async (req, res) => {
 const updateCategory= async(req,res)=>{
     try{
         const id=req.params.id;
-        const {name,isListed}=req.body;
-        
+        const {name,isListed,discount}=req.body;
+        console.log(discount);
         const existingCategory = await Category.findOne({ name });
         if (existingCategory && existingCategory._id != id) {
             // If a category with the same name already exists and it's not the same category being updated
             return res.status(400).json({ success: false, error: 'category_exists', message: 'Category already exists' });
         }
 
-        const updateCategory= await Category.findByIdAndUpdate(id,{name,isListed},{new:true});
+        const updateCategory= await Category.findByIdAndUpdate(id,{name,isListed,discount},{new:true});
+        if(discount){
+            const category= await Category.findById(id);
+            const categoryName=category.name;
+            const products= await Product.find({category:categoryName});
+            console.log(products)
+            for (const product of products) {
+                const discountPrice = product.price - (product.price * (discount / 100));
+                await Product.findByIdAndUpdate(product._id, { discountPrice });
+            }
+
+        }
 
         if(!updateCategory){
             return res.status(404).json({sucess:false,message:"Category not found"});

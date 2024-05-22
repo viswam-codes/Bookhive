@@ -403,7 +403,12 @@
               </h5>
               <ul class="categories">
                 <% cat.forEach(function(cats) { %>
-                <li ><a href="#"><%= cats.name %></a></li>
+                  <% if (cats.discount) {%>
+                    <li ><a href="#"><%= cats.name %></a>  <a style="color: #088178"><%=cats.discount%>%off</a></li>
+                  <%}else { %>
+                    <li ><a href="#"><%= cats.name %></a></li>
+                  <%}%>
+                
                 <% }); %>
               </ul>
             </div>
@@ -573,9 +578,16 @@ categoryLinks.forEach(link => {
                     <span>90%</span>
                   </span>
                 </div>
-                <div class="product-price">
-                  <span>${prod.price}</span>
-                </div>
+                ${prod.discountPrice ? 
+                              `<div class="product-price">
+                                <span>${prod.discountPrice}</span>
+                                <span class="old-price">${prod.price}</span>
+                              </div>` 
+                              : 
+                              `<div class="product-price">
+                                <span>${prod.price}</span>
+                              </div>`
+                            }
                 <div class="product-action-1 show">
                   <a aria-label="Add To Cart" class="action-btn hover-up" href="shop-cart.html"><i class="fi-rs-shopping-bag-add"></i></a>
                 </div>

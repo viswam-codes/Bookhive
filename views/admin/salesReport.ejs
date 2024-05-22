@@ -1,0 +1,202 @@
+<%- include('../partials/adminHeader.ejs') %>
+<body>
+    <!-- Modal Structure -->
+    
+    
+    <div class="modal fade" id="couponModal" tabindex="-1" aria-labelledby="couponModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="couponModalLabel">Create New Coupon</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="couponForm">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="couponName">Coupon Name</label>
+                                <input type="text" class="form-control" id="couponName" placeholder="Enter coupon name">
+                                <div class="error-message" id="couponNameError"></div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="couponCode">Coupon Code</label>
+                                <input type="text" class="form-control" id="couponCode" placeholder="Enter coupon code">
+                                <div class="error-message" id="couponCodeError"></div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="discountAmount">Discount Amount</label>
+                                <input type="number" class="form-control" id="discountAmount" placeholder="Enter discount amount">
+                                <div class="error-message" id="discountAmountError"></div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="startDate">Start Date</label>
+                                <input type="date" class="form-control" id="startDate">
+                                <div class="error-message" id="startDateError"></div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="endDate">End Date</label>
+                                <input type="date" class="form-control" id="endDate">
+                                <div class="error-message" id="endDateError"></div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="minimumAmount">Minimum Amount</label>
+                                <input type="number" class="form-control" id="minimumAmount" placeholder="Enter minimum amount">
+                                <div class="error-message" id="minimumAmountError"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="statusOptions" id="activeStatus" value="active">
+                                    <label class="form-check-label" for="activeStatus">Active</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="statusOptions" id="inactiveStatus" value="inactive">
+                                    <label class="form-check-label" for="inactiveStatus">Inactive</label>
+                                </div>
+                                <div class="error-message" id="statusError"></div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="saveChangesButton">Save changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+        <div class="screen-overlay"></div>
+        <aside class="navbar-aside" id="offcanvas_aside">
+            <div class="aside-top">
+                <a href="index.html" class="brand-wrap">
+                    <img src="/admin_assets/imgs/theme/logo.svg" class="logo" alt="Evara Dashboard">
+                </a>
+                <div>
+                    <button class="btn btn-icon btn-aside-minimize"> <i class="text-muted material-icons md-menu_open"></i> </button>
+                </div>
+            </div>
+            <nav>
+                <ul class="menu-aside">
+                    <li class="menu-item ">
+                        <a class="menu-link" href="index.html"> <i class="icon material-icons md-home"></i>
+                            <span class="text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="menu-item  ">
+                        <a class="menu-link" href="/admin/user_management"> <i class="icon material-icons md-person"></i>
+                            <span class="text">User Management</span>
+                        </a>
+                        
+                    </li>
+                    <li class="menu-item ">
+                        <a class="menu-link" href="/admin/product_management"> <i class="icon material-icons md-shopping_bag"></i>
+                            <span class="text">Products Management</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a class="menu-link" href="/admin/category_management"> <i class="icon material-icons md-stars"></i>
+                            <span class="text">Category Management</span> </a>
+                    </li>
+                    <li class="menu-item ">
+                        <a class="menu-link" href="/admin/order_management"> <i class="icon material-icons md-shopping_cart"></i>
+                            <span class="text">Orders</span>
+                        </a>
+                    </li>
+                    <li class="menu-item  ">
+                        <a class="menu-link" href="/admin/coupen_management"> <i class="icon material-icons md-shopping_bag"></i>
+                            <span class="text">Coupon</span>
+                        </a>
+                    </li>
+                    <li class="menu-item active ">
+                        <a class="menu-link" href="/admin/sales_report"> <i class="icon material-icons md-add_box"></i>
+                            <span class="text">Sales Report</span>
+                        </a>
+                    </li>
+                   
+                </ul>
+                <hr>
+                <ul class="menu-aside">
+                    <li class="menu-item has-submenu">
+                        <a class="menu-link" href="#"> <i class="icon material-icons md-settings"></i>
+                            <span class="text">Settings</span>
+                        </a>
+                        <div class="submenu">
+                            <a href="page-settings-1.html">Setting sample 1</a>
+                            <a href="page-settings-2.html">Setting sample 2</a>
+                        </div>
+                    </li>
+                   
+                </ul>
+                <br>
+                <br>
+            </nav>
+        </aside>
+        <main class="main-wrap">
+          
+            <section class="content-main">
+                <div class="content-header">
+        <h2 class="content-title">Sellers list</h2>
+        <div>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#couponModal">
+                <i class="material-icons md-plus"></i> Create new
+            </button>
+        </div>
+    </div>
+                <div class="card mb-4">
+                   <!-- card-header end// -->
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Order No.</th>
+                                        <th>Customer</th>
+                                        <th>Product</th>
+                                        <th>Quantity sold</th>
+                                        <th>Price</th>
+                                        <th>Coupon Amount</th>
+                                        <th class="text-end">Total Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                       
+                                   
+                                </tbody>
+                            </table> <!-- table-responsive.// -->
+                        </div>
+                    </div> <!-- card-body end// -->
+                </div> <!-- card end// -->
+                <div class="pagination-area mt-15 mb-50">
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-start">
+                           
+                        </ul>
+                    </nav>
+                </div>
+                
+            </section> <!-- content-main end// -->
+    <footer class="main-footer font-xs">
+        <div class="row pb-30 pt-15">
+            <div class="col-sm-6">
+                <script>
+                document.write(new Date().getFullYear())
+                </script> ©, Evara - HTML Ecommerce Template .
+            </div>
+            <div class="col-sm-6">
+                <div class="text-sm-end">
+                    All rights reserved
+                </div>
+            </div>
+        </div>
+    </footer>
+    </main>
+
+<%- include('../partials/adminFooter.ejs') %>

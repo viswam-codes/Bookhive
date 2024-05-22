@@ -55,6 +55,8 @@ user_route.post("/checkQuantity",auth.isLogin,userController.checkQuantity);
 //---checkout Management
 user_route.get("/checkout",auth.isLogin,checkoutController.loadCheckout);
 user_route.post("/confirmQuantity",auth.isLogin,checkoutController.confirmQuantity);
+//--coupon
+user_route.post("/apply_coupon",auth.isLogin,checkoutController.applyCoupon);
 
 
 //---order Management

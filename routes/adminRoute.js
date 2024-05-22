@@ -6,6 +6,7 @@ const categoryManagement=require('../controller/categoryManagement');
 const productManagement=require('../controller/productManagement');
 const orderManagement=require('../controller/orderManagement');
 const coupenManagement= require('../controller/coupenManagement')
+const salesReport=require('../controller/salesReportManage');
 const auth=require("../middlewares/adminAuth")
 
 
@@ -50,6 +51,10 @@ admin_route.post("/add_coupon",auth.isLogin,coupenManagement.addCoupon);
 admin_route.put("/couponStatus",auth.isLogin,coupenManagement.couponStatusChange);
 admin_route.delete("/coupon_delete",auth.isLogin,coupenManagement.deleteCoupon);
 
+
+
+//---sales report
+admin_route.get("/sales_report",auth.isLogin,salesReport.loadSalesReport);
 
 module.exports=admin_route
 

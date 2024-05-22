@@ -46,6 +46,10 @@ const changeOrderStatus = async (req, res) => {
             order.items.forEach(item => {
                 item.status = "Delivered";
             });
+            if(order.paymentMethod==="Cash On Delivery"){
+                order.paymentStatus="Success"
+            }
+
         }
 
         // Save the updated order
