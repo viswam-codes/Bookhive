@@ -58,7 +58,7 @@ const updateCategory= async(req,res)=>{
             const products= await Product.find({category:categoryName});
             console.log(products)
             for (const product of products) {
-                const discountPrice = product.price - (product.price * (discount / 100));
+                const discountPrice = parseInt(product.price - (product.price * (discount / 100)));
                 await Product.findByIdAndUpdate(product._id, { discountPrice });
             }
 

@@ -102,7 +102,8 @@ const placeOrder = async (req, res) => {
             },
             paymentMethod,
             couponAmount,
-            couponCode
+            couponCode,
+            couponId
           });
       
           // Save order to the database
@@ -193,7 +194,8 @@ const onlinePlaceOrder=async(req,res)=>{
       paymentMethod,
       paymentStatus:status,
       couponAmount,
-      couponCode
+      couponCode,
+      couponId
     });
     
     await newOrder.save();
@@ -417,7 +419,8 @@ const walletPlaceOrder = async(req,res)=>{
       paymentMethod,
       paymentStatus:status,
       couponAmount,
-      couponCode
+      couponCode,
+      couponId
     });
 
     await newOrder.save();

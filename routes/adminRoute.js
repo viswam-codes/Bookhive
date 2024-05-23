@@ -55,6 +55,7 @@ admin_route.delete("/coupon_delete",auth.isLogin,coupenManagement.deleteCoupon);
 
 //---sales report
 admin_route.get("/sales_report",auth.isLogin,salesReport.loadSalesReport);
+admin_route.get("/filter_Report",auth.isLogin,salesReport.filterSalesReport);
 
 module.exports=admin_route
 

@@ -239,16 +239,24 @@
                                             <span class="font-small ml-5 text-muted"> (25 reviews)</span>
                                         </div>
                                     </div>
-                                    <% if(pro.discountPrice) { %>
+                                    <% if(pro.discountPrice>0) { %>
                                         <div class="clearfix product-price-cover">
                                             <div class="product-price primary-color float-left">
                                                 <ins><span class="text-brand"><%=pro.discountPrice %></span></ins>
                                                 <ins><span class="old-price font-md ml-15"><%=pro.price %></span></ins>
-                                                <span class="save-price  font-md color3 ml-15"><%= ((pro.price-pro.discountPrice)/pro.price)*100 %>% Off</span>
+                                                <span class="save-price  font-md color3 ml-15"><%= (Math.floor(((pro.price-pro.discountPrice)/pro.price)*100)) %>% Off</span>
                                             </div>
                                         </div>
                                       
                                      <% } else { %>
+
+                                        <div class="clearfix product-price-cover">
+                                            <div class="product-price primary-color float-left">
+                                                <ins><span class="text-brand"><%=pro.price %></span></ins>
+                                               
+                                                
+                                            </div>
+                                        </div>
                                      
                                       <% } %>
                                     

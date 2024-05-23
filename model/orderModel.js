@@ -100,7 +100,12 @@ const orderSchema = Schema({
     couponCode:{
         default: 'nil',
         type: String
-    }
+    },
+    couponId:{
+        type:ObjectId,
+        ref:'coupon',
+       
+    },
 }, {
     timestamps: true,
 });

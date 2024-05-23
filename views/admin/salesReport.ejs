@@ -1,75 +1,36 @@
 <%- include('../partials/adminHeader.ejs') %>
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 <body>
     <!-- Modal Structure -->
-    
-    
-    <div class="modal fade" id="couponModal" tabindex="-1" aria-labelledby="couponModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="couponModalLabel">Create New Coupon</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="couponForm">
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="couponName">Coupon Name</label>
-                                <input type="text" class="form-control" id="couponName" placeholder="Enter coupon name">
-                                <div class="error-message" id="couponNameError"></div>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="couponCode">Coupon Code</label>
-                                <input type="text" class="form-control" id="couponCode" placeholder="Enter coupon code">
-                                <div class="error-message" id="couponCodeError"></div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="discountAmount">Discount Amount</label>
-                                <input type="number" class="form-control" id="discountAmount" placeholder="Enter discount amount">
-                                <div class="error-message" id="discountAmountError"></div>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="startDate">Start Date</label>
-                                <input type="date" class="form-control" id="startDate">
-                                <div class="error-message" id="startDateError"></div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="endDate">End Date</label>
-                                <input type="date" class="form-control" id="endDate">
-                                <div class="error-message" id="endDateError"></div>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="minimumAmount">Minimum Amount</label>
-                                <input type="number" class="form-control" id="minimumAmount" placeholder="Enter minimum amount">
-                                <div class="error-message" id="minimumAmountError"></div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Status</label>
-                            <div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="statusOptions" id="activeStatus" value="active">
-                                    <label class="form-check-label" for="activeStatus">Active</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="statusOptions" id="inactiveStatus" value="inactive">
-                                    <label class="form-check-label" for="inactiveStatus">Inactive</label>
-                                </div>
-                                <div class="error-message" id="statusError"></div>
-                            </div>
-                        </div>
-                        <button type="button" class="btn btn-primary" id="saveChangesButton">Save changes</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    <style>
+        .table-hover tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+        .table-bordered th,
+        .table-bordered td {
+            border: 1px solid #dee2e6;
+        }
+        .product-item {
+            border-bottom: 1px solid #dee2e6;
+            padding: 4px 0;
+        }
+        .product-item:last-child {
+            border-bottom: none;
+        }
+        .summary-row {
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+        .btn-outline-primary {
+            border-color:black;
+            color: black;
+        }
+        .btn-outline-primary:hover {
+            background-color: #088178;
+            color: white;
+            border-color: #088178;
+        }
+    </style>
     
         <div class="screen-overlay"></div>
         <aside class="navbar-aside" id="offcanvas_aside">
@@ -137,57 +98,100 @@
                 <br>
             </nav>
         </aside>
-        <main class="main-wrap">
-          
-            <section class="content-main">
-                <div class="content-header">
-        <h2 class="content-title">Sellers list</h2>
-        <div>
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#couponModal">
-                <i class="material-icons md-plus"></i> Create new
-            </button>
+       <main class="main-wrap">
+    <section class="content-main">
+        <div class="content-header">
+            <h2 class="content-title">Sellers list</h2>
+            <div>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#couponModal">
+                    <i class="material-icons md-plus"></i> Download PDF
+                </button>
+            </div>
         </div>
-    </div>
-                <div class="card mb-4">
-                   <!-- card-header end// -->
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Order No.</th>
-                                        <th>Customer</th>
-                                        <th>Product</th>
-                                        <th>Quantity sold</th>
-                                        <th>Price</th>
-                                        <th>Coupon Amount</th>
-                                        <th class="text-end">Total Price</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-
-                                       
-                                   
-                                </tbody>
-                            </table> <!-- table-responsive.// -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <div class="mb-3 ">
+                        <button type="button" class="btn btn-outline-primary mr-5" id="dailyButton">Daily</button>
+                        <button type="button" class="btn btn-outline-primary mr-5" id="weeklyButton">Weekly</button>
+                        <button type="button" class="btn btn-outline-primary mr-5" id="monthlyButton">Monthly</button>
+                        <button type="button" class="btn btn-outline-primary mr-5" id="yearlyButton">Yearly</button>
+                        <div class="d-inline-block" style="width: auto;">
+                            <label for="startDate">Start:</label>
+                            <input type="date" id="startDate" class="form-control d-inline-block" style="width: auto;">
                         </div>
-                    </div> <!-- card-body end// -->
-                </div> <!-- card end// -->
-                <div class="pagination-area mt-15 mb-50">
-                    <nav aria-label="Page navigation example">
-                        <ul class="pagination justify-content-start">
-                           
-                        </ul>
-                    </nav>
+                        <div class="d-inline-block" style="width: auto;">
+                            <label for="endDate">End:</label>
+                            <input type="date" id="endDate" class="form-control d-inline-block mr-2" style="width: auto;">
+                        </div>
+                        <button type="button" class="btn btn-outline-primary" id="filterButton" >Filter</button>
+                    </div>
+                    <table class="table table-hover table-bordered" id="order-table">
+                        <thead style="background-color: #088178; color: white;">
+                            <tr>
+                                <th>Date</th>
+                                <th>Order No.</th>
+                                <th>Customer</th>
+                                <th>Products</th>
+                                <th>Quantity Sold</th>
+                                <th>Price</th>
+                                <th>Discount Amount</th>
+                                <th class="text-end">Total Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% order.forEach(orders => { %>
+                                <tr>
+                                    <td><%= new Date(orders.orderDate).toLocaleDateString() %></td>
+                                    <td><%= orders.orderId %></td>
+                                    <td><%= orders.user.name %></td>
+                                    <td>
+                                        <% orders.items.forEach(item => { %>
+                                            <div class="product-item"><%= item.title %></div>
+                                        <% }) %>
+                                    </td>
+                                    <td>
+                                        <% orders.items.forEach(item => { %>
+                                            <div class="product-item"><%= item.quantity %></div>
+                                        <% }) %>
+                                    </td>
+                                    <td>
+                                        <% orders.items.forEach(item => { %>
+                                            <div class="product-item"><%= item.productPrice.toFixed(2) %></div>
+                                        <% }) %>
+                                    </td>
+                                    <td><%= orders.couponId ? orders.couponAmount.toFixed(2) : '0.00' %></td>
+                                    <td class="text-end"><%= orders.billTotal.toFixed(2) %></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                        <tfoot>
+                            <tr class="summary-row">
+                                <td colspan="6">Total</td>
+                                <td id="total-discount">0.00</td>
+                                <td id="total-sales-amount" class="text-end">0.00</td>
+                            </tr>
+                            <tr class="summary-row">
+                                <td colspan="8">Sales Count: <span id="sales-count">0</span></td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
-                
-            </section> <!-- content-main end// -->
+            </div>
+        </div>
+        <div class="pagination-area mt-15 mb-50">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-start">
+                    <!-- Add pagination controls here if needed -->
+                </ul>
+            </nav>
+        </div>
+    </section>
     <footer class="main-footer font-xs">
         <div class="row pb-30 pt-15">
             <div class="col-sm-6">
                 <script>
-                document.write(new Date().getFullYear())
+                    document.write(new Date().getFullYear())
                 </script> ©, Evara - HTML Ecommerce Template .
             </div>
             <div class="col-sm-6">
@@ -197,6 +201,199 @@
             </div>
         </div>
     </footer>
-    </main>
+</main>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    function calculateTotals() {
+        let salesCount = 0;
+        let totalDiscount = 0;
+        let totalSalesAmount = 0;
+
+        document.querySelectorAll('#order-table tbody tr').forEach(row => {
+            const discountCell = row.cells[6];
+            const totalPriceCell = row.cells[7];
+
+            const discount = parseFloat(discountCell.textContent) || 0;
+            const totalPrice = parseFloat(totalPriceCell.textContent) || 0;
+
+            salesCount++;
+            totalDiscount += discount;
+            totalSalesAmount += totalPrice;
+        });
+
+        document.getElementById('total-discount').textContent = totalDiscount.toFixed(2);
+        document.getElementById('total-sales-amount').textContent = totalSalesAmount.toFixed(2);
+        document.getElementById('sales-count').textContent = salesCount;
+    }
+
+    document.addEventListener('DOMContentLoaded', calculateTotals);
+
+    let dailyFilter = document.getElementById("dailyButton");
+    let weeklyFilter = document.getElementById("weeklyButton");
+    let monthlyFilter = document.getElementById("monthlyButton");
+    let yearlyFilter = document.getElementById("yearlyButton");
+
+
+   
+    let customFilterButton = document.getElementById("filterButton");
+
+    dailyFilter.addEventListener("click", applyFilter);
+    weeklyFilter.addEventListener("click", applyFilter);
+    monthlyFilter.addEventListener("click", applyFilter);
+    yearlyFilter.addEventListener("click", applyFilter);
+    customFilterButton.addEventListener("click", applyFilter);
+
+    function applyFilter(event) {
+    let filterType = event.target.id.replace('Button', '').toLowerCase();
+    console.log(`Filter Type: ${filterType}`);
+
+    const startDateElement = document.getElementById("startDate");
+    const endDateElement = document.getElementById("endDate");
+        console.log(startDateElement.value)
+    let start = startDateElement ? startDateElement.value : '';
+    let end = endDateElement ? endDateElement.value : '';
+
+    console.log(`Start Date: ${start}`);
+    console.log(`End Date: ${end}`);
+
+    
+   
+     
+
+
+   
+
+    fetch(`/filter_Report?filterType=${filterType}&startDate=${start}&endDate=${end}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(`Response Data: `, data);
+        updateTable(data.orders);
+        updateSummary(data.totalDiscount, data.totalSalesAmount, data.salesCount);
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+    function updateTable(orders) {
+        const tbody = document.querySelector("#order-table tbody");
+        tbody.innerHTML = ''; // Clear existing rows
+
+        orders.forEach(order => {
+            let row = document.createElement('tr');
+
+            let orderDate = new Date(order.orderDate).toLocaleDateString();
+            let orderId = order.orderId;
+            let customer = order.user.name;
+            let products = order.items.map(item => `<div class="product-item">${item.title}</div>`).join('');
+            let quantities = order.items.map(item => `<div class="product-item">${item.quantity}</div>`).join('');
+            let prices = order.items.map(item => `<div class="product-item">${item.productPrice.toFixed(2)}</div>`).join('');
+            let discountAmount = order.couponAmount ? order.couponAmount.toFixed(2) : '0.00';
+            let totalPrice = order.billTotal.toFixed(2);
+
+            row.innerHTML = `
+                <td>${orderDate}</td>
+                <td>${orderId}</td>
+                <td>${customer}</td>
+                <td>${products}</td>
+                <td>${quantities}</td>
+                <td>${prices}</td>
+                <td>${discountAmount}</td>
+                <td class="text-end">${totalPrice}</td>
+            `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    function updateSummary(totalDiscount, totalSalesAmount, salesCount) {
+        document.getElementById('total-discount').textContent = totalDiscount.toFixed(2);
+        document.getElementById('total-sales-amount').textContent = totalSalesAmount.toFixed(2);
+        document.getElementById('sales-count').textContent = salesCount;
+    }
+</script>
+
+
+<script>
+    
+</script>
+
+
+<!-- <script>
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
+
+    let customButton=document.getElementById("filterButton");
+
+    customButton.addEventListener("click",filterTable("custom"))
+   
+
+    function filterTable(filterType) {
+        console.log(filterType);
+        console.log("salesDate",startDate.value);
+        console.log(endDate.value);
+        
+        
+        let url = `/filterReport?filterType=${filterType}`;
+        if (filterType === 'custom' && startDate && endDate) {
+            url += `&startDate=${startDate}&endDate=${endDate}`;
+        }
+
+        fetch(url, {
+            method: 'GET',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Clear the table body
+                const tableBody = document.querySelector('#order-table tbody');
+                tableBody.innerHTML = '';
+
+                // Populate the table with the fetched data
+                data.orders.forEach(orders => {
+                    const row = document.createElement('tr');
+
+                    const orderDate = new Date(orders.orderDate).toLocaleDateString();
+                    row.innerHTML = `
+                        <td>${orderDate}</td>
+                        <td>${orders.orderId}</td>
+                        <td>${orders.user.name}</td>
+                        <td>${orders.items.map(item => `<div class="product-item">${item.title}</div>`).join('')}</td>
+                        <td>${orders.items.map(item => `<div class="product-item">${item.quantity}</div>`).join('')}</td>
+                        <td>${orders.items.map(item => `<div class="product-item">${item.productPrice.toFixed(2)}</div>`).join('')}</td>
+                        <td>${orders.couponId ? orders.couponAmount.toFixed(2) : '0.00'}</td>
+                        <td class="text-end">${orders.billTotal.toFixed(2)}</td>
+                    `;
+
+                    tableBody.appendChild(row);
+                });
+
+                // Update summary rows
+                document.getElementById('total-discount').textContent = data.totalDiscount.toFixed(2);
+                document.getElementById('total-sales-amount').textContent = data.totalSalesAmount.toFixed(2);
+                document.getElementById('sales-count').textContent = data.salesCount;
+            })
+            .catch(error => {
+                console.error('Fetch operation failed: ', error);
+            });
+    }
+</script> -->
+
 
 <%- include('../partials/adminFooter.ejs') %>
