@@ -103,7 +103,7 @@
         <div class="content-header">
             <h2 class="content-title">Sellers list</h2>
             <div>
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#couponModal">
+                <button type="button" class="btn btn-primary" id="downloadPdfButton">
                     <i class="material-icons md-plus"></i> Download PDF
                 </button>
             </div>
@@ -111,11 +111,11 @@
         <div class="card mb-4">
             <div class="card-body">
                 <div class="table-responsive">
-                    <div class="mb-3 ">
-                        <button type="button" class="btn btn-outline-primary mr-5" id="dailyButton">Daily</button>
-                        <button type="button" class="btn btn-outline-primary mr-5" id="weeklyButton">Weekly</button>
-                        <button type="button" class="btn btn-outline-primary mr-5" id="monthlyButton">Monthly</button>
-                        <button type="button" class="btn btn-outline-primary mr-5" id="yearlyButton">Yearly</button>
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-outline-primary mr-5 filter-button" id="dailyButton">Daily</button>
+                        <button type="button" class="btn btn-outline-primary mr-5 filter-button" id="weeklyButton">Weekly</button>
+                        <button type="button" class="btn btn-outline-primary mr-5 filter-button" id="monthlyButton">Monthly</button>
+                        <button type="button" class="btn btn-outline-primary mr-5 filter-button" id="yearlyButton">Yearly</button>
                         <div class="d-inline-block" style="width: auto;">
                             <label for="startDate">Start:</label>
                             <input type="date" id="startDate" class="form-control d-inline-block" style="width: auto;">
@@ -124,7 +124,7 @@
                             <label for="endDate">End:</label>
                             <input type="date" id="endDate" class="form-control d-inline-block mr-2" style="width: auto;">
                         </div>
-                        <button type="button" class="btn btn-outline-primary" id="filterButton" >Filter</button>
+                        <button type="button" class="btn btn-outline-primary filter-button" id="filterButton">Filter</button>
                     </div>
                     <table class="table table-hover table-bordered" id="order-table">
                         <thead style="background-color: #088178; color: white;">
@@ -141,6 +141,7 @@
                         </thead>
                         <tbody>
                             <% order.forEach(orders => { %>
+                                
                                 <tr>
                                     <td><%= new Date(orders.orderDate).toLocaleDateString() %></td>
                                     <td><%= orders.orderId %></td>
@@ -178,14 +179,31 @@
                     </table>
                 </div>
             </div>
+           
         </div>
+
         <div class="pagination-area mt-15 mb-50">
             <nav aria-label="Page navigation example">
                 <ul class="pagination justify-content-start">
-                    <!-- Add pagination controls here if needed -->
+                    <% if (currentPage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+                        </li>
+                    <% } %>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } %>
+                    <% if (currentPage < totalPages) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                        </li>
+                    <% } %>
                 </ul>
             </nav>
         </div>
+    
     </section>
     <footer class="main-footer font-xs">
         <div class="row pb-30 pt-15">
@@ -207,29 +225,29 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
-    function calculateTotals() {
-        let salesCount = 0;
-        let totalDiscount = 0;
-        let totalSalesAmount = 0;
+    // function calculateTotals() {
+    //     let salesCount = 0;
+    //     let totalDiscount = 0;
+    //     let totalSalesAmount = 0;
 
-        document.querySelectorAll('#order-table tbody tr').forEach(row => {
-            const discountCell = row.cells[6];
-            const totalPriceCell = row.cells[7];
+    //     document.querySelectorAll('#order-table tbody tr').forEach(row => {
+    //         const discountCell = row.cells[6];
+    //         const totalPriceCell = row.cells[7];
 
-            const discount = parseFloat(discountCell.textContent) || 0;
-            const totalPrice = parseFloat(totalPriceCell.textContent) || 0;
+    //         const discount = parseFloat(discountCell.textContent) || 0;
+    //         const totalPrice = parseFloat(totalPriceCell.textContent) || 0;
 
-            salesCount++;
-            totalDiscount += discount;
-            totalSalesAmount += totalPrice;
-        });
+    //         salesCount++;
+    //         totalDiscount += discount;
+    //         totalSalesAmount += totalPrice;
+    //     });
 
-        document.getElementById('total-discount').textContent = totalDiscount.toFixed(2);
-        document.getElementById('total-sales-amount').textContent = totalSalesAmount.toFixed(2);
-        document.getElementById('sales-count').textContent = salesCount;
-    }
+    //     document.getElementById('total-discount').textContent = totalDiscount.toFixed(2);
+    //     document.getElementById('total-sales-amount').textContent = totalSalesAmount.toFixed(2);
+    //     document.getElementById('sales-count').textContent = salesCount;
+    // }
 
-    document.addEventListener('DOMContentLoaded', calculateTotals);
+    // document.addEventListener('DOMContentLoaded', calculateTotals);
 
     let dailyFilter = document.getElementById("dailyButton");
     let weeklyFilter = document.getElementById("weeklyButton");
@@ -246,27 +264,21 @@
     yearlyFilter.addEventListener("click", applyFilter);
     customFilterButton.addEventListener("click", applyFilter);
 
-    function applyFilter(event) {
+    function applyFilter(event,page=1) {
     let filterType = event.target.id.replace('Button', '').toLowerCase();
     console.log(`Filter Type: ${filterType}`);
 
     const startDateElement = document.getElementById("startDate");
     const endDateElement = document.getElementById("endDate");
-        console.log(startDateElement.value)
+        
     let start = startDateElement ? startDateElement.value : '';
     let end = endDateElement ? endDateElement.value : '';
 
-    console.log(`Start Date: ${start}`);
-    console.log(`End Date: ${end}`);
-
     
    
-     
 
 
-   
-
-    fetch(`/filter_Report?filterType=${filterType}&startDate=${start}&endDate=${end}`, {
+    fetch(`/admin/filter_Report?filterType=${filterType}&startDate=${start}&endDate=${end}&page=${page}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -280,12 +292,23 @@
         return response.json();
     })
     .then(data => {
-        console.log(`Response Data: `, data);
+      
         updateTable(data.orders);
         updateSummary(data.totalDiscount, data.totalSalesAmount, data.salesCount);
+        updatePagination(data.currentPage, data.totalPages, filterType, start, end);
+        setActiveFilterButton(event.target);
     })
     .catch(error => console.error('Error:', error));
 }
+
+
+function setActiveFilterButton(activeButton) {
+    console.log(activeButton);
+        document.querySelectorAll('.filter-button').forEach(button => {
+            button.classList.remove('active');
+        });
+        activeButton.classList.add('active');
+    }
 
     function updateTable(orders) {
         const tbody = document.querySelector("#order-table tbody");
@@ -323,77 +346,77 @@
         document.getElementById('total-sales-amount').textContent = totalSalesAmount.toFixed(2);
         document.getElementById('sales-count').textContent = salesCount;
     }
+
+    function updatePagination(currentPage, totalPages, filterType, startDate, endDate) {  
+        const paginationArea = document.querySelector('.pagination');
+        paginationArea.innerHTML = ''; // Clear existing pagination
+
+        if (currentPage > 1) {
+            paginationArea.innerHTML += `
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="applyFilter({ target: { id: '${filterType}Button' } }, ${currentPage - 1})">Previous</a>
+                </li>
+            `;
+        }
+
+        for (let i = 1; i <= totalPages; i++) {
+            paginationArea.innerHTML += `
+                <li class="page-item ${currentPage === i ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="applyFilter({ target: { id: '${filterType}Button' } }, ${i})">${i}</a>
+                </li>
+            `;
+        }
+
+        if (currentPage < totalPages) {
+            paginationArea.innerHTML += `
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="applyFilter({ target: { id: '${filterType}Button' } }, ${currentPage + 1})">Next</a>
+                </li>
+            `;
+        }
+    }
+
+    
+    const downloadPdf = document.getElementById('downloadPdfButton');
+
+downloadPdf.addEventListener('click', () => {
+    const activeButton = document.querySelector('.filter-button.active');
+    console.log(activeButton);
+    const filterType = activeButton ? activeButton.id.replace('Button', '').toLowerCase() : 'daily';
+    console.log(filterType);
+
+
+     const startDateElement = document.getElementById("startDate");
+    const endDateElement = document.getElementById("endDate");
+
+    const currentPage = document.querySelector('.pagination .page-item.active') ? 
+        document.querySelector('.pagination .page-item.active .page-link').textContent : 1;
+
+        console.log(currentPage);
+
+        
+    let start = startDateElement ? startDateElement.value : '';
+    let end = endDateElement ? endDateElement.value : '';
+
+    const queryParams = new URLSearchParams({
+        filterType,
+        start,
+        end,
+        page:currentPage
+    });
+
+    window.location.href = `/admin/download_pdf?${queryParams.toString()}`;
+});
 </script>
 
 
 <script>
-    
+   
+
 </script>
 
 
-<!-- <script>
-    const startDate = document.getElementById('startDate');
-    const endDate = document.getElementById('endDate');
 
-    let customButton=document.getElementById("filterButton");
-
-    customButton.addEventListener("click",filterTable("custom"))
-   
-
-    function filterTable(filterType) {
-        console.log(filterType);
-        console.log("salesDate",startDate.value);
-        console.log(endDate.value);
-        
-        
-        let url = `/filterReport?filterType=${filterType}`;
-        if (filterType === 'custom' && startDate && endDate) {
-            url += `&startDate=${startDate}&endDate=${endDate}`;
-        }
-
-        fetch(url, {
-            method: 'GET',
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Clear the table body
-                const tableBody = document.querySelector('#order-table tbody');
-                tableBody.innerHTML = '';
-
-                // Populate the table with the fetched data
-                data.orders.forEach(orders => {
-                    const row = document.createElement('tr');
-
-                    const orderDate = new Date(orders.orderDate).toLocaleDateString();
-                    row.innerHTML = `
-                        <td>${orderDate}</td>
-                        <td>${orders.orderId}</td>
-                        <td>${orders.user.name}</td>
-                        <td>${orders.items.map(item => `<div class="product-item">${item.title}</div>`).join('')}</td>
-                        <td>${orders.items.map(item => `<div class="product-item">${item.quantity}</div>`).join('')}</td>
-                        <td>${orders.items.map(item => `<div class="product-item">${item.productPrice.toFixed(2)}</div>`).join('')}</td>
-                        <td>${orders.couponId ? orders.couponAmount.toFixed(2) : '0.00'}</td>
-                        <td class="text-end">${orders.billTotal.toFixed(2)}</td>
-                    `;
-
-                    tableBody.appendChild(row);
-                });
-
-                // Update summary rows
-                document.getElementById('total-discount').textContent = data.totalDiscount.toFixed(2);
-                document.getElementById('total-sales-amount').textContent = data.totalSalesAmount.toFixed(2);
-                document.getElementById('sales-count').textContent = data.salesCount;
-            })
-            .catch(error => {
-                console.error('Fetch operation failed: ', error);
-            });
-    }
-</script> -->
 
 
 <%- include('../partials/adminFooter.ejs') %>
