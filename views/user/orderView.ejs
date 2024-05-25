@@ -70,7 +70,7 @@
                     <td>
 
                         <% if(item.status==="Delivered") {%>
-                            <button onclick="returnOrder('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>" >Return</button>
+                            <button onclick="showReturnConfirmation('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>" >Return</button>
 
                         <%}%>
 
@@ -153,6 +153,54 @@
                 document.querySelector(`[data-input-id="${itemId}"]`).textContent = 'Cancelled';
                 const cancelButton = document.querySelector(`button[data-input-id="${itemId}"]`);
                 cancelButton.innerHTML = 'Order Cancelled';
+                cancelButton.disabled = true; // Disable button after cancellation
+            location.reload()
+            } else {
+                // Handle error
+                Swal.fire('Error', data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Error', 'An error occurred while cancelling the order', 'error');
+        }
+    }
+
+
+
+    function showReturnConfirmation(orderId, itemId) {
+        Swal.fire({
+            title: 'Return Order',
+            html: 'Are you sure you want to return this order?<br><input type="text" id="returnReason" class="swal2-input" placeholder="Enter rearon for returning">',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, return it!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const returnReason = document.getElementById('returnReason').value;
+                // Call a function to handle order cancellation
+                returnOrder(orderId, itemId, returnReason);
+            }
+        });
+    }
+
+    async function returnOrder(orderId, itemId, returnReason) {
+        try {
+            const response = await fetch('/returnOrder', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ orderId, itemId, returnReason })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                // Handle success
+                Swal.fire('Order Cancelled', data.message, 'success');
+
+                document.querySelector(`[data-input-id="${itemId}"]`).textContent = 'Cancelled';
+                const cancelButton = document.querySelector(`button[data-input-id="${itemId}"]`);
+                cancelButton.innerHTML = 'Order Returned';
                 cancelButton.disabled = true; // Disable button after cancellation
             location.reload()
             } else {

@@ -5,6 +5,7 @@ const Cart=require("../model/cartModel");
 const Order=require("../model/orderModel")
 const Wallet=require("../model/walletModel")
 const WishList=require("../model/wishListModel");
+const Referral=require("../model/referalModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 
@@ -18,6 +19,15 @@ const transport = nodemailer.createTransport({
 
 const generateOtp = () => {
   return Math.floor(100000 + Math.random() * 900000);
+};
+
+const generateReferralCode = () => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let referralCode = '';
+  for (let i = 0; i < 5; i++) {
+    referralCode += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return referralCode;
 };
 
 const securePassword = async (password) => {
@@ -180,6 +190,8 @@ const loadRegister = async (req, res) => {
 const insertUser = async (req, res) => {
   try {
     const user=await User.findById(req.session.user);
+    const {referralCode}=req.body;
+   
     const exitstingUser = await User.findOne({ email: req.body.email });
     if (exitstingUser) {
       return res.render("register", {user, message: "User already exists" });
@@ -192,6 +204,7 @@ const insertUser = async (req, res) => {
         password: req.body.password,
         otp: otp,
         otpExpiration: Date.now() + 60*1000,
+        referalCode: referralCode || null
       };
 
       req.session.details = details;
@@ -228,6 +241,7 @@ const loadOTP = async (req, res) => {
 const verifyOTP = async (req, res) => {
   try {
     console.log(req.body.otp);
+    console.log(req.session.details.referalCode);
 
     if (req.session.details.otp == req.body.otp) {
       console.log("OTP is correct");
@@ -237,12 +251,14 @@ const verifyOTP = async (req, res) => {
       } else {
         console.log("OTP is valid and has not expired");
         const spassword = await securePassword(req.session.details.password);
+        const referralCode = generateReferralCode();
         const user = new User({
           name: req.session.details.name,
           email: req.session.details.email,
           password: spassword,
           is_admin: 0,
           is_verified: true,
+          referalCode: referralCode
         });
 
         await user.save();
@@ -252,6 +268,52 @@ const verifyOTP = async (req, res) => {
         })
 
         await wallet.save();
+
+        if (req.session.details.referalCode) {
+
+          const referringUser = await User.findOne({ referalCode: req.session.details.referalCode });
+          console.log("refered by",referringUser)
+          if (referringUser) {
+            const referringUserWallet = await Wallet.findOne({ user: referringUser._id });
+            console.log("referer Wallet:",referringUserWallet)
+            
+            if (referringUserWallet) {
+
+              const referralAmount = await Referral.findOne().select('offerAmount').lean();
+              console.log("amount",referralAmount)
+              if (!referralAmount) {
+                return res.status(500).json({ message: "Referral amount not found" });
+              }
+              const creditAmount = referralAmount.offerAmount;
+    
+              // Credit referring user's wallet
+              referringUserWallet.walletBalance += creditAmount;
+              referringUserWallet.transactions.push({
+                amount: creditAmount,
+                description: 'Referral bonus for referring a new user',
+                type: 'credit'
+              });
+              await referringUserWallet.save();
+    
+              // Credit new user's wallet
+              wallet.walletBalance += creditAmount;
+              wallet.transactions.push({
+                amount: creditAmount,
+                description: 'Referral bonus for using a referral code',
+                type: 'credit'
+              });
+              await wallet.save();
+            } else {
+              console.log("Referring user's wallet not found");
+              return res.status(404).json({ message: "Referring user's wallet not found" });
+            }
+          } else {
+            console.log("Referring user not found");
+            return res.status(404).json({ message: "Referring user not found" });
+          }
+        }
+    
+    
         res.json({ redirect: "/login" });
       }
     } else {
@@ -737,6 +799,10 @@ const filterProduct = async (req, res) => {
     console.log(filterOption);
     console.log(sortOption);
 
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 12;
+
+
     // Base query
     let query = { isDeleted: false, isListed: "Active" };
 
@@ -765,13 +831,21 @@ const filterProduct = async (req, res) => {
       query.category = filterOption.trim();
     }
 
+     // Pagination
+     const skip = (page - 1) * perPage;
+
+
+     // Fetch total count for pagination
+    const totalProductCount = await Product.countDocuments(query);
+    const totalPages = Math.ceil(totalProductCount / perPage);
+
     
 
 
     // Fetch products based on the query and sort criteria
-    const products = await Product.find(query).sort(sort);
+    const products = await Product.find(query).sort(sort).skip(skip).limit(perPage);;
 
-    res.json(products);
+    res.json({ products, totalPages, currentPage: page });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: 'Internal server error' });

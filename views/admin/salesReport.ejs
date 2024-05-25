@@ -141,6 +141,7 @@
                         </thead>
                         <tbody>
                             <% order.forEach(orders => { %>
+                               
                                 
                                 <tr>
                                     <td><%= new Date(orders.orderDate).toLocaleDateString() %></td>
@@ -168,12 +169,12 @@
                         </tbody>
                         <tfoot>
                             <tr class="summary-row">
-                                <td colspan="6">Total</td>
-                                <td id="total-discount">0.00</td>
-                                <td id="total-sales-amount" class="text-end">0.00</td>
+                                <td colspan="6">Total Discount Amount:</td>
+                                <td id="total-discount"><%= totalDiscountAmount %></td>
+                                <td id="total-sales-amount" class="text-end"><%= totalSalesAmount %></td>
                             </tr>
                             <tr class="summary-row">
-                                <td colspan="8">Sales Count: <span id="sales-count">0</span></td>
+                                <td colspan="8">Sales Count: <span id="sales-count"><%= totalSalesCount %></span></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -249,13 +250,11 @@
 
     // document.addEventListener('DOMContentLoaded', calculateTotals);
 
+    document.addEventListener('DOMContentLoaded', () => {
     let dailyFilter = document.getElementById("dailyButton");
     let weeklyFilter = document.getElementById("weeklyButton");
     let monthlyFilter = document.getElementById("monthlyButton");
     let yearlyFilter = document.getElementById("yearlyButton");
-
-
-   
     let customFilterButton = document.getElementById("filterButton");
 
     dailyFilter.addEventListener("click", applyFilter);
@@ -263,10 +262,26 @@
     monthlyFilter.addEventListener("click", applyFilter);
     yearlyFilter.addEventListener("click", applyFilter);
     customFilterButton.addEventListener("click", applyFilter);
+});
 
-    function applyFilter(event,page=1) {
-    let filterType = event.target.id.replace('Button', '').toLowerCase();
-    console.log(`Filter Type: ${filterType}`);
+let activeButton;
+let page=1;
+    function applyFilter(event,page) {
+        let filterType;
+
+        console.log(page);
+
+// Check if the event is triggered by a button or a pagination link
+if (event.target.id) {
+    filterType = event.target.id.replace('Button', '').toLowerCase();
+    activeButton = event.target; // Store the active button element
+} else if (event.target.getAttribute('data-filter-type')) {
+    filterType = event.target.getAttribute('data-filter-type');
+    // Retrieve the button element by ID only if not already set
+    activeButton = activeButton || document.getElementById(filterType + 'Button');
+}
+
+console.log(`Filter Type: ${filterType}`);
 
     const startDateElement = document.getElementById("startDate");
     const endDateElement = document.getElementById("endDate");
@@ -296,7 +311,7 @@
         updateTable(data.orders);
         updateSummary(data.totalDiscount, data.totalSalesAmount, data.salesCount);
         updatePagination(data.currentPage, data.totalPages, filterType, start, end);
-        setActiveFilterButton(event.target);
+        setActiveFilterButton(activeButton);
     })
     .catch(error => console.error('Error:', error));
 }
@@ -343,7 +358,7 @@ function setActiveFilterButton(activeButton) {
 
     function updateSummary(totalDiscount, totalSalesAmount, salesCount) {
         document.getElementById('total-discount').textContent = totalDiscount.toFixed(2);
-        document.getElementById('total-sales-amount').textContent = totalSalesAmount.toFixed(2);
+        document.getElementById('total-sales-amount').textContent = totalSalesAmount.toFixed(2);  
         document.getElementById('sales-count').textContent = salesCount;
     }
 
@@ -374,14 +389,14 @@ function setActiveFilterButton(activeButton) {
                 </li>
             `;
         }
+        setActiveFilterButton(activeButton); 
     }
 
     
     const downloadPdf = document.getElementById('downloadPdfButton');
 
 downloadPdf.addEventListener('click', () => {
-    const activeButton = document.querySelector('.filter-button.active');
-    console.log(activeButton);
+    console.log("pdf",activeButton);
     const filterType = activeButton ? activeButton.id.replace('Button', '').toLowerCase() : 'daily';
     console.log(filterType);
 
@@ -392,16 +407,18 @@ downloadPdf.addEventListener('click', () => {
     const currentPage = document.querySelector('.pagination .page-item.active') ? 
         document.querySelector('.pagination .page-item.active .page-link').textContent : 1;
 
-        console.log(currentPage);
+        console.log("checking",currentPage);
 
         
-    let start = startDateElement ? startDateElement.value : '';
-    let end = endDateElement ? endDateElement.value : '';
+    let startDate = startDateElement ? startDateElement.value : '';
+    let endDate = endDateElement ? endDateElement.value : '';
+    console.log("start:",startDate);
+    console.log("end:",endDate);
 
     const queryParams = new URLSearchParams({
         filterType,
-        start,
-        end,
+        startDate,
+        endDate,
         page:currentPage
     });
 

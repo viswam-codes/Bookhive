@@ -4,63 +4,72 @@ const PDFDocument = require("pdfkit-table");
 const fs = require("fs");
 const path = require("path");
 
-const generatePDF = async (filterCondition, res) => {
+const generatePDF = async (filterCondition, res, page, perPage) => {
+  const allOrders = await Order.find(filterCondition);
+  const totalSalesAmount = allOrders.reduce((acc, order) => acc + order.billTotal, 0);
+  const totalDiscount = allOrders.reduce((acc, order) => acc + (order.couponAmount || 0), 0);
+  const salesCount = allOrders.length;
+  const totalOrders = allOrders.length;
+
   const orders = await Order.find(filterCondition)
-    .populate("user")
-    .populate("items.productId")
-    .populate("couponId");
-  console.log(orders);
+      .populate('user')
+      .populate('items.productId')
+      .populate('couponId')
+      .skip((page - 1) * perPage)
+      .limit(perPage);
+
+  console.log('filter check', orders);
   const doc = new PDFDocument();
-  const filename = "sales_report.pdf";
-  const filePath = path.join(__dirname, "..", "public", "downloads", filename);
-  res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+  const filename = 'sales_report.pdf';
+  const filePath = path.join(__dirname, '..', 'public', 'downloads', filename);
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 
   doc.pipe(res);
 
-  doc.fontSize(20).text("Sales Report", { align: "center" });
+  doc.fontSize(20).text('Sales Report', { align: 'center' });
   doc.moveDown();
 
   // Adding the table to the PDF document
-  doc.font("Helvetica").table({
-    headers: [
-      "Date",
-      "Order No.",
-      "Customer",
-      "Products",
-      "Quantity Sold",
-      "Price",
-      "Discount Amount",
-      "Total Price",
-    ],
-    rows: orders.map((order) => [
-      new Date(order.orderDate).toLocaleString("en-IN"),
-      order.orderId,
-      order.user.name,
-      order.items.map((item) => item.productId.title).join(", "),
-      order.items.map((item) => item.quantity).join(", "),
-      order.items.map((item) => item.productPrice.toFixed(2)).join(", "),
-      order.couponAmount ? order.couponAmount.toFixed(2) : "0.00",
-      order.billTotal.toFixed(2),
-    ]),
-  });
+  const table = {
+      headers: [
+          'Date',
+          'Order No.',
+          'Customer',
+          'Products',
+          'Quantity Sold',
+          'Price',
+          'Discount Amount',
+          'Total Price',
+      ],
+      rows: orders.map((order) => [
+          new Date(order.orderDate).toLocaleString('en-IN'),
+          order.orderId,
+          order.user.name,
+          order.items.map((item) => item.productId.title).join(', '),
+          order.items.map((item) => item.quantity).join(', '),
+          order.items.map((item) => item.productPrice.toFixed(2)).join(', '),
+          order.couponAmount ? order.couponAmount.toFixed(2) : '0.00',
+          order.billTotal.toFixed(2),
+      ]),
+  };
 
-  console.log("helloo");
+  const tableOptions = {
+      prepareHeader: () => doc.font('Helvetica-Bold').fontSize(12),
+      prepareRow: (row, i) => doc.font('Helvetica').fontSize(10),
+  };
+
+  // Adding table to PDF
+  doc.table(table, tableOptions);
+
+  doc.moveDown();
+
+  // Adding the summary after the table
+  doc.fontSize(12).text(`Total Sales Count: ${salesCount}`, { align: 'left' });
+  doc.text(`Total Sales Amount: ${totalSalesAmount.toFixed(2)}`, { align: 'right' });
+  doc.text(`Total Discount Amount: ${totalDiscount.toFixed(2)}`, { align: 'right' });
 
   doc.end();
-
-  //   doc.on("end", () => {
-  //     res.download(filePath, filename, (err) => {
-  //       if (err) {
-  //         console.error(err);
-  //       }
-  //       fs.unlink(filePath, (err) => {
-  //         if (err) {
-  //           console.error(err);
-  //         }
-  //       });
-  //     });
-  //   });
 };
 
 const loadSalesReport = async (req, res) => {
@@ -80,10 +89,19 @@ const loadSalesReport = async (req, res) => {
     });
     const totalPages = Math.ceil(totalOrders / perPage);
 
+    // Calculate total sales count, total discount amount, and total sales amount
+    const allDeliveredOrders = await Order.find({ orderStatus: "Delivered" });
+    const totalSalesCount = allDeliveredOrders.length;
+    const totalDiscountAmount = allDeliveredOrders.reduce((acc, order) => acc + (order.couponAmount || 0), 0);
+    const totalSalesAmount = allDeliveredOrders.reduce((acc, order) => acc + order.billTotal, 0);
+
     res.render("salesReport", {
       order: deliveredOrders,
       currentPage: page,
       totalPages: totalPages,
+      totalSalesCount: totalSalesCount,
+      totalDiscountAmount: totalDiscountAmount.toFixed(2),
+      totalSalesAmount: totalSalesAmount.toFixed(2),
     });
   } catch (error) {
     console.log(error);
@@ -132,7 +150,7 @@ const filterSalesReport = async (req, res) => {
           $lte: end,
         };
       }
-      console.log(filterCondition);
+    
 
 
     
@@ -174,10 +192,13 @@ const filterSalesReport = async (req, res) => {
 
 const downloadPDF = async (req, res) => {
   try {
-    const { filterType, startDate, endDate } = req.query;
+    const { filterType, startDate, endDate,page } = req.query;
+    const perPage=6;
     const now = new Date();
     let filterCondition = { orderStatus: "Delivered" };
-
+    console.log("pdf check",filterType);
+    console.log("start:",startDate);
+    console.log("end:",endDate);
     // Define filter conditions based on the filterType
     if (filterType === "daily") {
       const today = new Date(now.setHours(0, 0, 0, 0));
@@ -210,7 +231,7 @@ const downloadPDF = async (req, res) => {
     }
 
     // Generate the PDF
-    await generatePDF(filterCondition, res);
+    await generatePDF(filterCondition, res,page,perPage);
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: error.message });

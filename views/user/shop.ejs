@@ -480,84 +480,81 @@
     sortOptions.forEach((option) => {
       option.addEventListener("click", function (event) {
         event.preventDefault();
-        const sortOptionValue = option.innerText; // Get the text of the clicked option
-        applyFilters(sortOptionValue,null); // Prevent default link behavior
+        const sortOptionValue = option.innerText;
+        currentPage = 1; // Reset current page
+        applyFilters(sortOptionValue, selectedCategory); // Apply filters with sort option
       });
     });
-
-    const currentPage=1;
-
+  
+    let currentPage = 1;
+  
     // Add event listener for search input
     const searchInput = document.getElementById("searchInput");
     searchInput.addEventListener("input", function () {
-      applyFilters();
+      currentPage = 1; // Reset current page
+      applyFilters(null, selectedCategory);
     });
-
+  
     let selectedCategory = null;
-
-// Add event listener for category links
-const categoryLinks = document.querySelectorAll('.categories a');
-categoryLinks.forEach(link => {
-    link.addEventListener("click", function(event) {
+  
+    // Add event listener for category links
+    const categoryLinks = document.querySelectorAll('.categories a');
+    categoryLinks.forEach(link => {
+      link.addEventListener("click", function (event) {
         event.preventDefault(); // Prevent default link behavior
         const category = link.innerText; // Get the category text
         if (category !== selectedCategory) {
-        prevSearchResults = [];
-    }
+          prevSearchResults = [];
+        }
         // Update the selectedCategory variable
         selectedCategory = category;
-
+        currentPage = 1; // Reset current page
+  
         // Remove active class from all category links
         categoryLinks.forEach(link => {
-            link.classList.remove('active');
+          link.classList.remove('active');
         });
-
+  
         // Add active class to the clicked category link
         link.classList.add('active');
-
+  
         applyFilters(null, selectedCategory);
+      });
     });
-});
   });
-
+  
   let prevSearchResults = []; // Initialize an empty array to store previous search results
-
-  function applyFilters(sortOptionValue, category) {
-    // Get sort option
-   
- 
-
-    console.log(sortOptionValue);
-    console.log(category);
-
+  let currentPage = 1;
+  
+  function applyFilters(sortOptionValue, category, page = 1) {
     // Get search input value
     const searchValue = document.getElementById("searchInput").value.trim();
-    console.log(searchValue);
-   
+    
     const requestBody = {
       prevSearchResults: prevSearchResults, // Include previous search results in the request body
       sortOption: sortOptionValue || "", // Pass empty string if sortOptionValue is falsy
-      filterOption: category , // Pass empty string if category is falsy
-      search: searchValue || "", // Pass empty string if searchValue is falsy
+      filterOption: category, // Pass empty string if category is falsy
+      search: searchValue || "" // Pass empty string if searchValue is falsy
     };
   
-    fetch("/filter_product", {
+    fetch(`/filter_product?page=${page}`, { // Pass page as query parameter
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(requestBody),
     })
-      .then((response) => response.json())
-      .then((data) => {
-        // Update the prevSearchResults with the current search results
-        prevSearchResults = data;
-
-        // Update UI with filtered products
-        const productGrid = document.getElementById("productGrid");
-        productGrid.innerHTML = ""; // Clear existing products
-        data.forEach((prod) => {
-          const productHTML = `
+    .then((response) => response.json())
+    .then((data) => {
+      // Update the prevSearchResults with the current search results
+      prevSearchResults = data.products;
+      currentPage = data.currentPage; // Update current page
+  
+      // Update UI with filtered products
+      const productGrid = document.getElementById("productGrid");
+      productGrid.innerHTML = ""; // Clear existing products
+      data.products.forEach((prod) => {
+        const productHTML = `
           <div class="col-lg-4 col-md-4 col-12 col-sm-6">
             <div class="product-cart-wrap mb-30">
               <div class="product-img-action-wrap">
@@ -579,15 +576,15 @@ categoryLinks.forEach(link => {
                   </span>
                 </div>
                 ${prod.discountPrice ? 
-                              `<div class="product-price">
-                                <span>${prod.discountPrice}</span>
-                                <span class="old-price">${prod.price}</span>
-                              </div>` 
-                              : 
-                              `<div class="product-price">
-                                <span>${prod.price}</span>
-                              </div>`
-                            }
+                  `<div class="product-price">
+                    <span>${prod.discountPrice}</span>
+                    <span class="old-price">${prod.price}</span>
+                  </div>` 
+                  : 
+                  `<div class="product-price">
+                    <span>${prod.price}</span>
+                  </div>`
+                }
                 <div class="product-action-1 show">
                   <a aria-label="Add To Cart" class="action-btn hover-up" href="shop-cart.html"><i class="fi-rs-shopping-bag-add"></i></a>
                 </div>
@@ -595,11 +592,37 @@ categoryLinks.forEach(link => {
             </div>
           </div>
         `;
-          productGrid.innerHTML += productHTML;
-        });
-      })
-      .catch((error) => console.log("An error occurred:", error));
+        productGrid.innerHTML += productHTML;
+      });
+  
+      updatePagination(data.totalPages);
+    })
+    .catch((error) => console.log("An error occurred:", error));
   }
-</script>
+  
+  function updatePagination(totalPages) {
+    const paginationArea = document.querySelector('.pagination-area');
+    const paginationList = paginationArea.querySelector('.pagination');
+    paginationList.innerHTML = ''; // Clear existing pagination
+  
+    for (let i = 1; i <= totalPages; i++) {
+      const pageItem = document.createElement('li');
+      pageItem.classList.add('page-item', currentPage === i ? 'active' : '');
+      
+      const pageLink = document.createElement('a');
+      pageLink.classList.add('page-link');
+      pageLink.href = '#';
+      pageLink.innerText = i;
+      pageLink.addEventListener('click', function(event) {
+        event.preventDefault();
+        applyFilters(null, selectedCategory, i); // Apply filters with the selected page
+      });
+  
+      pageItem.appendChild(pageLink);
+      paginationList.appendChild(pageItem);
+    }
+  }
+  </script>
+  
 
 <%- include('../partials/userFooter.ejs') %>

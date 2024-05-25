@@ -334,6 +334,77 @@ const cancelOrder = async (req, res) => {
   }
 };
 
+const returnOrder=async(req,res)=>{
+  try{
+
+    const{orderId,itemId,returnReason} =req.body;
+
+    const order= await Order.findById(orderId);
+    const userId=req.session.user;
+
+     // If order is not found
+     if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    const item=order.items.find((item)=>item._id == itemId);
+
+     // If item is not found
+     if (!item) {
+      return res.status(404).json({ message: "Item not found in the order" });
+    }
+
+    item.status='Returned';
+    item.returnReason=returnReason;
+
+   // Decrease the item price from the billTotal
+   const refundAmount=item.productPrice * item.quantity;
+   order.billTotal -= refundAmount;
+
+
+    if(order.paymentMethod === 'razorpay' || order.paymentMethod === 'wallet'){
+      
+      const wallet = await Wallet.findOne({user:userId});
+      console.log(wallet);
+      if(!wallet){
+        throw new Error(`Wallet for user ${order.user._id} not found`);
+      }
+
+      const transaction={
+        amount:refundAmount,
+        description:`Return refund for ${item.title} ${orderId}`,
+        type:"Refund",
+        transcationDate: new Date()
+      }
+      wallet.transactions.push(transaction);
+
+      wallet.walletBalance += refundAmount;
+      
+      order.paymentStatus = 'Refunded'
+      await wallet.save();
+    }
+
+    // Check if all items in the order are returned
+    const allItemsCancelled = order.items.every(
+      (item) => item.status === "Returned"
+    );
+
+     // If all items are cancelled, update the order status to 'Cancelled'
+     if (allItemsCancelled) {
+      order.orderStatus = "Returned";
+    }
+
+
+   await order.save();
+
+
+
+
+  }catch(error){
+    console.log(error.message);
+  }
+}
+
 const checkWalletBalance = async(req,res) => {
   try{ 
     const userId=req.session.user;
@@ -468,5 +539,6 @@ module.exports = {
   cancelOrder,
   onlinePlaceOrder,
   checkWalletBalance,
-  walletPlaceOrder
+  walletPlaceOrder,
+  returnOrder
 };

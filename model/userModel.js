@@ -21,6 +21,9 @@ const userSchema=new mongoose.Schema({
         type:Boolean,
         default:true
     },
+    referalCode:{
+        type:String
+    },
     address:[{
         houseName: {
             type: String,
