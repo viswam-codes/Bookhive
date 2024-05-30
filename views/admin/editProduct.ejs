@@ -258,14 +258,28 @@
                   <div class="col-lg-4">
                       <div class="mb-4">
                           <label class="form-label">Discount</label>
+                          <% if(pro.discountPrice>0) { %>
+                            <input
+                            type="text"
+                            class="form-control"
+                            id="discount"
+                            name="discount"
+                            value="<%= (Math.floor(((pro.price-pro.discountPrice)/pro.price)*100)) %>%"
+                            placeholder="Enter discount"
+                        />
+
+                          <%}else{ %>
                           <input
                               type="text"
                               class="form-control"
                               id="discount"
                               name="discount"
-                              value="<%= pro.discount %>"
+                              value=""
                               placeholder="Enter discount"
                           />
+                          <%}%>
+
+
                           <% if (typeof errorMessage !== 'undefined') { %>
                             <div class="text-danger"><%= errorMessage %></div>
                           <% } %>

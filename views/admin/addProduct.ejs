@@ -1,4 +1,14 @@
 <%- include('../partials/adminHeader.ejs') %>
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css"
+    />
+
+
+<link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
 
 <style>
   .image-container {
@@ -6,15 +16,17 @@
     box-sizing: border-box;
     padding: 5px;
     float: left;
-}
+  }
 
-@media (max-width: 768px) {
+  @media (max-width: 768px) {
     .image-container {
-        width: 100%; /* On smaller screens, make each image container take up the full width */
+      width: 100%; /* On smaller screens, make each image container take up the full width */
     }
-}
+  }
 </style>
 <body>
+  <!-- Crop Image Modal -->
+
   <div class="screen-overlay"></div>
   <aside class="navbar-aside" id="offcanvas_aside">
     <div class="aside-top">
@@ -34,7 +46,7 @@
     <nav>
       <ul class="menu-aside">
         <li class="menu-item">
-          <a class="menu-link" href="/admin/home">
+          <a class="menu-link" href="index.html">
             <i class="icon material-icons md-home"></i>
             <span class="text">Dashboard</span>
           </a>
@@ -57,6 +69,24 @@
             <span class="text">Category Management</span>
           </a>
         </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/order_management">
+            <i class="icon material-icons md-shopping_cart"></i>
+            <span class="text">Orders</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/coupen_management">
+            <i class="icon material-icons md-shopping_bag"></i>
+            <span class="text">Coupon</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/sales_report">
+            <i class="icon material-icons md-add_box"></i>
+            <span class="text">Sales Report</span>
+          </a>
+        </li>
       </ul>
       <hr />
       <ul class="menu-aside">
@@ -77,20 +107,7 @@
   </aside>
   <main class="main-wrap">
     <header class="main-header navbar">
-      <div class="col-search">
-        <!-- <form class="searchform">
-          <div class="input-group">
-            <input list="search_terms" type="text" class="form-control" placeholder="Search term">
-            <button class="btn btn-light bg" type="button"> <i class="material-icons md-search"></i></button>
-          </div>
-          <datalist id="search_terms">
-            <option value="Products">
-            <option value="New orders">
-            <option value="Apple iphone">
-            <option value="Ahmed Hassan">
-          </datalist>
-        </form> -->
-      </div>
+      <div class="col-search"></div>
       <div class="col-nav">
         <button
           class="btn btn-icon btn-mobile me-auto"
@@ -312,14 +329,17 @@
                 </div>
                 <div class="card mb-4;">
                   <div class="card-header">
-                      <h4>Image Preview</h4>
+                    <h4>Image Preview</h4>
                   </div>
-                  <div class="card-body" style="overflow-x: auto;">
-                      <div id="image-preview" style="display: flex; flex-wrap: wrap;">
-                          <!-- Placeholder for image preview -->
-                      </div>
+                  <div class="card-body" style="overflow-x: auto">
+                    <div
+                      id="image-preview"
+                      style="display: flex; flex-wrap: wrap"
+                    >
+                      <!-- Placeholder for image preview -->
+                    </div>
                   </div>
-              </div>
+                </div>
 
                 <button
                   type="submit"
@@ -335,176 +355,232 @@
           <!-- card end// -->
         </div>
       </div>
+
+      <div class="modal fade" id="cropImageModal" tabindex="-1" aria-labelledby="cropImageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="cropImageModalLabel">Crop Image</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="img-container">
+                <img id="imageToCrop" src="" alt="Image to crop">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="cropImageButton">Crop</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <!-- Cropper.js CSS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
     <script>
-  // Array to keep track of selected files
-  let selectedFiles = [];
-
-  function previewImages() {
-    let preview = document.getElementById("image-preview");
-    let filesInput = document.querySelector("input[type=file]");
-    let files = filesInput.files;
-
-    preview.innerHTML = ""; // Clear existing preview
-
-    // Loop through selected files
-    for (let i = 0; i < files.length; i++) {
-      let file = files[i];
-      let reader = new FileReader();
-
-      // Closure to capture the file information
-      reader.onload = (function (file) {
-        return function (e) {
-          // Create image container
-          let imageContainer = document.createElement("div");
-          imageContainer.classList.add("image-container");
-
-          // Create image element
-          let img = document.createElement("img");
-          img.src = e.target.result;
-          img.classList.add("img-fluid", "mb-2");
-
-          // Resize image
-          img.style.maxWidth = "100%";
-          img.style.height = "auto";
-
-          // Create delete button
-          let deleteButton = document.createElement("button");
-          deleteButton.innerHTML = "Delete";
-          deleteButton.classList.add("btn", "btn-danger", "mb-2");
-          deleteButton.addEventListener("click", function () {
-  // Remove image container when delete button is clicked
-  imageContainer.remove();
-
-  // Remove file from selectedFiles array
-  let index = selectedFiles.indexOf(file);
-  if (index !== -1) {
-    selectedFiles.splice(index, 1);
-  }
-
-  // Call the deleteFile function to remove the file from the file input
-  deleteFile(index);
-});
-
-
-function deleteFile(index) {
-  // Create a new FileList object from the selectedFiles array, excluding the file at the specified index
-  let newFiles = new DataTransfer();
-  for (let i = 0; i < selectedFiles.length; i++) {
-    if (i !== index) {
-      newFiles.items.add(selectedFiles[i]);
-    }
-  }
-
-  // Update the file input with the new FileList object
-  let filesInput = document.querySelector("input[type=file]");
-  filesInput.files = newFiles.files;
-}
-
-
-          // Append image and delete button to image container
-          imageContainer.appendChild(img);
-          imageContainer.appendChild(deleteButton);
-
-          // Append image container to preview
-          preview.appendChild(imageContainer);
-        };
-      })(file);
-
-      // Read in the image file as a data URL
-      reader.readAsDataURL(file);
-
-      // Add file to selected files array
-      selectedFiles.push(file);
-    }
-  }
-
-  // Bind previewImages function to file input change event
-  document.querySelector("input[type=file]").addEventListener("change", previewImages);
-</script>
+      $(document).ready(function () {
+        let selectedFiles = [];
+        let cropper;
+        let currentFile;
+        let $cropImageModal = $("#cropImageModal");
+  
+        // Attach change event listener to file input
+        $("input[type=file]").on("change", previewImages);
+  
+        // Function to preview selected images
+        function previewImages() {
+          let preview = $("#image-preview");
+          let filesInput = $("input[type=file]");
+          let files = filesInput[0].files;
+  
+          preview.empty(); // Clear existing preview
+  
+          for (let i = 0; i < files.length; i++) {
+            let file = files[i];
+            let reader = new FileReader();
+  
+            reader.onload = function (e) {
+              let imageContainer = $("<div>").addClass("image-container");
+  
+              let img = $("<img>")
+                .addClass("img-fluid mb-2")
+                .attr("src", e.target.result)
+                .css({
+                  maxWidth: "100%",
+                  height: "auto",
+                })
+                .click(function () {
+                  openCropModal(e.target.result, file);
+                });
+  
+              let deleteButton = $("<button>")
+                .addClass("btn btn-danger mb-2")
+                .text("Delete")
+                .click(function () {
+                  imageContainer.remove();
+                  let index = selectedFiles.indexOf(file);
+                  if (index !== -1) {
+                    selectedFiles.splice(index, 1);
+                  }
+                  deleteFile(index);
+                });
+  
+              imageContainer.append(img, deleteButton);
+              preview.append(imageContainer);
+            };
+  
+            reader.readAsDataURL(file);
+            selectedFiles.push(file);
+          }
+        }
+  
+        // Function to open crop modal
+        function openCropModal(imageSrc, file) {
+          currentFile = file;
+          let imageToCrop = $("#imageToCrop");
+          imageToCrop.attr("src", imageSrc);
+  
+          $cropImageModal.modal("show");
+  
+          $cropImageModal.on("shown.bs.modal", function () {
+            if (cropper) {
+              cropper.destroy();
+            }
+            cropper = new Cropper(imageToCrop[0], {
+              aspectRatio: NaN,
+              viewMode: 0,
+            });
+          });
+  
+          $("#cropImageButton").click(function () {
+            let croppedCanvas = cropper.getCroppedCanvas();
+            let croppedImageDataUrl = croppedCanvas.toDataURL("image/png");
+  
+            let img = $(`img[src='${imageSrc}']`);
+            img.attr("src", croppedImageDataUrl);
+  
+            cropper.destroy();
+            cropper = null;
+            $cropImageModal.modal("hide");
+          });
+  
+          $cropImageModal.on("hidden.bs.modal", function () {
+            if (cropper) {
+              cropper.destroy();
+              cropper = null;
+            }
+          });
+        }
+  
+        // Function to delete file from selectedFiles array
+        function deleteFile(index) {
+          let newFiles = new DataTransfer();
+          for (let i = 0; i < selectedFiles.length; i++) {
+            if (i !== index) {
+              newFiles.items.add(selectedFiles[i]);
+            }
+          }
+          let filesInput = $("input[type=file]");
+          filesInput[0].files = newFiles.files;
+        }
+      });
+    </script>
+  
+    
       <script>
-     function validateForm() {
-    var title = document.getElementById("product_name").value;
-    var author = document.getElementById("author").value;
-    var description = document.getElementById("description").value;
-    var price = document.getElementById("price").value;
-    var stock = document.getElementById("stock").value;
-    var image = document.getElementById("image").value;
-    var category = document.querySelector('select[name="category"]').value;
-    var valid = true;
+        function validateForm() {
+          var title = document.getElementById("product_name").value;
+          var author = document.getElementById("author").value;
+          var description = document.getElementById("description").value;
+          var price = document.getElementById("price").value;
+          var stock = document.getElementById("stock").value;
+          var image = document.getElementById("image").value;
+          var category = document.querySelector(
+            'select[name="category"]'
+          ).value;
+          var valid = true;
 
-    // Username validation
-    if (!title) {
-        document.getElementById("usernameError").innerText = "Title is required";
-        document.getElementById("usernameError").style.color = "red"; // Set color to red
-        valid = false;
-    } else {
-        document.getElementById("usernameError").innerText = "";
-    }
+          // Username validation
+          if (!title) {
+            document.getElementById("usernameError").innerText =
+              "Title is required";
+            document.getElementById("usernameError").style.color = "red"; // Set color to red
+            valid = false;
+          } else {
+            document.getElementById("usernameError").innerText = "";
+          }
 
-    if (!author) {
-        document.getElementById("authorError").innerText = "Author is required";
-        document.getElementById("authorError").style.color = "red"; // Set color to red
-        valid = false;
-    } else {
-        document.getElementById("authorError").innerText = "";
-    }
+          if (!author) {
+            document.getElementById("authorError").innerText =
+              "Author is required";
+            document.getElementById("authorError").style.color = "red"; // Set color to red
+            valid = false;
+          } else {
+            document.getElementById("authorError").innerText = "";
+          }
 
-    if (!description) {
-        document.getElementById("descriptionError").innerText = "Description is required";
-        document.getElementById("descriptionError").style.color = "red";
-        valid = false;
-    } else {
-        document.getElementById("descriptionError").innerText = "";
-    }
+          if (!description) {
+            document.getElementById("descriptionError").innerText =
+              "Description is required";
+            document.getElementById("descriptionError").style.color = "red";
+            valid = false;
+          } else {
+            document.getElementById("descriptionError").innerText = "";
+          }
 
-    if (!price || parseFloat(price) < 0) {
-        document.getElementById("priceError").innerText = "Price must be a non-negative number";
-        document.getElementById("priceError").style.color = "red";
-        valid = false;
-    } else {
-        document.getElementById("priceError").innerText = "";
-    }
+          if (!price || parseFloat(price) < 0) {
+            document.getElementById("priceError").innerText =
+              "Price must be a non-negative number";
+            document.getElementById("priceError").style.color = "red";
+            valid = false;
+          } else {
+            document.getElementById("priceError").innerText = "";
+          }
 
-    if (!stock || parseFloat(stock) < 0) {
-        document.getElementById("stockError").innerText = "Stock must be a non-negative number";
-        document.getElementById("stockError").style.color = "red";
-        valid = false;
-    } else {
-        document.getElementById("stockError").innerText = "";
-    }
+          if (!stock || parseFloat(stock) < 0) {
+            document.getElementById("stockError").innerText =
+              "Stock must be a non-negative number";
+            document.getElementById("stockError").style.color = "red";
+            valid = false;
+          } else {
+            document.getElementById("stockError").innerText = "";
+          }
 
-    if (!category) {
-        document.getElementById("categoryError").innerText = "Category is required";
-        document.getElementById("categoryError").style.color = "red";
-        valid = false;
-    } else {
-        document.getElementById("categoryError").innerText = "";
-    }
+          if (!category) {
+            document.getElementById("categoryError").innerText =
+              "Category is required";
+            document.getElementById("categoryError").style.color = "red";
+            valid = false;
+          } else {
+            document.getElementById("categoryError").innerText = "";
+          }
 
-    // Image validation
-    if (!image) {
-        document.getElementById("imageError").innerText = "Image is required";
-        document.getElementById("imageError").style.color = "red";
-        valid = false;
-    } else {
-        var allowedExtensions = /(\.jpeg|\.jpg|\.png|\.webp)$/i;
-        if (!allowedExtensions.exec(image)) {
-            document.getElementById("imageError").innerText = "Only files with extensions .jpeg, .jpg, .png, .webp are allowed";
+          // Image validation
+          if (!image) {
+            document.getElementById("imageError").innerText =
+              "Image is required";
             document.getElementById("imageError").style.color = "red";
             valid = false;
-        } else {
-            document.getElementById("imageError").innerText = "";
+          } else {
+            var allowedExtensions = /(\.jpeg|\.jpg|\.png|\.webp)$/i;
+            if (!allowedExtensions.exec(image)) {
+              document.getElementById("imageError").innerText =
+                "Only files with extensions .jpeg, .jpg, .png, .webp are allowed";
+              document.getElementById("imageError").style.color = "red";
+              valid = false;
+            } else {
+              document.getElementById("imageError").innerText = "";
+            }
+          }
+
+          // Password validation
+          if (!valid) {
+            return false;
+          }
         }
-    }
-
-    // Password validation
-    if (!valid) {
-        return false;
-    }
-}
-
-
-
       </script>
     </section>
     <%- include('../partials/adminFooter.ejs') %>

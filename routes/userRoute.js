@@ -46,7 +46,7 @@ user_route.post("/delete_address",userController.deleteAddress);
 
 //----cart Mangement
 user_route.get("/cart",auth.isLogin,userController.loadCart);
-user_route.post("/addToCart",userController.addToCart);
+user_route.post("/addToCart",auth.isLogin,userController.addToCart);
 user_route.post("/updateQuantity/:id",userController.updateQuantity);
 user_route.post("/checkQuantity",auth.isLogin,userController.checkQuantity);
 
@@ -66,7 +66,8 @@ user_route.post("/cancelOrder",auth.isLogin,orderController.cancelOrder);
 user_route.post("/onlineOrderPlacing",auth.isLogin,orderController.onlinePlaceOrder)
 user_route.put("/checkWalletBalance",auth.isLogin,orderController.checkWalletBalance);
 user_route.post("/walletOrder",auth.isLogin,orderController.walletPlaceOrder);
-user_route.put("/returnOrder",auth.isLogin,orderController.returnOrder)
+user_route.put("/returnOrder",auth.isLogin,orderController.returnOrder);
+user_route.get("/downloadInvoice",auth.isLogin,orderController.downloadInvoice);
 
 
 module.exports=user_route;

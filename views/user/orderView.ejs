@@ -114,11 +114,19 @@
             </tr>
         </tbody>
     </table>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <button onclick="downloadInvoice('<%= order._id %>')" style="padding: 10px 20px; background-color: #088178; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Download Invoice
+        </button>
+    </div>
     
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+
+    //------cancel functionality
     function showCancelConfirmation(orderId, itemId) {
         Swal.fire({
             title: 'Cancel Order',
@@ -166,6 +174,8 @@
     }
 
 
+ //----return functionality
+
 
     function showReturnConfirmation(orderId, itemId) {
         Swal.fire({
@@ -212,6 +222,38 @@
             Swal.fire('Error', 'An error occurred while cancelling the order', 'error');
         }
     }
+
+
+    //--invoice functionality 
+
+    async function downloadInvoice(orderId) {
+    try {
+        const response = await fetch(`/downloadInvoice?orderId=${orderId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `invoice_${orderId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } else {
+            const data = await response.json();
+            Swal.fire('Error', data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire('Error', 'An error occurred while downloading the invoice', 'error');
+    }
+}
 </script>
 
 <%- include('../partials/userFooter.ejs') %>

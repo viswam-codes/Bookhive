@@ -334,8 +334,8 @@
         document.getElementById('couponCodeError').textContent = 'Coupon Code is required';
         isValid = false;
     }
-    if (discountAmount === '' || discountAmount < 0) {
-        document.getElementById('discountAmountError').textContent = 'Discount Amount is required and should not be below zero';
+    if (discountAmount === '' || discountAmount < 0 || discountAmount >100) {
+        document.getElementById('discountAmountError').textContent = 'Discount Amount is required and should not be below zero and not more than hundred';
         isValid = false;
     }
     if (!startDate) {

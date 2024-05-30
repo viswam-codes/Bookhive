@@ -505,6 +505,10 @@
         </div>
     </section>
 </main>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
+
+<!-- SweetAlert JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script>
     function addToCart(userId, productId) {
         fetch(`/addToCart?userId=${userId}&productId=${productId}`, {
@@ -524,6 +528,15 @@
             if(data.success){
                 window.location.href="/cart";
                 console.log('Added to cart:', data);
+            }else{
+              Swal.fire({
+                        title: "Oops",
+                        text: data.message,
+                        icon: "warning",
+                        showCloseButton: true, // Show close button
+                        confirmButtonText: 'Close' // Button text
+                    });  
+
             }
 
             
@@ -535,6 +548,7 @@
             console.error('There was a problem with your fetch operation:', error);
         });
     }
+
 </script>
 </body>
 

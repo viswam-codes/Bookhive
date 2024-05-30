@@ -326,7 +326,7 @@
                     <div class="toggle_info">
                         <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a coupon?</span> <a href="#coupon" data-bs-toggle="collapse" class="collapsed" aria-expanded="false">Click here to enter your code</a></span>
                     </div>
-                    <div class="panel-collapse collapse coupon_form " id="coupon">
+                    <div class="panel-collapse collapse coupon_form" id="coupon">
                         <div class="panel-body">
                             <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
                             <form method="post">
@@ -334,7 +334,7 @@
                                     <input type="text" placeholder="Enter Coupon Code...">
                                 </div>
                                 <div class="form-group">
-                                    <button class="btn  btn-md" name="login">Apply Coupon</button>
+                                    <button class="btn btn-md" name="login">Apply Coupon</button>
                                 </div>
                             </form>
                         </div>
@@ -356,35 +356,34 @@
                     </div>
                     <div class="row">
                         <% user.address.forEach(function(add, index) { %>
-                          <div class="col-lg-6 mt-15">
-                            <div class="card mb-3 mb-lg-0">
-                              <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0"><%= add.type %> Address</h5>
-                                <div class="form-check">
-                                  <input class="form-check-input" type="radio" name="selectedAddress" id="address<%= index %>" value="<%= index %>">
+                            <div class="col-lg-6 mt-15">
+                                <div class="card mb-3 mb-lg-0">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0"><%= add.type %> Address</h5>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="selectedAddress" id="address<%= index %>" value="<%= index %>">
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <address>
+                                            <%= add.houseName %><br>
+                                            <%= add.street %>,<br>
+                                            <%= add.city %>, <%= add.postalCode %><br>
+                                            <%= add.phoneNumber %><br>
+                                            <%= add.state %>
+                                        </address>
+                                        <p><%= add.country %></p>
+                                    </div>
                                 </div>
-                              </div>
-                              <div class="card-body">
-                                <address>
-                                  <%= add.houseName %><br>
-                                  <%= add.street %>,<br>
-                                  <%= add.city %>, <%= add.postalCode %><br>
-                                  <%= add.phoneNumber %><br>
-                                  <%= add.state %>
-                                </address>
-                                <p><%= add.country %></p>
-                              </div>
                             </div>
-                          </div>
                         <% }); %>
-                      </div>
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <div class="order_review">
                         <div class="mb-20">
                             <h4>Your Orders</h4>
                         </div>
-                       
                         <div class="table-responsive order_table text-center">
                             <table class="table">
                                 <thead>
@@ -394,29 +393,18 @@
                                     </tr>
                                 </thead>
                                 <tbody id="cart-items">
-                                    <% let totalAmount=0 %>
+                                    <% let totalAmount = 0 %>
                                     <% cart.product.forEach(item => { %>
-                                        <% if(item.productId.discountPrice){ %>
-                                            <% let itemTotal = item.productId.discountPrice * item.quantity %>
-                                            <% totalAmount += itemTotal %>
-                                            <% }else {%>
-                                        <% let itemTotal = item.productId.price * item.quantity %>
+                                        <% let itemTotal = item.productId.discountPrice ? item.productId.discountPrice * item.quantity : item.productId.price * item.quantity; %>
                                         <% totalAmount += itemTotal %>
-                                        <%}%>
-
-                                        
-                                    <tr>
-                                        <td class="image product-thumbnail"><img src="/uploads/<%= item.productId.image[0] %>" alt="#"></td>
-                                        <td>
-                                            <h5><a href="shop-product-full.html"><%= item.productId.title %></a></h5> <span class="product-qty">x<%=item.quantity %></span>
-                                        </td>
-                                        <% if(item.productId.discountPrice){ %>
-                                            <td class="prod_price">$<span class="item-price"><%= (item.productId.discountPrice * item.quantity).toFixed(2) %></span></td>
-                                            <% }else {%>
-                                                <td class="prod_price">$<span class="item-price"><%= (item.productId.price * item.quantity).toFixed(2) %></span></td>
-                                                <%}%>
-                                       
-                                    </tr>
+                                        <tr>
+                                            <td class="image product-thumbnail"><img src="/uploads/<%= item.productId.image[0] %>" alt="#"></td>
+                                            <td>
+                                                <h5><a href="shop-product-full.html"><%= item.productId.title %></a></h5>
+                                                <span class="product-qty">x<%= item.quantity %></span>
+                                            </td>
+                                            <td class="prod_price">$<span class="item-price"><%= itemTotal.toFixed(2) %></span></td>
+                                        </tr>
                                     <% }); %>
                                     <tr>
                                         <th>SubTotal</th>
@@ -427,44 +415,40 @@
                                         <td colspan="2"><em>Free Shipping</em></td>
                                     </tr>
                                     <tr>
-            
                                         <th>Total</th>
-                                        <td colspan="2" class="product-subtotal" ><span class="font-xl text-brand fw-900">$<span id="total"><%= totalAmount.toFixed(2) %></span></span></td>
+                                        <td colspan="2" class="product-subtotal"><span class="font-xl text-brand fw-900">$<span id="total"><%= totalAmount.toFixed(2) %></span></span></td>
                                     </tr>
-                                  
                                 </tbody>
-                                
                             </table>
-                           
                         </div>
                         <button class="btn btn-fill-out mt-2" id="applyCouponBtn">Apply Coupon</button>
                         <button class="btn btn-fill-out mt-2" id="removeCouponBtn" disabled>Remove Coupon</button>
-                       
                         <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                         <div class="payment_method">
                             <div class="mb-25">
                                 <h5>Payment</h5>
                             </div>
                             <div class="payment_option">
+                                <% if (totalAmount <= 1000) { %>
+                                    <div class="custome-radio">
+                                        <input class="form-check-input" required type="radio" name="payment_option" id="exampleRadios3" value="Cash On Delivery" checked>
+                                        <label class="form-check-label" for="exampleRadios3">Cash on Delivery</label>
+                                    </div>
+                                <% } else { %>
+                                    <p class="text-muted">Cash on delivery only available for orders less than $1000.</p>
+                                <% } %>
                                 <div class="custome-radio">
-                                    <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios3" value="Cash On Delivery" checked="">
-                                    <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse" data-target="#bankTranfer" aria-controls="bankTranfer">CashonDelivery</label>
-                                    <div class="form-group collapse in" id="bankTranfer">
-                                        <p class="text-muted mt-5">There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration. </p>
+                                    <input class="form-check-input" required type="radio" name="payment_option" id="exampleRadios5" value="razorpay">
+                                    <label class="form-check-label" for="exampleRadios5">Razorpay</label>
+                                    <div class="form-group collapse in" id="paypal">
+                                        <p class="text-muted mt-5">Pay via Razorpay; you can pay with your credit card if you don't have a Razorpay account.</p>
                                     </div>
                                 </div>
                                 <div class="custome-radio">
-                                    <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios5" value="razorpay" checked="">
-                                    <label class="form-check-label" for="exampleRadios5" data-bs-toggle="collapse" data-target="#paypal" aria-controls="paypal">Razorpay</label>
-                                    <div class="form-group collapse in" id="paypal">
-                                        <p class="text-muted mt-5">Pay via PayPal; you can pay with your credit card if you don't have a PayPal account.</p>
-                                    </div>
-                                </div>
-                                <div class="custome-radio">
-                                    <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios5" value="wallet" checked="">
-                                    <label class="form-check-label" for="exampleRadios5" data-bs-toggle="collapse" data-target="#paypal" aria-controls="paypal">Wallet</label>
-                                    <div class="form-group collapse in" id="paypal">
-                                        <p class="text-muted mt-5">Pay via PayPal; you can pay with your credit card if you don't have a PayPal account.</p>
+                                    <input class="form-check-input" required type="radio" name="payment_option" id="exampleRadios6" value="wallet">
+                                    <label class="form-check-label" for="exampleRadios6">Wallet</label>
+                                    <div class="form-group collapse in" id="wallet">
+                                        <p class="text-muted mt-5">Pay via Wallet; you can pay with your wallet balance.</p>
                                     </div>
                                 </div>
                             </div>
@@ -475,6 +459,7 @@
             </div>
         </div>
     </section>
+    
 </main>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
 
@@ -739,6 +724,7 @@
         });
         document.getElementById('subtotal').innerText = subtotal.toFixed(2);
         document.getElementById('total').innerText = subtotal.toFixed(2);
+        
     }
 
     document.getElementById('placeOrderBtn').addEventListener('click', function(event) {

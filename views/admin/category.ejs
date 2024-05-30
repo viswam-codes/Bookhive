@@ -76,7 +76,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="post" action="/admin/category_management/:id">
+                <form id="editCategoryForm" method="post" action="/admin/category_management/:id">
                     <input type="hidden" id="categoryIdInput" name="categoryId">
                     
                     <div class="mb-3">
@@ -88,7 +88,7 @@
                     <div class="mb-3">
                         <label for="editCategoryDiscount" class="form-label">Category Discount (%)</label>
                         <input type="number" class="form-control" id="editCategoryDiscount" name="categoryDiscount" min="0" max="100">
-                        <div id="editCategoryDiscountError" class="invalid-feedback"></div>
+                        <div id="editCategoryDiscountError" class="invalid-feedback">Discount must be between 0 and 100.</div>
                     </div>
                     
                     <div class="mb-3 form-check">
@@ -104,7 +104,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary" onclick="saveChanges($('#editCategoryModal #categoryIdInput').val())">Save Changes</button>
+                <button type="button" class="btn btn-primary" onclick="validateForm($('#editCategoryModal #categoryIdInput').val())">Save Changes</button>
             </div>
         </div>
     </div>
@@ -239,7 +239,7 @@
                                                 <td class="categoryDiscount"><b>Nil</b></td>
                                             <%}%>
                                             <td>
-                                                <button style="color: white;" class="btn btn-success btn-sm" id="edit-category-btn" onclick="showEditModal('<%= cats._id %>', '<%= cats.name %>', '<%= cats.isListed %>')" data-category-id="<%= cats._id %>">Edit</button>
+                                                <button style="color: white;" class="btn btn-success btn-sm" id="edit-category-btn" onclick="showEditModal('<%= cats._id %>', '<%= cats.name %>', '<%= cats.isListed %>','<%=cats.discount %>')" data-category-id="<%= cats._id %>">Edit</button>
                                             </td>
                                             <td>
                                                 <button class="btn btn-danger btn-sm" onclick="showDeleteModal('<%= cats._id %>')">Delete</button>
@@ -272,24 +272,44 @@
     </main>
     <script>
         //--Edit modal
-    function showEditModal(categoryId, categoryName, isListed) {
-        $('#editCategoryModal #categoryIdInput').val(categoryId);   
-        $('#editCategoryName').val(categoryName);
-        $('#editCategoryNameError').empty();
-        if (isListed === 'Active') {
-            $('#listUser').prop('checked', true);
-        } else {
-            $('#unlistUser').prop('checked', true);
-        }
-        $('#editCategoryModal').modal('show');
+        function showEditModal(categoryId, categoryName, isListed, discount) {
+    $('#editCategoryModal #categoryIdInput').val(categoryId);   
+    $('#editCategoryName').val(categoryName);
+    $('#editCategoryNameError').empty();
+    $('#editCategoryDiscount').val(discount);  // Set the discount value
+
+    if (isListed === 'Active') {
+        $('#listUser').prop('checked', true);
+    } else {
+        $('#unlistUser').prop('checked', true);
     }
+    
+    $('#editCategoryModal').modal('show');
+}
+
+    function validateForm(categoryId) {
+    const discountInput = document.getElementById('editCategoryDiscount');
+    const discountError = document.getElementById('editCategoryDiscountError');
+    const discountValue = parseFloat(discountInput.value);
+
+    if (isNaN(discountValue) || discountValue < 0 || discountValue > 100) {
+        discountInput.classList.add('is-invalid');
+        return false;
+    } else {
+        discountInput.classList.remove('is-invalid');
+        saveChanges(categoryId)
+    }
+}
+
 
     //--=function for handling changes
     function saveChanges(categoryId) {
         const categoryName = $('#editCategoryName').val();
         const isListed = $('input[name="listStatus"]:checked').val();
         const categoryDiscount = $('#editCategoryDiscount').val();
-
+        console.log(categoryName);
+        console.log(isListed);
+       
 
         fetch(`/admin/category_management/${categoryId}`, {
             method: 'POST',

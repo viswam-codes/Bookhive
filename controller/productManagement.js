@@ -44,7 +44,7 @@ const loadProduct=async(req,res)=>{
       const skip = (page - 1) * perPage;
 
 
-      const product=await Product.find({isDeleted:false}).skip(skip).limit(perPage);
+      const product=await Product.find({isDeleted:false}).skip(skip).limit(perPage).sort({createdAt:-1});
         res.render("product",{pro:product ,currentPage: page, totalPages })
  
     }catch(error){
@@ -63,80 +63,65 @@ const loadAddProduct=async(req,res)=>{
    }
 }
 
-const addProduct=async(req,res)=>{
-   upload(req,res,async function(err){
-    if(err instanceof multer.MulterError){
+const addProduct = async (req, res) => {
+  upload(req, res, async function (err) {
+    if (err instanceof multer.MulterError) {
       console.log(`Multer error: ${err}`);
-      res.status(500).send("Error Uploading the images");
+      res.status(500).send("Error uploading the images");
       return;
-    }else if(err){
-      console.log(`Unknown Error:${err}`);
-      res.status(500).send("Unknown Error Occured. The Error",err);
+    } else if (err) {
+      console.log(`Unknown error: ${err}`);
+      res.status(500).send("Unknown error occurred. The error:", err);
       return;
     }
-    if(!req.files || req.files.length===0){
-      res.status(400).send("No images to Upload");
+    if (!req.files || req.files.length === 0) {
+      res.status(400).send("No images to upload");
       return;
     }
 
-    try{
-      const processedImages=[];
-      for(const file of req.files){
-        const filename=`${file.originalname} - cropped`;
-        const imagePath= path.join(
+    try {
+      const uploadedImages = [];
+      for (const file of req.files) {
+        const filename = file.originalname;
+        const imagePath = path.join(
           __dirname,
           "..",
           "public",
           "uploads",
           filename
         );
-      
-      
-      try{
-        //image processing using sharp
-        const imageBuffer= await sharp(file.path)
-        .resize(971,1500)
-        .toBuffer();
-        //Write the processed image to the path specified
-        fs.writeFile(imagePath, imageBuffer, async function (writeErr) {
-          if (writeErr) {
-              console.log(`Error occurred while writing the processed image: ${writeErr}`);
-              res.status(500).send("Error processing the image");
-              return;
-          } 
-    });
-        processedImages.push(filename);
 
-      }catch(err){
-        console.log(`Error occured While processing the image:${err}`);
-        res.status(500).send("Error processing the image");
-        return;   
+        // Move the file to the desired directory
+        fs.rename(file.path, imagePath, function (renameErr) {
+          if (renameErr) {
+            console.log(`Error occurred while moving the uploaded image: ${renameErr}`);
+            res.status(500).send("Error moving the image");
+            return;
+          }
+        });
 
+        uploadedImages.push(filename);
       }
+
+      const { title, author, description, price, stock, category } = req.body;
+      const newProduct = new Product({
+        title,
+        author,
+        description,
+        price,
+        stock,
+        category,
+        image: uploadedImages
+      });
+
+      await newProduct.save();
+      res.redirect("/admin/product_management");
+    } catch (err) {
+      console.log(`Error occurred while saving the product: ${err}`);
+      res.status(500).send(`Error saving the product: ${err}`);
     }
-    
-    const {title,author,description,price,stock,category,image}=req.body;
-    const newProduct=new Product({
-      title,
-      author,
-      description,
-      price,
-      stock,
-      category,
-      image:processedImages
-    });
-
-    await newProduct.save();
-    res.redirect("/admin/product_management");
-    }catch(err){
-
-      console.log(`Error occured while processing the image using Sharp ${err}`);
-      res.status(500).send(`Error processing images using Sharp: ${err}`)
-
-    }
-  
-   });
-  };
+  });
+};
 
 const loadEditProduct=async(req,res)=>{
   try{
@@ -226,7 +211,18 @@ const updateProduct = async (req, res) => {
               errorMessage: `Better category discount available`,
             });
           }
+         
 
+        } else if(discount<0 || discount >100){
+
+          const product = await Product.findById(id);
+          const categories = await Category.find(); // Fetch categories for the dropdown
+          return res.render('editProduct', {
+            pro: product,
+            cat: categories,
+            errorMessage: `Discount should be between 0 and 100`,
+          });
+          
         }
 
         
