@@ -601,6 +601,65 @@ async function generateInvoicePDF(order, res) {
 }
 
 
+const retryOrder=async(req,res)=>{
+  try{
+    const {orderId,totalAmount}=req.body;
+    console.log(totalAmount,"Billtotal")
+
+    var options = {
+      amount: totalAmount * 100, // amount in the smallest currency unit
+      currency: "INR",
+      receipt: `reciept_${orderId}`,
+    };
+    razorpayInstance.orders.create(options, function (err, order) {
+    
+      if (!err) {
+        res.status(200).json({
+          success: true,
+          msg: "Order Created",
+          order_id: order.id,
+          amount: totalAmount * 100,
+          key_id: process.env.RAZOR_PAY_KEY,
+          product_name: "product",
+          description: "req.body.description",
+          contact: "8567345632",
+          name: "Sandeep Sharma",
+          email: "sandeep@gmail.com",
+        });
+      } else {
+        console.log("error --->", err);
+      }
+    });
+
+  }catch(error){
+    console.log(error.message)
+  }
+}
+
+const retryPayment=async(req,res)=>{
+  try{
+    const {orderId,totalAmount,status}=req.body;
+    const order= await Order.findById(orderId);
+
+    order.paymentStatus=status;
+
+    order.save();
+    if(order.paymentStatus=="Failed"){
+     return res.status(201).json({ success: true, message: "Payment failed retry" }); 
+    }
+   return res
+    .status(201)
+    .json({ success: true, message: "Order placed successfully" });
+
+    
+    
+
+  }catch(error){
+    console.log(error.message)
+  }
+}
+
+
 module.exports = {
   placeOrder,
   loadOrderView,
@@ -610,4 +669,6 @@ module.exports = {
   walletPlaceOrder,
   returnOrder,
   downloadInvoice,
+  retryOrder,
+  retryPayment
 };

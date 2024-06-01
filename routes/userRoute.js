@@ -68,6 +68,8 @@ user_route.put("/checkWalletBalance",auth.isLogin,orderController.checkWalletBal
 user_route.post("/walletOrder",auth.isLogin,orderController.walletPlaceOrder);
 user_route.put("/returnOrder",auth.isLogin,orderController.returnOrder);
 user_route.get("/downloadInvoice",auth.isLogin,orderController.downloadInvoice);
+user_route.put("/retryOrder",auth.isLogin,orderController.retryOrder);
+user_route.post("/retryOnlineOrder",auth.isLogin,orderController.retryPayment)
 
 
 module.exports=user_route;

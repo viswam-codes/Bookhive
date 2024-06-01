@@ -74,9 +74,7 @@
 
                         <%}%>
 
-                        <% if(order.paymentStatus=== "Failed") { %>
-                            <button onclick="retryPayment('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>" >Retry</button>
-                        <%} else { %>
+                    
                             <% if (item .status!="Cancelled") { %>
                                 <% if (item.status === 'Pending' || item.status === 'Confirmed') { %>
                                     <button onclick="showCancelConfirmation('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>"  >Cancel</button>
@@ -89,7 +87,7 @@
                             
                             <% } %>
 
-                        <%}%>
+                   
 
 
                        
@@ -116,14 +114,22 @@
     </table>
 
     <div style="text-align: center; margin-top: 20px;">
-        <button onclick="downloadInvoice('<%= order._id %>')" style="padding: 10px 20px; background-color: #088178; color: white; border: none; border-radius: 5px; cursor: pointer;">
-            Download Invoice
-        </button>
+        <% if(order.paymentStatus=== "Failed") { %>
+            <button  onclick="retryPayment('<%= order._id %>','<%=order.billTotal%>')" data-input-id="<%= order._id %>"  style="padding: 10px 20px; background-color: #088178; color: white; border: none; border-radius: 5px; cursor: pointer;">Retry</button>
+        <%}else { %>
+
+            <button onclick="downloadInvoice('<%= order._id %>')" style="padding: 10px 20px; background-color: #088178; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Download Invoice
+            </button>
+
+        <%} %>
+      
     </div>
     
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 
     //------cancel functionality
@@ -254,6 +260,139 @@
         Swal.fire('Error', 'An error occurred while downloading the invoice', 'error');
     }
 }
+
+
+//--- retry payment
+
+function retryPayment(orderId,totalAmount){
+    console.log("billtotal",totalAmount);
+    fetch("/retryOrder", {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(
+                       {
+                        orderId: orderId,
+                        totalAmount: totalAmount
+                        
+                    })
+                })
+                .then(response => {
+                    // Parse the JSON response
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        console.log("success")
+                        // Proceed with Razorpay payment
+                        const options = {
+                            key: data.key_id,
+                            amount: data.amount,
+                            currency: "INR",
+                            name: "Book Hive",
+                            description: data.description,
+                            image: "user_assets/myimgs/bookHivelogo.png",
+                            order_id: data.order_id,
+                            handler: function (response) {
+                                console.log(response);
+                                retryOrderPlace(orderId,totalAmount,"Success"); 
+                            },
+                            prefill: {
+                                contact: data.contact,
+                                name: data.name, 
+                                email: data.email
+                            },
+                            notes: {
+                                description: data.description
+                            },
+                            theme: {
+                                color: "#00cc66"
+                            },
+                          
+                        };
+
+                        const razorpayObject = new Razorpay(options);
+                        console.log(razorpayObject);
+                        razorpayObject.open();
+
+                        razorpayObject.on('payment.failed', function (response) {
+                        console.error(response.error);
+                        retryOrderPlace(orderId,totalAmount,"Failed"); 
+            });
+                    } else {
+                        // Handle errors if the order couldn't be placed
+                        // Show a SweetAlert with a warning and the error message
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Order Placement Failed',
+                            text: data.msg
+                        });
+                    }
+                })
+                .catch(error => {
+                    // Handle any network or other errors
+                    console.error('Error placing order:', error);
+                });
+            }
+
+function retryOrderPlace(orderId,totalAmount,status){
+    fetch(`/retryOnlineOrder`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(
+                       {
+                       orderId,
+                       totalAmount,
+                       status
+                    
+                        
+                    })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if(data.message === "Order placed successfully"){
+                Swal.fire({
+                icon: "success",
+                title: 'Order Confirmed',
+                text: "Your payment was successful and the order has been placed.",
+                confirmButtonText: "OK"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    location.reload();
+                }
+            });
+
+            }else if (data.message ==="Payment failed retry" ){
+                Swal.fire({
+                icon: "error",
+                title: 'Payment Failed',
+                text: data.message,
+                confirmButtonText: "Ok"
+            })
+            }
+            
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Order Placement Failed',
+                text: data.message
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error confirming order:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Order Placement Failed',
+            text: 'There was an error confirming your order. Please try again.'
+        });
+    });
+}
+
 </script>
 
 <%- include('../partials/userFooter.ejs') %>
