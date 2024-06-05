@@ -604,7 +604,7 @@ async function generateInvoicePDF(order, res) {
 const retryOrder=async(req,res)=>{
   try{
     const {orderId,totalAmount}=req.body;
-    console.log(totalAmount,"Billtotal")
+    
 
     var options = {
       amount: totalAmount * 100, // amount in the smallest currency unit
@@ -650,9 +650,6 @@ const retryPayment=async(req,res)=>{
    return res
     .status(201)
     .json({ success: true, message: "Order placed successfully" });
-
-    
-    
 
   }catch(error){
     console.log(error.message)

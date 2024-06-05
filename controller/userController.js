@@ -428,7 +428,7 @@ const loadShopPage=async(req,res)=>{
 
 
 
-    const product = await Product.find({isListed:"Active"}).skip(skip).limit(perPage);
+    const product = await Product.find({isDeleted:false}).skip(skip).limit(perPage);
     const category=await Category.find({isListed:"Active"})
     const user=await User.findById(req.session.user)
     console.log("Das pro",user);

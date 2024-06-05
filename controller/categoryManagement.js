@@ -44,7 +44,7 @@ const updateCategory= async(req,res)=>{
     try{
         const id=req.params.id;
         const {name,isListed,discount}=req.body;
-        console.log(discount);
+       
         const existingCategory = await Category.findOne({ name });
         if (existingCategory && existingCategory._id != id) {
             // If a category with the same name already exists and it's not the same category being updated

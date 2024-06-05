@@ -104,6 +104,11 @@ const addProduct = async (req, res) => {
       }
 
       const { title, author, description, price, stock, category } = req.body;
+      const categories=await Category.findOne({name:category});
+      let discountPrice=0;
+      if(categories.discount){
+        discountPrice=parseInt(price-(price*(categories.discount/100)))
+      }
       const newProduct = new Product({
         title,
         author,
@@ -111,7 +116,8 @@ const addProduct = async (req, res) => {
         price,
         stock,
         category,
-        image: uploadedImages
+        image: uploadedImages,
+        discountPrice
       });
 
       await newProduct.save();
@@ -192,14 +198,21 @@ const updateProduct = async (req, res) => {
         } = req.body;
 
 
+        const existingProduct = await Product.findById(id);
+        if (!existingProduct) {
+          console.log("Product not found");
+          res.status(404).send("Product not found");
+          return;
+        }
+
+
         const categoryObj = await Category.findOne({ name: category });
         if (!categoryObj) {
           console.log("Category not found");
           res.status(404).send("Category not found");
           return;
         }
-
-        let discountedPrice = 0;
+        let discountedPrice=0;
         if(discount && discount >0){
           discountedPrice = price -(price * discount /100);
           if (categoryObj.discount && discount < categoryObj.discount) {
@@ -223,27 +236,13 @@ const updateProduct = async (req, res) => {
             errorMessage: `Discount should be between 0 and 100`,
           });
           
+        }else if (existingProduct.category !== category && categoryObj.discount) {
+          discountedPrice = price - (price * categoryObj.discount / 100);
         }
-
-        
-
-
-       
-
-        
-
-
-
-
 
         const processedImageFilenames = processedImages.map(image => image.filename);
 
-        const existingProduct = await Product.findById(id);
-        if (!existingProduct) {
-          console.log("Product not found");
-          res.status(404).send("Product not found");
-          return;
-        }
+       
 
         // Combine existing images with the new ones
         const updatedImages = existingProduct.image.concat(processedImageFilenames);
