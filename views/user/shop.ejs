@@ -366,14 +366,16 @@
                       <span><%=prod.price %></span>
                     </div>
                     <% } %>
-                    <div class="product-action-1 show">
-                      <a
-                        aria-label="Add To Cart"
-                        class="action-btn hover-up"
-                        href="shop-cart.html"
-                        ><i class="fi-rs-shopping-bag-add"></i
-                      ></a>
-                    </div>
+                    <% if(user) { %>
+                      <div class="product-action-1 show">
+                        <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="addToWhish('<%=prod._id %>')"><i class="fi-rs-heart"></i></a>
+                        <a aria-label="Add To Cart" class="action-btn hover-up" onclick="addToCart('<%=user._id%>','<%=prod._id %>')"><i class="fi-rs-shopping-bag-add"></i></a>
+                      </div>
+                      <% } else { %><div class="product-action-1 show">
+                        <a aria-label="Add To Wishlist" class="action-btn hover-up" href="/login"><i class="fi-rs-heart"></i></a>
+                        <a aria-label="Add To Cart" class="action-btn hover-up" href="/login"><i class="fi-rs-shopping-bag-add"></i></a>
+                      </div>
+                      <% } %>
                   </div>
                 </div>
               </div>
@@ -473,6 +475,12 @@
     </section>
   </main>
 </body>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
+
+<!-- SweetAlert JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     // Add event listener for sort options
@@ -623,6 +631,95 @@
     }
   }
   </script>
+
+<script>
+  function addToCart(userId, productId) {
+      fetch(`/addToCart?userId=${userId}&productId=${productId}`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          return response.json();
+      })
+      .then(data => {
+          // Handle success response
+          if(data.success){
+              window.location.href="/cart";
+              console.log('Added to cart:', data);
+          }else{
+            Swal.fire({
+                      title: "Oops",
+                      text: data.message,
+                      icon: "warning",
+                      showCloseButton: true, // Show close button
+                      confirmButtonText: 'Close' // Button text
+                  });  
+
+          }
+
+          
+          
+          // Optionally, you can redirect the user to the cart page or show a success message
+      })
+      .catch(error => {
+          // Handle error
+          console.error('There was a problem with your fetch operation:', error);
+      });
+  }
+
+  function addToWhish(productId){
+
+      fetch(`/addToWishList?productId=${productId}`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          return response.json();
+      })
+      .then(data => {
+          // Handle success response
+          if(data.success){
+            Swal.fire({
+                      title: "Success",
+                      text: data.message,
+                      icon: "success",
+                      showCloseButton: true, // Show close button
+                      confirmButtonText: 'Close' // Button text
+                  }); 
+              console.log('Added to WishList:');
+          }else{
+            Swal.fire({
+                      title: "Oops",
+                      text: data.message,
+                      icon: "warning",
+                      showCloseButton: true, // Show close button
+                      confirmButtonText: 'Close' // Button text
+                  });  
+
+          }
+
+          
+          
+          // Optionally, you can redirect the user to the cart page or show a success message
+      })
+      .catch(error => {
+          // Handle error
+          console.error('There was a problem with your fetch operation:', error);
+      });
+  }
+
+ 
+</script>
   
 
 <%- include('../partials/userFooter.ejs') %>

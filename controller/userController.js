@@ -642,6 +642,8 @@ const addToCart=async(req,res)=>{
   try{
 
     const{userId,productId}=req.query;
+    const {quantity}=req.body;
+    console.log(quantity);
     const user= await User.findById(req.session.user)
     const product= await Product.findById(productId);
 
@@ -675,9 +677,9 @@ const addToCart=async(req,res)=>{
 
     if(productIndex !==-1){
       //if the product exists increase the quantitiy by one
-      cart.product[productIndex].quantity +=1;
+      cart.product[productIndex].quantity +=quantity?quantity:1;
     }else{
-      cart.product.push({productId, quantity:1});
+      cart.product.push({productId, quantity:quantity?quantity:1});
     }
 
     await cart.save();

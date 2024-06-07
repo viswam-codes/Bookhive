@@ -7,6 +7,7 @@ const productManagement=require('../controller/productManagement');
 const orderManagement=require('../controller/orderManagement');
 const coupenManagement= require('../controller/coupenManagement')
 const salesReport=require('../controller/salesReportManage');
+const bannerManage=require("../controller/bannerManagement");
 const auth=require("../middlewares/adminAuth")
 
 
@@ -58,6 +59,11 @@ admin_route.delete("/coupon_delete",auth.isLogin,coupenManagement.deleteCoupon);
 admin_route.get("/sales_report",auth.isLogin,salesReport.loadSalesReport);
 admin_route.get("/filter_Report",auth.isLogin,salesReport.filterSalesReport);
 admin_route.get("/download_pdf",auth.isLogin,salesReport.downloadPDF);
+
+
+//---Banner Management
+admin_route.get("/banner",auth.isLogin,bannerManage.loadBannerList)
+
 
 module.exports=admin_route
 
