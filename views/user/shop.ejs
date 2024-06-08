@@ -357,13 +357,13 @@
                     </div>
                     <% if(prod.discountPrice) { %>
                       <div class="product-price">
-                        <span><%=prod.discountPrice %> </span>
-                        <span class="old-price"><%=prod.price %></span>
+                        <span>₹<%=prod.discountPrice %> </span>
+                        <span class="old-price">₹<%=prod.price %></span>
                     </div>
                     
                    <% } else { %>
                     <div class="product-price">
-                      <span><%=prod.price %></span>
+                      <span>₹<%=prod.price %></span>
                     </div>
                     <% } %>
                     <% if(user) { %>

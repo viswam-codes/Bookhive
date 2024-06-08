@@ -7,16 +7,9 @@ const bannerSchema = new mongoose.Schema({
     description: { type: String },
     discountInfo: { type: String },
     ctaText: { type: String },
-    ctaLink: { type: String },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
-});
-
-bannerSchema.pre('save', function(next) {
-    this.updatedAt = Date.now();
-    next();
-});
+    isListed:{type:Boolean,default:true}
+}, { timestamps: true });
 
 const Banner = mongoose.model('Banner', bannerSchema);
 
-module.exports = Banner;
+module.exports = Banner

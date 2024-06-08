@@ -566,7 +566,7 @@
                                 <h2>Your Wallet</h2>
                                 <div class="wallet-balance">
                                   <span>Wallet Balance:</span>
-                                  <span id="walletBalance"><%= wallet ? wallet.walletBalance.toFixed(2) : '0.00' %></span>
+                                  <span id="walletBalance">₹<%= wallet ? wallet.walletBalance.toFixed(2) : '0.00' %></span>
                                 </div>
                                 <div class="transaction-history">
                                   <h3>Transaction History</h3>
@@ -586,7 +586,7 @@
                                             <td><%= index + 1 %></td>
                                             <td><%= transaction.description %></td>
                                             <td><%= transaction.type %></td>
-                                            <td>$<%= transaction.amount.toFixed(2) %></td>
+                                            <td>₹<%= transaction.amount.toFixed(2) %></td>
                                           </tr>
                                         <% }); %>
                                       <% } else { %>

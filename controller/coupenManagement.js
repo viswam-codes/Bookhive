@@ -4,7 +4,7 @@ const Coupon = require("../model/coupenModel");
 
 const loadCoupenList = async(req,res)=>{
     try{
-        const coupons=await Coupon.find({})
+        const coupons=await Coupon.find({}).sort({createdAt:-1})
         res.render("coupen",{coupons});
 
     }catch(error){

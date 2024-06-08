@@ -6,6 +6,7 @@ const Order=require("../model/orderModel")
 const Wallet=require("../model/walletModel")
 const WishList=require("../model/wishListModel");
 const Referral=require("../model/referalModel");
+const Banner=require("../model/bannerModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 
@@ -166,9 +167,11 @@ const loadLandingPage = async (req, res) => {
     if(cart){
        cartCount=cart.product.length;
     }
+
+    const banner=await Banner.find({isListed:true});
     
     
-    return res.render("home", { user, pro: product,cartCount });
+    return res.render("home", { user, pro: product,cartCount,banner });
   } catch (err) {
     console.log(err.message);
   }

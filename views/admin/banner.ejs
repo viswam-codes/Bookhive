@@ -79,7 +79,7 @@
         <p>Lorem ipsum dolor sit amet.</p>
       </div>
       <div>
-        <a href="/admin/add_banner" class="btn btn-primary btn-sm rounded"
+        <a href="/admin/add-banner" class="btn btn-primary btn-sm rounded"
           >Create new</a
         >
       </div>
@@ -99,57 +99,48 @@
       </header>
       <!-- card-header end// -->
       <div class="card-body">
-       
-        <article class="itemlist">
-          <div class="row align-items-center">
-          
-            <div class="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
-              <a class="itemside" href="#">
-                <div class="left">
-                  <img
-                    src=""
-                    class="img-sm img-thumbnail"
-                    alt="Item"
-                  />
-                </div>
-                <div class="info">
-                  <h6 class="mb-0"></h6>
-                </div>
-              </a>
+        <% banners.forEach(banner => { %>
+          <article class="itemlist">
+            <div class="row align-items-center">
+              <div class="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
+                <a class="itemside" href="#">
+                  <div class="left">
+                    <img src="<%= banner.imageUrl %>" class="img-sm img-thumbnail" alt="Item" />
+                  </div>
+                  <div class="info">
+                    <h6 class="mb-0"><%= banner.title %></h6>
+                  </div>
+                </a>
+              </div>
+              <div class="col-lg-2 col-sm-2 col-4 col-price">
+                <span><%= banner.discountInfo %></span>
+              </div>
+              <div class="col-lg-2 col-sm-2 col-4 col-status">
+                <span class="badge rounded-pill alert-success">
+                  <% if (banner.isListed) { %>
+                    Listed
+                  <% } else { %>
+                    Unlisted
+                  <% } %>
+                </span>
+              </div>
+              <div class="col-lg-1 col-sm-2 col-4 col-date">
+                <span><%= new Date(banner.createdAt).toLocaleDateString() %></span>
+              </div>
+              <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
+                <a href="/edit-banner/<%= banner._id %>" class="btn btn-sm font-sm rounded btn-brand">
+                  <i class="material-icons md-edit"></i> Edit
+                </a>
+                <a class="btn btn-sm font-sm btn-light rounded" onclick="deleteBanner('<%= banner._id %>')">
+                  <i class="material-icons md-delete_forever"></i> Delete
+                </a>
+              </div>
             </div>
-            <div class="col-lg-2 col-sm-2 col-4 col-price">
-              <span></span>
-            </div>
-            <div class="col-lg-2 col-sm-2 col-4 col-status">
-              <span
-                class="badge rounded-pill alert-success"
-              >
-                </span
-              >
-            </div>
-            <div class="col-lg-1 col-sm-2 col-4 col-date">
-              <span></span>
-            </div>
-            <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
-              <a
-                href="" 
-                class="btn btn-sm font-sm rounded btn-brand"
-              >
-                <i class="material-icons md-edit"></i> Edit
-              </a>
-              <a
-                href="#"
-                class="btn btn-sm font-sm btn-light rounded"
-                onclick=""
-              >
-                <i class="material-icons md-delete_forever"></i> Delete
-              </a>
-            </div>
-           
-          </div>
-          <!-- row .// -->
-        </article>
+            <!-- row .// -->
+          </article>
+        <% }) %>
       </div>
+      
       <!-- card-body end// -->
     </div>
     <!-- card end// -->
@@ -158,4 +149,41 @@
 </main>
 </div>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+<script>
+  async function deleteBanner(id) {
+    try {
+      console.log("id",id);
+      const response = await fetch(`/admin/delete-banner?id=${id}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'Banner has been deleted successfully.',
+        }).then(() => {
+          // Reload the page or remove the banner from the DOM
+          location.reload();
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: result.error || 'Something went wrong. Please try again.',
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Something went wrong. Please try again.',
+      });
+    }
+  }
+</script>
 <%- include('../partials/adminFooter.ejs') %>

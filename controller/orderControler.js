@@ -395,6 +395,7 @@ const returnOrder = async (req, res) => {
     }
 
     await order.save();
+    res.status(201).json({message:"Item returned succesfully"})
   } catch (error) {
     console.log(error.message);
   }

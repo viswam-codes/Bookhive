@@ -59,10 +59,14 @@ admin_route.delete("/coupon_delete",auth.isLogin,coupenManagement.deleteCoupon);
 admin_route.get("/sales_report",auth.isLogin,salesReport.loadSalesReport);
 admin_route.get("/filter_Report",auth.isLogin,salesReport.filterSalesReport);
 admin_route.get("/download_pdf",auth.isLogin,salesReport.downloadPDF);
+admin_route.get("/download_excel",auth.isLogin,salesReport.downloadExcel);
 
 
 //---Banner Management
-admin_route.get("/banner",auth.isLogin,bannerManage.loadBannerList)
+admin_route.get("/banner",auth.isLogin,bannerManage.loadBannerList);
+admin_route.get("/add-banner",auth.isLogin,bannerManage.loadAddBanner);
+admin_route.post("/add-banner",auth.isLogin,bannerManage.addBanner);
+admin_route.delete("/delete-banner",auth.isLogin,bannerManage.deleteBanner);
 
 
 module.exports=admin_route

@@ -403,12 +403,12 @@
                                                 <h5><a href="shop-product-full.html"><%= item.productId.title %></a></h5>
                                                 <span class="product-qty">x<%= item.quantity %></span>
                                             </td>
-                                            <td class="prod_price">$<span class="item-price"><%= itemTotal.toFixed(2) %></span></td>
+                                            <td class="prod_price">₹<span class="item-price"><%= itemTotal.toFixed(2) %></span></td>
                                         </tr>
                                     <% }); %>
                                     <tr>
                                         <th>SubTotal</th>
-                                        <td class="product-subtotal" colspan="2">$<span id="subtotal"><%= totalAmount.toFixed(2) %></span></td>
+                                        <td class="product-subtotal" colspan="2">₹<span id="subtotal"><%= totalAmount.toFixed(2) %></span></td>
                                     </tr>
                                     <tr>
                                         <th>Shipping</th>
@@ -416,7 +416,7 @@
                                     </tr>
                                     <tr>
                                         <th>Total</th>
-                                        <td colspan="2" class="product-subtotal"><span class="font-xl text-brand fw-900">$<span id="total"><%= totalAmount.toFixed(2) %></span></span></td>
+                                        <td colspan="2" class="product-subtotal"><span class="font-xl text-brand fw-900">₹<span id="total"><%= totalAmount.toFixed(2) %></span></span></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -447,9 +447,9 @@
                                 <div class="custome-radio">
                                     <input class="form-check-input" required type="radio" name="payment_option" id="exampleRadios6" value="wallet">
                                     <label class="form-check-label" for="exampleRadios6">Wallet</label>
-                                    <div class="form-group collapse in" id="wallet">
-                                        <p class="text-muted mt-5">Pay via Wallet; you can pay with your wallet balance.</p>
-                                    </div>
+                                
+                                        <p class=" mt-5">Your wallet Balance is <%=wallet.walletBalance %></p>
+                                   
                                 </div>
                             </div>
                         </div>

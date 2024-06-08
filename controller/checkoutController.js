@@ -3,19 +3,21 @@ const Product = require("../model/productModel");
 const Category=require('../model/categoryModel');
 const Coupon=require('../model/coupenModel')
 const Cart=require("../model/cartModel");
+const Wallet=require("../model/walletModel");
 
 const loadCheckout=async(req,res)=>{
     try{
         const userId=req.session.user;
         const user=await User.findById(userId);
         const cart=await Cart.findOne({userId:userId}).populate("product.productId");
-        const coupon=await Coupon.find({status:"active"})
+        const coupon=await Coupon.find({status:"active"});
+        const wallet= await Wallet.findOne({user:userId});
         
         let cartCount=0;
         if(cart){
            cartCount=cart.product.length;
         }
-        res.render("checkout",{user,cart,cartCount,coupon})
+        res.render("checkout",{user,cart,cartCount,coupon,wallet})
 
     }catch(error){
         console.log(error.message);

@@ -108,6 +108,11 @@
         <div class="content-header">
             <h2 class="content-title">Sellers list</h2>
             <div>
+                <button type="button" class="btn btn-primary" id="downloadExclButton">
+                    <i class="material-icons md-plus"></i> Download Excel
+                </button>
+            </div>
+            <div>
                 <button type="button" class="btn btn-primary" id="downloadPdfButton">
                     <i class="material-icons md-plus"></i> Download PDF
                 </button>
@@ -436,6 +441,38 @@ downloadPdf.addEventListener('click', () => {
     });
 
     window.location.href = `/admin/download_pdf?${queryParams.toString()}`;
+});
+
+const downloadExcel = document.getElementById('downloadExclButton');
+
+downloadExcel.addEventListener('click', () => {
+    console.log("pdf",activeButton);
+    const filterType = activeButton ? activeButton.id.replace('Button', '').toLowerCase() : 'daily';
+    console.log(filterType);
+
+
+     const startDateElement = document.getElementById("startDate");
+    const endDateElement = document.getElementById("endDate");
+
+    const currentPage = document.querySelector('.pagination .page-item.active') ? 
+        document.querySelector('.pagination .page-item.active .page-link').textContent : 1;
+
+        console.log("checking",currentPage);
+
+        
+    let startDate = startDateElement ? startDateElement.value : '';
+    let endDate = endDateElement ? endDateElement.value : '';
+    console.log("start:",startDate);
+    console.log("end:",endDate);
+
+    const queryParams = new URLSearchParams({
+        filterType,
+        startDate,
+        endDate,
+        page:currentPage
+    });
+
+    window.location.href = `/admin/download_excel?${queryParams.toString()}`;
 });
 </script>
 
