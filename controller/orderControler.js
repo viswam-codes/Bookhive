@@ -385,12 +385,12 @@ const returnOrder = async (req, res) => {
     }
 
     // Check if all items in the order are returned
-    const allItemsCancelled = order.items.every(
+    const allItemsReturned = order.items.every(
       (item) => item.status === "Returned"
     );
 
     // If all items are cancelled, update the order status to 'Cancelled'
-    if (allItemsCancelled) {
+    if (allItemsReturned) {
       order.orderStatus = "Returned";
     }
 

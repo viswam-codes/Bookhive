@@ -311,10 +311,6 @@
               <div class="header-info">
                 <ul>
                   <li>
-                    <i class="fi-rs-smartphone"></i>
-                    <a href="#">(+01) - 2345 - 6789</a>
-                  </li>
-                  <li>
                     <i class="fi-rs-marker"></i
                     ><a href="page-contact.html">Our location</a>
                   </li>
@@ -389,72 +385,48 @@
       </div>
       <div class="header-middle header-middle-ptb-1 d-none d-lg-block">
         <div class="container">
-          <div class="header-wrap">
+          <div class="header-wrap d-flex justify-content-between align-items-center">
             <div class="logo logo-width-1">
-              <a href="index.html"
-                ><img src="user_assets/myimgs/bookHivelogo.png" style="height: 50px;width: 50px;" alt="logo"
-              /></a>
+              <a href="index.html"><img src="user_assets/myimgs/logo2.png" alt="logo" /></a>
             </div>
-            <div class="header-right">
-              <div class="search-style-2">
-                <form action="#">
-                  <input type="text" placeholder="Search for items..." />
-                </form>
-              </div>
-              <div class="header-action-right">
-                <% if(user) { %>
-                <div class="header-action-2">
-                  <div class="header-action-icon-2">
-                    <a href="/wish_list">
-                      <img
-                        class="svgInject"
-                        alt="Evara"
-                        src="user_assets/imgs/theme/icons/icon-heart.svg"
-                      />
-                      <span class="pro-count blue">0</span>
-                    </a>
-                  </div>
-                  <div class="header-action-icon-2">
-                    <a class="mini-cart-icon" href="/cart">
-                      <img
-                        alt="Evara"
-                        src="user_assets/imgs/theme/icons/icon-cart.svg"
-                      />
-                      <span class="pro-count blue"><%=cartCount%></span>
-                    </a>
-                  </div>
+            <div class="header-action-right">
+              <% if(user) { %>
+              <div class="header-action-2">
+                <div class="header-action-icon-2">
+                  <a href="/wish_list">
+                    <img class="svgInject" alt="Evara" src="user_assets/imgs/theme/icons/icon-heart.svg" />
+                    <span class="pro-count blue">0</span>
+                  </a>
                 </div>
-                <% } else { %>
-                  <div class="header-action-2">
-                    <div class="header-action-icon-2">
-                      <a href="/wish_list">
-                        <img
-                          class="svgInject"
-                          alt="Evara"
-                          src="user_assets/imgs/theme/icons/icon-heart.svg"
-                        />
-                        <span class="pro-count blue">0</span>
-                      </a>
-                    </div>
-                
-                    <div class="header-action-icon-2">
-                      <a class="mini-cart-icon" href="/cart">
-                        <img
-                          alt="Evara"
-                          src="user_assets/imgs/theme/icons/icon-cart.svg"
-                        />
-                        <span class="pro-count blue">0</span>
-                      </a>
-                    </div>
-                    
-                  </div>
-                  <% } %>
-
+                <div class="header-action-icon-2">
+                  <a class="mini-cart-icon" href="/cart">
+                    <img alt="Evara" src="user_assets/imgs/theme/icons/icon-cart.svg" />
+                    <span class="pro-count blue"><%=cartCount%></span>
+                  </a>
+                </div>
               </div>
+              <% } else { %>
+              <div class="header-action-2">
+                <div class="header-action-icon-2">
+                  <a href="/wish_list">
+                    <img class="svgInject" alt="Evara" src="user_assets/imgs/theme/icons/icon-heart.svg" />
+                    <span class="pro-count blue">0</span>
+                  </a>
+                </div>
+                <div class="header-action-icon-2">
+                  <a class="mini-cart-icon" href="/cart">
+                    <img alt="Evara" src="user_assets/imgs/theme/icons/icon-cart.svg" />
+                    <span class="pro-count blue">0</span>
+                  </a>
+                </div>
+              </div>
+              <% } %>
             </div>
           </div>
         </div>
       </div>
+      
+      
       <div class="header-bottom header-bottom-bg-color sticky-bar">
         <div class="container">
           <div

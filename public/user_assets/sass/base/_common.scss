@@ -62,10 +62,10 @@ input[type=number]:focus,
 [contenteditable].form-control:focus{outline:none!important;box-shadow:none;}
 input:focus::-moz-placeholder{opacity:0;-webkit-transition:.4s;-o-transition:.4s;transition:.4s}
 a {
-	color: $color-brand;
-	&:hover {
-		color: $color-brand-dark;
-	}
+    color: #d0d2ff !important; 
+    &:hover {
+        color: #a3a5ff !important;
+    }
 }
 
 /*--- Common Classes---------------------*/

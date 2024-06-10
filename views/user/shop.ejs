@@ -379,6 +379,8 @@
                   </div>
                 </div>
               </div>
+              <input type="hidden" id="userId" value="<%= user ? user._id : '' %>">
+
               <% }); %>
             </div>
             <!--pagination-->
@@ -403,10 +405,10 @@
               <h5 class="section-title style-1 mb-30 wow fadeIn animated">
                 Category
               </h5>
-              <ul class="categories">
+              <ul class="categories" >
                 <% cat.forEach(function(cats) { %>
                   <% if (cats.discount) {%>
-                    <li ><a href="#"><%= cats.name %></a>  <a style="color: #088178"><%=cats.discount%>%off</a></li>
+                    <li><a href="#"><%= cats.name %></a>  <a style="color: #088178"><%=cats.discount%>%off</a></li>
                   <%}else { %>
                     <li ><a href="#"><%= cats.name %></a></li>
                   <%}%>
@@ -484,13 +486,17 @@
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     // Add event listener for sort options
+
+  const userIdElement = document.getElementById('userId');
+  const userId = userIdElement ? userIdElement.value : null;
+
     const sortOptions = document.querySelectorAll(".sort-by-dropdown ul li a");
     sortOptions.forEach((option) => {
       option.addEventListener("click", function (event) {
         event.preventDefault();
         const sortOptionValue = option.innerText;
         currentPage = 1; // Reset current page
-        applyFilters(sortOptionValue, selectedCategory); // Apply filters with sort option
+        applyFilters(sortOptionValue, selectedCategory,userId); // Apply filters with sort option
       });
     });
   
@@ -500,7 +506,7 @@
     const searchInput = document.getElementById("searchInput");
     searchInput.addEventListener("input", function () {
       currentPage = 1; // Reset current page
-      applyFilters(null, selectedCategory);
+      applyFilters(null, selectedCategory,userId);
     });
   
     let selectedCategory = null;
@@ -526,7 +532,7 @@
         // Add active class to the clicked category link
         link.classList.add('active');
   
-        applyFilters(null, selectedCategory);
+        applyFilters(null, selectedCategory,userId);
       });
     });
   });
@@ -534,7 +540,7 @@
   let prevSearchResults = []; // Initialize an empty array to store previous search results
   let currentPage = 1;
   
-  function applyFilters(sortOptionValue, category, page = 1) {
+  function applyFilters(sortOptionValue, category,userId, page = 1) {
     // Get search input value
     const searchValue = document.getElementById("searchInput").value.trim();
     
@@ -594,7 +600,8 @@
                   </div>`
                 }
                 <div class="product-action-1 show">
-                  <a aria-label="Add To Cart" class="action-btn hover-up" href="shop-cart.html"><i class="fi-rs-shopping-bag-add"></i></a>
+                  <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="addToWhish('${prod._id}')"><i class="fi-rs-heart"></i></a>
+                  <a aria-label="Add To Cart" class="action-btn hover-up" onclick="addToCart('${userId}','${prod._id}')"><i class="fi-rs-shopping-bag-add"></i></a>
                 </div>
               </div>
             </div>

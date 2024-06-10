@@ -9,7 +9,10 @@ i[class^="fi-rs-"], span[class^="fi-rs-"] {
     line-height: 0 !important;
 }
 
-i[class^="fi-rs-"]:before, i[class*=" fi-rs-"]:before, span[class^="fi-rs-"]:before, span[class*="fi-rs-"]:before {
+i[class^="fi-rs-"]:before, 
+i[class*=" fi-rs-"]:before, 
+span[class^="fi-rs-"]:before, 
+span[class*="fi-rs-"]:before {
     font-family: uicons-regular-straight !important;
     font-style: normal;
     font-weight: normal !important;
@@ -18,7 +21,9 @@ i[class^="fi-rs-"]:before, i[class*=" fi-rs-"]:before, span[class^="fi-rs-"]:bef
     line-height: 1 !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    color: black; /* Add this line to change the color to black */
 }
+
 
 .fi-rs-add:before {
     content: "\f101";

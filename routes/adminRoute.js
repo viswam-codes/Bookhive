@@ -8,7 +8,7 @@ const orderManagement=require('../controller/orderManagement');
 const coupenManagement= require('../controller/coupenManagement')
 const salesReport=require('../controller/salesReportManage');
 const bannerManage=require("../controller/bannerManagement");
-const auth=require("../middlewares/adminAuth")
+const auth=require("../middlewares/adminAuth");
 
 
 admin_route.set("view engine","ejs");

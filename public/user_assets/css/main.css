@@ -2270,7 +2270,7 @@ label {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  border-bottom: 2px solid #cce7d0;
+  border-bottom: 2px solid #ffa62e;
   margin-bottom: 20px;
 }
 
@@ -3473,12 +3473,12 @@ table .product-thumbnail img {
   height: 40px;
   line-height: 44px;
   border-radius: 50px;
-  background-color: #e8f6ea;
+  background-color: #fffdd0;
   text-align: center;
   margin-right: 3px;
   position: relative;
   display: inline-block;
-  border: 1px solid #cce7d0;
+  border: 1px solid #F2DFCF;
 }
 
 .product-cart-wrap .product-action-1 button.small, .product-cart-wrap .product-action-1 a.action-btn.small {
@@ -3541,7 +3541,7 @@ table .product-thumbnail img {
 }
 
 .product-cart-wrap .product-action-1 button:hover, .product-cart-wrap .product-action-1 a.action-btn:hover {
-  background-color: #088178;
+  background-color: #F2DFCF;
   border: 1px solid transparent;
 }
 
@@ -3623,7 +3623,7 @@ table .product-thumbnail img {
 }
 
 .product-cart-wrap .product-content-wrap .product-category a:hover {
-  color: #088178;
+  color: #ffa62e;
 }
 
 .product-cart-wrap .product-content-wrap h2 {
@@ -3636,7 +3636,7 @@ table .product-thumbnail img {
 }
 
 .product-cart-wrap .product-content-wrap h2 a:hover {
-  color: #088178;
+  color: #f77a15;
 }
 
 .product-cart-wrap .product-content-wrap .product-price {
@@ -5424,7 +5424,7 @@ h6.post-title {
   position: absolute;
   right: -11px;
   top: -5px;
-  color: #ffffff;
+  color: black;
   height: 18px;
   width: 18px;
   border-radius: 100%;
@@ -5608,12 +5608,12 @@ h6.post-title {
 }
 
 .header-action-2 .header-action-icon-2 > a span.pro-count.blue {
-  background-color: #088178;
+  background-color: #F2DFCF;
 }
 
 .header-action-2 .header-action-icon-2:hover > a {
   color: #088178;
-  fill: #088178;
+  fill:#F2DFCF;
 }
 
 .header-action-2 .header-action-icon-2:hover .cart-dropdown-wrap {
@@ -6510,13 +6510,13 @@ h6.post-title {
 }
 
 .header-style-3 .header-top-ptb-1 {
-  background-color: #088178;
-  color: #fff;
+  background-color: #F2DFCF;
+  color: black;
   background-image: none;
 }
 
 .header-style-3 .header-top-ptb-1 a {
-  color: #fff;
+  color: black;
 }
 
 .header-style-3 .header-top-ptb-1 i {
@@ -6795,9 +6795,7 @@ span.fi-rs-apps {
   margin-left: 4px;
 }
 
-.main-menu > nav > ul > li > a.active {
-  color: #088178;
-}
+
 
 .main-menu > nav > ul > li ul.sub-menu {
   position: absolute;
@@ -6997,7 +6995,7 @@ span.fi-rs-apps {
 }
 
 .main-menu > nav > ul > li:hover > a {
-  color: #088178;
+  color: #ffa62e;
 }
 
 .main-menu > nav > ul > li:hover ul.sub-menu {
