@@ -68,30 +68,18 @@
                     <td><%= item.quantity %></td>
                     <td>₹<%= (item.productPrice * item.quantity).toFixed(2) %></td>
                     <td>
-
                         <% if(item.status==="Delivered") {%>
-                            <button onclick="showReturnConfirmation('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>" >Return</button>
-
+                            <button onclick="showReturnConfirmation('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>" style="background-color: #FF6B6B; border-color:  #FF6B6B; color: white;">Return</button>
                         <%}%>
-
-                    
-                            <% if (item .status!="Cancelled") { %>
-                                <% if (item.status === 'Pending' || item.status === 'Confirmed') { %>
-                                    <button onclick="showCancelConfirmation('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>"  >Cancel</button>
-                                <% } else { %>
-                                    -
-                                <% } %>
-                            
-                            <%} else { %>
-                                <button onclick="showCancelConfirmation('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>" disabled >order Cancelled</button>
-                            
+                        <% if (item.status!="Cancelled") { %>
+                            <% if (item.status === 'Pending' || item.status === 'Confirmed') { %>
+                                <button onclick="showCancelConfirmation('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>" style="background-color: #FF6B6B; border-color:  #FF6B6B; color: white; " >Cancel</button>
+                            <% } else { %>
+                                -
                             <% } %>
-
-                   
-
-
-                       
-                       
+                        <%} else { %>
+                            <button onclick="showCancelConfirmation('<%= order._id %>', '<%= item._id %>')" data-input-id="<%= item._id %>" disabled >order Cancelled</button>
+                        <% } %>
                     </td>
                 </tr>
             <% }); %>
@@ -103,32 +91,37 @@
             <% if(order.couponAmount>0) { %>
                 <tr>
                     <th>Coupon Amount</th>
-                    <td id="couponAmount"><%=order.couponAmount %></td>
+                    <td id="couponAmount">₹<%=order.couponAmount.toFixed(2) %></td>
                 </tr>
             <%}%>
             <tr>
                 <th>Grand Total</th>
-                <td id="grandTotal">$<%= order.billTotal.toFixed(2) %></td>
+                <td id="grandTotal">₹<%= order.billTotal.toFixed(2) %></td>
+            </tr>
+            <tr>
+                <th>Shipping Address</th>
+                <td id="shippingAddress">
+                    <%= order.shippingAddress.houseName %>,<br>
+                    <%= order.shippingAddress.street %>,<br>
+                    <%= order.shippingAddress.city %>,<br>
+                    <%= order.shippingAddress.state %>,<br>
+                    <%= order.shippingAddress.country %> - <%= order.shippingAddress.postalCode %>
+                </td>
             </tr>
         </tbody>
     </table>
 
     <div style="text-align: center; margin-top: 20px;">
         <% if(order.paymentStatus=== "Failed") { %>
-            <button  onclick="retryPayment('<%= order._id %>','<%=order.billTotal%>')" data-input-id="<%= order._id %>"  style="padding: 10px 20px; background-color: #088178; color: white; border: none; border-radius: 5px; cursor: pointer;">Retry</button>
+            <button onclick="retryPayment('<%= order._id %>','<%=order.billTotal%>')" data-input-id="<%= order._id %>" style="padding: 10px 20px; background-color: #557775; color: white; border: none; border-radius: 5px; cursor: pointer;">Retry</button>
         <%}else if(order.orderStatus=="Delivered") { %>
-
-            <button onclick="downloadInvoice('<%= order._id %>')" style="padding: 10px 20px; background-color: #088178; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                Download Invoice
-            </button>
-
+            <button onclick="downloadInvoice('<%= order._id %>')" style="padding: 10px 20px; background-color: #557775; color: white; border: none; border-radius: 5px; cursor: pointer;">Download Invoice</button>
         <%}else { %>
             -
-            <%}%>
-      
+        <%}%>
     </div>
-    
 </body>
+
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

@@ -160,7 +160,7 @@ const loadLandingPage = async (req, res) => {
       });
     }
 
-    const product = await Product.find().limit(8);
+    const product = await Product.find().sort({createdAt:-1}).limit(8);
    
     const cart=await Cart.findOne({userId});
     let cartCount=0;
@@ -418,24 +418,15 @@ const userLogout = async (req, res) => {
 
 const loadShopPage=async(req,res)=>{
   try{
-    console.log(`loading shop page...`)
     const userId=req.session.user;
-    console.log("shop",userId)
     const page=parseInt(req.query.page) || 1;
     const perPage=12;
-
     const totalProductCount= await Product.countDocuments({});
     const totalPages = Math.ceil(totalProductCount / perPage);
-
     const skip = (page - 1) * perPage;
-
-
-
     const product = await Product.find({isDeleted:false}).skip(skip).limit(perPage);
     const category=await Category.find({isListed:"Active"})
     const user=await User.findById(req.session.user)
-    console.log("Das pro",user);
-    
     const cart=await Cart.findOne({userId});
     let cartCount=0;
     if(cart){
@@ -800,62 +791,36 @@ const removeFromCart=async(req,res)=>{
 
 const filterProduct = async (req, res) => {
   try {
-    const { search, sortOption, filterOption, prevSearchResults } = req.body;
-    console.log(filterOption);
-    console.log(sortOption);
-
-    const page = parseInt(req.query.page) || 1;
+    const { search, sortOption, filterOption, prevSearchResults } = req.query;
+    const page = parseInt(req.query.page) || 1;  
     const perPage = 12;
-
-
-    // Base query
     let query = { isDeleted: false, isListed: "Active" };
-
-    // Filter based on previous search results
-    if (prevSearchResults && prevSearchResults.length > 0) {
-      query._id = { $in: prevSearchResults.map(product => product._id) };
-    }
-
-    // Search query
     if (search) {
-      query.title = { $regex: search, $options: 'i' }; // Case-insensitive search
+      query.title = { $regex: search, $options: 'i' };
     }
-
-    // Sorting
-    let sort = {};
-    if (sortOption === 'Price: High to Low') {
-      sort.price = -1; // Sort by price high to low
-    } else if (sortOption === 'Price: Low to High') {
-      sort.price = 1; // Sort by price low to high
-    } else if (sortOption === 'Release Date') {
-      sort.createdAt = -1; // Sort by createdAt (latest first)
-    }
-
-    // Category filter
     if (filterOption && filterOption.trim().length > 0) {
       query.category = filterOption.trim();
     }
 
-     // Pagination
-     const skip = (page - 1) * perPage;
-
-
-     // Fetch total count for pagination
+    let sort = {};
+    if (sortOption === 'Price: High to Low') {
+      sort.price = -1;
+    } else if (sortOption === 'Price: Low to High') {
+      sort.price = 1;
+    } else if (sortOption === 'Release Date') {
+      sort.createdAt = -1;
+    }
+    const skip = (page - 1) * perPage;
     const totalProductCount = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProductCount / perPage);
-
-    
-
-
-    // Fetch products based on the query and sort criteria
-    const products = await Product.find(query).sort(sort).skip(skip).limit(perPage);;
-
+    const products = await Product.find(query).sort(sort).skip(skip).limit(perPage);
     res.json({ products, totalPages, currentPage: page });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
+
 
 const loadWishList = async (req, res) => {
   try {

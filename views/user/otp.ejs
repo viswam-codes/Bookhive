@@ -15,47 +15,55 @@
         align-items: center;
         height: 100vh;
       }
-
+  
       .container {
-        width: 400px;
+        width: 100%;
+        max-width: 400px;
         background-color: #fff;
         padding: 30px;
         border-radius: 8px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         text-align: center;
       }
-
+  
       h1 {
         margin-bottom: 20px;
-        color: #088178;
+        color: #557775;
       }
-
+  
+      .otp-inputs {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+      }
+  
       input[type="text"] {
-        width: calc(100% - 20px);
+        width: 40px;
         padding: 10px;
-        margin-bottom: 20px;
         border: 1px solid #ccc;
         border-radius: 4px;
+        text-align: center;
+        font-size: 18px;
       }
-
+  
       button {
         padding: 10px 20px;
         border: none;
         border-radius: 4px;
-        background-color: #088178;
+        background-color: #557775;
         color: #fff;
         cursor: pointer;
         transition: background-color 0.3s;
-        margin: 0 5px;
+        margin: 20px 5px 0;
       }
-
+  
       button:hover {
         background-color: #075b5b;
       }
-
+  
       #resendBtn {
         font-size: 14px;
-        color: #088178;
+        color: #557775;
         background-color: transparent;
         border: none;
         cursor: pointer;
@@ -63,10 +71,10 @@
         margin-top: 10px;
         outline: none;
       }
-
+  
       #timer {
         font-size: 24px;
-        color: #088178;
+        color: #557775;
         margin-bottom: 20px;
       }
     </style>
@@ -76,14 +84,15 @@
       <h1>OTP Verification</h1>
       <p id="errorMessage" style="color: red"></p>
       <form action="/otpVerify" method="post" onsubmit="verifyOTP(event)">
-        <input
-          type="number"
-          id="otpInput"
-          placeholder="Enter OTP"
-          name="otp"
-          required
-        />
-        <button type="submit" id="verifyBtn" >Verify OTP</button>
+        <div class="otp-inputs">
+          <input type="text" id="otpInput1" maxlength="1" required />
+          <input type="text" id="otpInput2" maxlength="1" required />
+          <input type="text" id="otpInput3" maxlength="1" required />
+          <input type="text" id="otpInput4" maxlength="1" required />
+          <input type="text" id="otpInput5" maxlength="1" required />
+          <input type="text" id="otpInput6" maxlength="1" required />
+        </div>
+        <button type="submit" id="verifyBtn">Verify OTP</button>
         <div style="margin-top: 20px"><span id="timer">00:60</span></div>
         <button type="button" id="resendBtn" onclick="resendOTP()">
           Resend OTP
@@ -96,50 +105,50 @@
       let timer;
       document.getElementById("resendBtn").disabled = true;
       document.getElementById("resendBtn").hidden = true;
-      //function start timer
+
+      // function start timer
       function startTimer() {
         timer = setInterval(() => {
           if (countDown === 0) {
-            //Enable resend otp button and clear timer
-            document.getElementById("resendBtn").hidden =false;
+            // Enable resend OTP button and clear timer
+            document.getElementById("resendBtn").hidden = false;
             document.getElementById("resendBtn").disabled = false;
             document.getElementById("timer").innerText = "";
             clearInterval(timer);
           } else {
-            document.getElementById("resendBtn").hidden =true;
+            document.getElementById("resendBtn").hidden = true;
             countDown--;
             document.getElementById("timer").innerText =
               "Resend OTP in " + countDown + " seconds";
           }
         }, 1000);
       }
-      //function reset timer
+
+      // function reset timer
       function resetTimer() {
-        console.log("Timer reseted")
+        console.log("Timer reset");
         clearInterval(timer);
         countDown = 60;
         document.getElementById("resendBtn").hidden = true;
         // Show the timer text
         startTimer(); // Restart the timer
       }
-      
+
       // start of timer
       startTimer();
 
-      
-      //   document
-      //     .getElementById("verifyBtn")
-      //     .addEventListener("click", verifyOTP());
       function verifyOTP(event) {
         event.preventDefault();
-        const enteredOTP = document.getElementById("otpInput").value;
-        console.log(enteredOTP);
+        const otp = Array.from({ length: 6 }, (_, i) =>
+          document.getElementById(`otpInput${i + 1}`).value
+        ).join("");
+        console.log(otp);
         fetch("/otpVerify", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ otp: enteredOTP }),
+          body: JSON.stringify({ otp }),
         })
           .then((response) => response.json())
           .then((data) => {
@@ -152,8 +161,8 @@
               console.log("OTP expired");
             } else if (data.redirect) {
               window.location.href = data.redirect;
-            } else if(data.message=="Invalid OTP") {
-              document.getElementById("errorMessage").innerText=data.message;
+            } else if (data.message == "Invalid OTP") {
+              document.getElementById("errorMessage").innerText = data.message;
             }
           })
           .catch((error) => {
@@ -171,11 +180,9 @@
         })
           .then((response) => response.json())
           .then((data) => {
-            
-            if (data.success) {   
-              console.log("OTP resend succesful")    
-              resetTimer()
-
+            if (data.success) {
+              console.log("OTP resend successful");
+              resetTimer();
             } else {
               console.error("Failed to resend OTP");
             }
@@ -184,6 +191,21 @@
             console.error("Error:", error);
           });
       }
+
+      const otpInputs = document.querySelectorAll('.otp-inputs input[type="text"]');
+      otpInputs.forEach((input, index) => {
+        input.addEventListener("input", (e) => {
+          if (e.target.value.length === 1) {
+            if (index < otpInputs.length - 1) {
+              otpInputs[index + 1].focus();
+            }
+          } else if (e.target.value.length === 0) {
+            if (index > 0) {
+              otpInputs[index - 1].focus();
+            }
+          }
+        });
+      });
     </script>
   </body>
 </html>

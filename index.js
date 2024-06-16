@@ -3,7 +3,17 @@ const mongoose=require("mongoose");
 const path=require("path");
 const nocache=require('nocache');
 require("dotenv").config()
-mongoose.connect(process.env.MONGO_URL);
+const dburl=process.env.MONGO_URL;
+
+mongoose
+.connect(dburl)
+.then(()=>{
+    console.info("Connected to the DB")
+})
+.catch((e)=>{
+    console.log("Error:",e);
+})
+
 const session=require("express-session");
 const userRoute=require("./routes/userRoute");
 const adminRoute=require("./routes/adminRoute");
@@ -12,6 +22,7 @@ const secretKey=process.env.SECRET_KEY;
 const port=process.env.PORT ||3000;
 const app= express();
 
+app.use(nocache());
 app.use(express.json());
 app.use(express.urlencoded({ extended:true }))
 

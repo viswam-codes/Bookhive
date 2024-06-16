@@ -462,11 +462,11 @@
                             </div>
                         </div> -->
             <div class="banner-img wow fadeIn mb-45 animated d-lg-block d-none">
-              <img src="user_assets/imgs/banner/banner-11.jpg" alt="" />
+              <img src="user_assets/myimgs/shopBanner.jpeg" alt="" />
               <div class="banner-text">
-                <span>Women Zone</span>
-                <h4>Save 17% on <br />Office Dress</h4>
-                <a href="shop-grid-right.html"
+                <span style="color: #FF6B6B;">Manga Mania</span>
+                <h4 style="color: yellow;">Save 17% on <br />Mangas</h4>
+                <a href="shop-grid-right.html" style="color: white;"
                   >Shop Now <i class="fi-rs-arrow-right"></i
                 ></a>
               </div>
@@ -482,91 +482,74 @@
 
 <!-- SweetAlert JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    // Add event listener for sort options
+    const userIdElement = document.getElementById('userId');
+    const userId = userIdElement ? userIdElement.value : null;
 
-  const userIdElement = document.getElementById('userId');
-  const userId = userIdElement ? userIdElement.value : null;
+    let currentPage = 1;
+    let selectedCategory = null;
+    let sortOptionValue = null;
 
     const sortOptions = document.querySelectorAll(".sort-by-dropdown ul li a");
     sortOptions.forEach((option) => {
       option.addEventListener("click", function (event) {
         event.preventDefault();
-        const sortOptionValue = option.innerText;
+        sortOptionValue = option.innerText;
         currentPage = 1; // Reset current page
-        applyFilters(sortOptionValue, selectedCategory,userId); // Apply filters with sort option
+        applyFilters(sortOptionValue, selectedCategory, userId); // Apply filters with sort option
       });
     });
-  
-    let currentPage = 1;
-  
-    // Add event listener for search input
+
     const searchInput = document.getElementById("searchInput");
     searchInput.addEventListener("input", function () {
       currentPage = 1; // Reset current page
-      applyFilters(null, selectedCategory,userId);
+      applyFilters(sortOptionValue, selectedCategory, userId);
     });
-  
-    let selectedCategory = null;
-  
-    // Add event listener for category links
+
     const categoryLinks = document.querySelectorAll('.categories a');
     categoryLinks.forEach(link => {
       link.addEventListener("click", function (event) {
         event.preventDefault(); // Prevent default link behavior
         const category = link.innerText; // Get the category text
-        if (category !== selectedCategory) {
-          prevSearchResults = [];
-        }
-        // Update the selectedCategory variable
         selectedCategory = category;
         currentPage = 1; // Reset current page
-  
-        // Remove active class from all category links
+
         categoryLinks.forEach(link => {
           link.classList.remove('active');
         });
-  
-        // Add active class to the clicked category link
+
         link.classList.add('active');
-  
-        applyFilters(null, selectedCategory,userId);
+
+        applyFilters(sortOptionValue, selectedCategory, userId);
       });
     });
   });
-  
-  let prevSearchResults = []; // Initialize an empty array to store previous search results
+
+  let prevSearchResults = [];
   let currentPage = 1;
-  
-  function applyFilters(sortOptionValue, category,userId, page = 1) {
-    // Get search input value
+  let sortOptionValue = null;
+  let selectedCategory = null;
+
+  function applyFilters(sortOption, category, userId, page = 1) {
+    currentPage = page;
+    sortOptionValue = sortOption || sortOptionValue;
+    selectedCategory = category || selectedCategory;
     const searchValue = document.getElementById("searchInput").value.trim();
-    
-    const requestBody = {
-      prevSearchResults: prevSearchResults, // Include previous search results in the request body
-      sortOption: sortOptionValue || "", // Pass empty string if sortOptionValue is falsy
-      filterOption: category, // Pass empty string if category is falsy
-      search: searchValue || "" // Pass empty string if searchValue is falsy
-    };
-  
-    fetch(`/filter_product?page=${page}`, { // Pass page as query parameter
-      method: "POST",
+
+    fetch(`/filter_product?page=${page}&sortOption=${sortOptionValue || ''}&filterOption=${selectedCategory || ''}&search=${searchValue || ''}`, { 
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(requestBody),
     })
     .then((response) => response.json())
     .then((data) => {
-      // Update the prevSearchResults with the current search results
       prevSearchResults = data.products;
-      currentPage = data.currentPage; // Update current page
-  
-      // Update UI with filtered products
+      currentPage = data.currentPage;
+
       const productGrid = document.getElementById("productGrid");
-      productGrid.innerHTML = ""; // Clear existing products
+      productGrid.innerHTML = ""; 
       data.products.forEach((prod) => {
         const productHTML = `
           <div class="col-lg-4 col-md-4 col-12 col-sm-6">
@@ -609,35 +592,49 @@
         `;
         productGrid.innerHTML += productHTML;
       });
-  
-      updatePagination(data.totalPages);
+
+      updatePagination(data.totalPages, sortOptionValue, selectedCategory, searchValue);
     })
     .catch((error) => console.log("An error occurred:", error));
-  }
-  
-  function updatePagination(totalPages) {
+
+    function updatePagination(totalPages, sortOptionValue, selectedCategory, searchValue) {
     const paginationArea = document.querySelector('.pagination-area');
     const paginationList = paginationArea.querySelector('.pagination');
-    paginationList.innerHTML = ''; // Clear existing pagination
-  
+    paginationList.innerHTML = '';
+
     for (let i = 1; i <= totalPages; i++) {
       const pageItem = document.createElement('li');
-      pageItem.classList.add('page-item', currentPage === i ? 'active' : '');
-      
+      pageItem.classList.add('page-item');
+      if (i === currentPage) {
+        pageItem.classList.add('active');
+      }
+
       const pageLink = document.createElement('a');
       pageLink.classList.add('page-link');
-      pageLink.href = '#';
       pageLink.innerText = i;
+      pageLink.href = `/filter_product?page=${i}&sortOption=${sortOptionValue || ''}&filterOption=${selectedCategory || ''}&search=${searchValue || ''}`;
+
       pageLink.addEventListener('click', function(event) {
         event.preventDefault();
-        applyFilters(null, selectedCategory, i); // Apply filters with the selected page
+        applyFilters(sortOptionValue, selectedCategory, userId, i);
       });
-  
+
       pageItem.appendChild(pageLink);
       paginationList.appendChild(pageItem);
     }
   }
-  </script>
+  }
+
+  
+</script>
+
+
+
+
+
+
+
+
 
 <script>
   function addToCart(userId, productId) {
