@@ -536,8 +536,13 @@
     sortOptionValue = sortOption || sortOptionValue;
     selectedCategory = category || selectedCategory;
     const searchValue = document.getElementById("searchInput").value.trim();
+    console.log(selectedCategory,"selected Category");
 
-    fetch(`/filter_product?page=${page}&sortOption=${sortOptionValue || ''}&filterOption=${selectedCategory || ''}&search=${searchValue || ''}`, { 
+    const encodedCategory = encodeURIComponent(selectedCategory || '');
+   const encodedSortOption = encodeURIComponent(sortOptionValue || '');
+   const encodedSearchValue = encodeURIComponent(searchValue || '');
+
+    fetch(`/filter_product?page=${page}&sortOption=${encodedSortOption}&filterOption=${encodedCategory}&search=${encodedSearchValue}`, { 
       method: "GET",
       headers: {
         "Content-Type": "application/json",

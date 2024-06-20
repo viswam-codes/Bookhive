@@ -792,6 +792,7 @@ const removeFromCart=async(req,res)=>{
 const filterProduct = async (req, res) => {
   try {
     const { search, sortOption, filterOption, prevSearchResults } = req.query;
+    console.log(filterOption,"selected filterOption")
     const page = parseInt(req.query.page) || 1;  
     const perPage = 12;
     let query = { isDeleted: false, isListed: "Active" };
