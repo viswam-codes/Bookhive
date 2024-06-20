@@ -359,7 +359,7 @@
                       </li>
                     </ul>
                   </li> -->
-                   <% if(user) { %>
+                   <% if(user &&user.is_verified) { %>
                     <li class="dropdown">
                       <i class="far fa-user" style="color: #ffffff;"></i>
                       <a href="/account" class="dropdown-toggle" id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="font-family: Libre Baskerville, serif; font-weight: 700;font-style: normal; color: #fff;"><%= user.name %></a>
