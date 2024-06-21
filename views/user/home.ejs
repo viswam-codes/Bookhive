@@ -483,43 +483,50 @@
 
   <script>
     function addToCart(userId, productId) {
-        fetch(`/addToCart?userId=${userId}&productId=${productId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Handle success response
-            if(data.success){
-                window.location.href="/cart";
-                console.log('Added to cart:', data);
-            }else{
-              Swal.fire({
-                        title: "Oops",
-                        text: data.message,
-                        icon: "warning",
-                        showCloseButton: true, // Show close button
-                        confirmButtonText: 'Close' // Button text
-                    });  
-
-            }
-
-            
-            
-            // Optionally, you can redirect the user to the cart page or show a success message
-        })
-        .catch(error => {
-            // Handle error
-            console.error('There was a problem with your fetch operation:', error);
-        });
-    }
+    fetch(`/addToCart?userId=${userId}&productId=${productId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Handle success response
+        if (data.success) {
+            Swal.fire({
+                title: 'Product Added to Cart',
+                text: 'Do you want to visit the cart?',
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonText: 'Visit Cart',
+                cancelButtonText: 'Wait'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/cart";
+                } else {
+                    console.log('User chose to wait');
+                }
+            });
+        } else {
+            Swal.fire({
+                title: "Oops",
+                text: data.message,
+                icon: "warning",
+                showCloseButton: true, // Show close button
+                confirmButtonText: 'Close' // Button text
+            });
+        }
+    })
+    .catch(error => {
+        // Handle error
+        console.error('There was a problem with your fetch operation:', error);
+    });
+}
 
     function addToWhish(productId){
 

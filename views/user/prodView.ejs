@@ -457,19 +457,29 @@
       .then(data => {
         // Handle success response
         if (data.success) {
-          window.location.href = "/cart";
-          console.log('Added to cart:', data);
+            Swal.fire({
+                title: 'Product Added to Cart',
+                text: 'Do you want to visit the cart?',
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonText: 'Visit Cart',
+                cancelButtonText: 'Wait'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/cart";
+                } else {
+                    console.log('User chose to wait');
+                }
+            });
         } else {
-          Swal.fire({
-            title: "Oops",
-            text: data.message,
-            icon: "warning",
-            showCloseButton: true, // Show close button
-            confirmButtonText: 'Close' // Button text
-          });
-
+            Swal.fire({
+                title: "Oops",
+                text: data.message,
+                icon: "warning",
+                showCloseButton: true, // Show close button
+                confirmButtonText: 'Close' // Button text
+            });
         }
-
 
 
         // Optionally, you can redirect the user to the cart page or show a success message

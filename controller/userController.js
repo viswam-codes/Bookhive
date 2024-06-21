@@ -248,7 +248,7 @@ const verifyOTP = async (req, res) => {
 
     if (req.session.details.otp == req.body.otp) {
       console.log("OTP is correct");
-      if ( req.session.details.otpExpiration < (Date.now()) ) {
+      if (req.session.details.otpExpiration < Date.now()) {
         console.log("expired");
         return res.json({ expired: true });
       } else {
@@ -265,30 +265,35 @@ const verifyOTP = async (req, res) => {
         });
 
         await user.save();
-        
-        const wallet= new Wallet({
-          user:user._id
-        })
+
+        const wallet = new Wallet({
+          user: user._id
+        });
 
         await wallet.save();
 
-        if (req.session.details.referalCode) {
+        // Create a wishlist for the user
+        const wishlist = new WishList({
+          userId: user._id,
+        });
 
+        await wishlist.save();
+
+        if (req.session.details.referalCode) {
           const referringUser = await User.findOne({ referalCode: req.session.details.referalCode });
-          console.log("refered by",referringUser)
+          console.log("referred by", referringUser);
           if (referringUser) {
             const referringUserWallet = await Wallet.findOne({ user: referringUser._id });
-            console.log("referer Wallet:",referringUserWallet)
-            
-            if (referringUserWallet) {
+            console.log("referrer Wallet:", referringUserWallet);
 
+            if (referringUserWallet) {
               const referralAmount = await Referral.findOne().select('offerAmount').lean();
-              console.log("amount",referralAmount)
+              console.log("amount", referralAmount);
               if (!referralAmount) {
                 return res.status(500).json({ message: "Referral amount not found" });
               }
               const creditAmount = referralAmount.offerAmount;
-    
+
               // Credit referring user's wallet
               referringUserWallet.walletBalance += creditAmount;
               referringUserWallet.transactions.push({
@@ -297,7 +302,7 @@ const verifyOTP = async (req, res) => {
                 type: 'credit'
               });
               await referringUserWallet.save();
-    
+
               // Credit new user's wallet
               wallet.walletBalance += creditAmount;
               wallet.transactions.push({
@@ -315,19 +320,19 @@ const verifyOTP = async (req, res) => {
             return res.status(404).json({ message: "Referring user not found" });
           }
         }
-    
-    
+
         res.json({ redirect: "/login" });
       }
     } else {
       console.log("Wrong OTP");
-      const message= "Invalid OTP";
-      return res.json( { message });
+      const message = "Invalid OTP";
+      return res.json({ message });
     }
   } catch (error) {
     console.log(error.message);
   }
 };
+
 
 const resendOTP = async (req, res) => {
   try {

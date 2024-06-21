@@ -19,6 +19,7 @@ admin_route.get("/",auth.isLogOut,adminController.loadLogin);
 admin_route.post("/",adminController.verifyLogin);
 admin_route.get("/home",auth.isLogin,adminController.loadHome);
 admin_route.get("/filter-graph",auth.isLogin,adminController.filterGraph);
+admin_route.get("/logout",auth.isLogin,adminController.adminlogout)
 
 //----user Management
 admin_route.get("/user_management",auth.isLogin,userManagement.loadUserList);

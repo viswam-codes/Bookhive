@@ -205,10 +205,20 @@ const filterGraph = async (req, res) => {
     }
 };
 
+const adminlogout=async(req,res)=>{
+    try{
+        req.session.user_id=null;
+        res.redirect("/admin")
+    }catch(error){
+        console.log(error.message);
+    }
+}
+
 
 module.exports={
     loadLogin,
     verifyLogin,
     loadHome,
-    filterGraph
+    filterGraph,
+    adminlogout
 }
