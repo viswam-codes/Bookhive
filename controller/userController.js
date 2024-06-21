@@ -160,7 +160,7 @@ const loadLandingPage = async (req, res) => {
       });
     }
 
-    const product = await Product.find().sort({createdAt:-1}).limit(8);
+    const product = await Product.find({isDeleted:false}).sort({createdAt:-1}).limit(8);
    
     const cart=await Cart.findOne({userId});
     let cartCount=0;
