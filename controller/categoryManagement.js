@@ -15,7 +15,7 @@ const addCategory = async (req, res) => {
     try {
         const { name } = req.body;
         console.log(req.body,"In body");
-       
+      
         const existingCategory = await Category.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
         const categoryData= await Category.find({deleted:false}).sort({createdOn:-1});
         console.log(existingCategory,"existingcat");
@@ -24,6 +24,10 @@ const addCategory = async (req, res) => {
             return res.render("category", {cat:categoryData, message: "Category already exists" });
             
         }
+
+        if(name==''){
+            return res.render("category", {cat:categoryData, message: "Category name required" });
+           }
 
         const newCategory = new Category({
             name: name,
@@ -44,7 +48,7 @@ const updateCategory= async(req,res)=>{
     try{
         const id=req.params.id;
         const {name,isListed,discount}=req.body;
-       
+        
         const existingCategory = await Category.findOne({ name });
         if (existingCategory && existingCategory._id != id) {
             // If a category with the same name already exists and it's not the same category being updated

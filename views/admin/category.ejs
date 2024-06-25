@@ -206,7 +206,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3">
-                            <form method="post" action="/admin/category_management">
+                            <form method="post" action="/admin/category_management" id="category-form">
                                 <div class="mb-4">
                                     <label for="product_name" class="form-label">Name</label>
                                     <input type="text" placeholder="Type here" class="form-control" id="product_name" name="name" />
@@ -214,9 +214,10 @@
                                 <% if(message){ %>
                                     <p style="color: red;"><%= message %></p>
                                     <% } %>
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary">Create category</button>
-                                </div>
+                                    <span id="error-message"></span>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary">Create category</button>
+                                    </div>
                             </form>
                         </div>
                         <div class="col-md-9">
@@ -274,8 +275,10 @@
         </footer>
     </main>
     <script>
+        
+
         //--Edit modal
-        function showEditModal(categoryId, categoryName, isListed, discount) {
+    function showEditModal(categoryId, categoryName, isListed, discount) {
     $('#editCategoryModal #categoryIdInput').val(categoryId);   
     $('#editCategoryName').val(categoryName);
     $('#editCategoryNameError').empty();
