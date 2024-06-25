@@ -383,36 +383,37 @@ href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css"
         let cropper;
         let currentFile;
         let $cropImageModal = $("#cropImageModal");
-  
+    
         // Attach change event listener to file input
         $("input[type=file]").on("change", previewImages);
-  
+    
         // Function to preview selected images
         function previewImages() {
           let preview = $("#image-preview");
           let filesInput = $("input[type=file]");
           let files = filesInput[0].files;
-  
+    
           preview.empty(); // Clear existing preview
-  
+    
           for (let i = 0; i < files.length; i++) {
             let file = files[i];
             let reader = new FileReader();
-  
+    
             reader.onload = function (e) {
               let imageContainer = $("<div>").addClass("image-container");
-  
+    
               let img = $("<img>")
                 .addClass("img-fluid mb-2")
                 .attr("src", e.target.result)
                 .css({
                   maxWidth: "100%",
                   height: "auto",
+                  cursor: "pointer"
                 })
                 .click(function () {
-                  openCropModal(e.target.result, file);
+                  openCropModal(e.target.result, file, img);
                 });
-  
+    
               let deleteButton = $("<button>")
                 .addClass("btn btn-danger mb-2")
                 .text("Delete")
@@ -424,24 +425,24 @@ href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css"
                   }
                   deleteFile(index);
                 });
-  
+    
               imageContainer.append(img, deleteButton);
               preview.append(imageContainer);
             };
-  
+    
             reader.readAsDataURL(file);
             selectedFiles.push(file);
           }
         }
-  
+    
         // Function to open crop modal
-        function openCropModal(imageSrc, file) {
+        function openCropModal(imageSrc, file, img) {
           currentFile = file;
           let imageToCrop = $("#imageToCrop");
           imageToCrop.attr("src", imageSrc);
-  
+    
           $cropImageModal.modal("show");
-  
+    
           $cropImageModal.on("shown.bs.modal", function () {
             if (cropper) {
               cropper.destroy();
@@ -451,19 +452,18 @@ href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css"
               viewMode: 0,
             });
           });
-  
-          $("#cropImageButton").click(function () {
+    
+          $("#cropImageButton").off('click').on('click', function () {
             let croppedCanvas = cropper.getCroppedCanvas();
             let croppedImageDataUrl = croppedCanvas.toDataURL("image/png");
-  
-            let img = $(`img[src='${imageSrc}']`);
+    
             img.attr("src", croppedImageDataUrl);
-  
+    
             cropper.destroy();
             cropper = null;
             $cropImageModal.modal("hide");
           });
-  
+    
           $cropImageModal.on("hidden.bs.modal", function () {
             if (cropper) {
               cropper.destroy();
@@ -471,7 +471,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css"
             }
           });
         }
-  
+    
         // Function to delete file from selectedFiles array
         function deleteFile(index) {
           let newFiles = new DataTransfer();
@@ -485,6 +485,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css"
         }
       });
     </script>
+    
   
     
       <script>
