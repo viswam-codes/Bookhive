@@ -24,6 +24,7 @@ admin_route.get("/logout",auth.isLogin,adminController.adminlogout)
 //----user Management
 admin_route.get("/user_management",auth.isLogin,userManagement.loadUserList);
 admin_route.post("/user_management/:userId",userManagement.blockUnblockUser);
+admin_route.post('/setReferralAmounts',auth.isLogin,userManagement.setReferralAmounts)
 
 //---category Management
 admin_route.get("/category_management",auth.isLogin,categoryManagement.loadCategory);

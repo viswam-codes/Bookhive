@@ -1,4 +1,5 @@
 const User=require("../model/userModel");
+const Refferal=require("../model/referalModel");
 
 const loadUserList = async (req, res) => {
     try {
@@ -46,9 +47,45 @@ const blockUnblockUser=async(req,res)=>{
 }
 
 
+const setReferralAmounts=async(req,res)=>{
+    try{
+        const {newUserAmount,userAmount}=req.body;
+        console.log(newUserAmount,"new User Amount");
+        console.log(userAmount,'User Amount');
+        if (!newUserAmount || !userAmount || newUserAmount <= 0 || userAmount <= 0) {
+            return res.status(400).json({ message: 'Both amounts are required and should be greater than 0.' });
+        }
+
+        let referral = await Refferal.findOne();
+
+        if (referral) {
+            // Update the existing referral document
+            referral.newUserAmount = newUserAmount;
+            referral.userAmount = userAmount;
+            await referral.save();
+            res.json({ message: 'Referral amounts updated successfully!' });
+        } else {
+            // Create a new referral document
+            referral = new Refferal({
+                newUserAmount,
+                userAmount
+            });
+            await referral.save();
+            res.json({ message: 'Referral amounts set successfully!' });
+        }
+
+
+
+    }catch(error){
+        console.log(error.message);
+    }
+}
+
+
 
 
 module.exports={
     loadUserList,
-    blockUnblockUser
+    blockUnblockUser,
+    setReferralAmounts
 }

@@ -7,6 +7,36 @@
 
 </style>
 <body>
+ 
+    <!-- Referral Amount Modal -->
+    <div class="modal fade" id="referralModal" tabindex="-1" role="dialog" aria-labelledby="referralModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="referralModalLabel">Set Referral Amounts</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="referralForm">
+                        <div class="form-group">
+                            <label for="newUser">New User</label>
+                            <input type="number" class="form-control" id="newUser" placeholder="Enter amount for new user" >
+                            <p id="errorMessageNew" class="text-danger"></p>
+                        </div>
+                        <div class="form-group">
+                            <label for="user">User</label>
+                            <input type="number" class="form-control" id="user" placeholder="Enter amount for user" >
+                            <p id="errorMessageUser" class="text-danger"></p>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="screen-overlay"></div>
     <aside class="navbar-aside" id="offcanvas_aside">
         <div class="aside-top">
@@ -138,26 +168,11 @@
             <div class="card mb-4">
                 <header class="card-header">
                     <div class="row gx-3">
-                        <div class="col-lg-4 col-md-6 me-auto">
-                            <input type="text" placeholder="Search..." class="form-control">
-                        </div>
-                        <div class=" col-md-3 col-6">
-                            <a href="#" class="btn btn-primary"><i class="material-icons md-plus"></i>Referral Amount</a>
-                        </div>
-                        <div class="col-lg-2 col-md-3 col-6">
-                            <select class="form-select">
-                                <option>Status</option>
-                                <option>Active</option>
-                                <option>Disabled</option>
-                                <option>Show all</option>
-                            </select>
-                        </div>
-                        <div class="col-lg-2 col-md-3 col-6">
-                            <select class="form-select">
-                                <option>Show 20</option>
-                                <option>Show 30</option>
-                                <option>Show 40</option>
-                            </select>
+                       
+                        <div class="col-md-3 col-6">
+                            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#referralModal">
+                                <i class="material-icons md-plus"></i>Referral Amount
+                            </a>
                         </div>
                     </div>
                 </header> <!-- card-header end// -->
@@ -232,7 +247,9 @@
 </footer>
 </main>
 
-
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     function confirmBlock(userId) {
@@ -318,6 +335,82 @@
     }
   }
 
+
+ 
+
+
     </script>
+
+<script>
+    const newUserInput = document.getElementById('newUser');
+    const userInput = document.getElementById('user');
+    const errorMessageNew = document.getElementById('errorMessageNew');
+    const errorMessageUser = document.getElementById('errorMessageUser');
+
+    function validateInput(input, errorMessageElement) {
+        const value = input.value;
+        errorMessageElement.innerHTML = '';
+
+        if (!value || value <= 0) {
+            errorMessageElement.innerText = 'Amount is required and should be greater than 0.';
+            return false;
+        }
+
+        return true;
+    }
+
+    newUserInput.addEventListener('keyup', () => validateInput(newUserInput, errorMessageNew));
+    userInput.addEventListener('keyup', () => validateInput(userInput, errorMessageUser));
+
+    document.getElementById('referralForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const isValidNewUser = validateInput(newUserInput, errorMessageNew);
+        const isValidUser = validateInput(userInput, errorMessageUser);
+
+        if (!isValidNewUser || !isValidUser) {
+            return;
+        }
+
+        // Send the values to the backend
+        fetch('/admin/setReferralAmounts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                newUserAmount: parseFloat(newUserInput.value),
+                userAmount: parseFloat(userInput.value)
+            })
+        }).then(response => {
+            if (response.ok) {
+                // Show a success message
+                errorMessageUser.classList.remove('text-danger');
+                errorMessageUser.classList.add('text-success');
+                errorMessageUser.innerHTML = 'Referral amounts saved successfully!';
+
+                // Hide the modal after a short delay
+                setTimeout(() => {
+                    $('#referralModal').modal('hide');
+                    // Clear the form inputs
+                    newUserInput.value = '';
+                    userInput.value = '';
+                    // Clear the success message
+                    errorMessageUser.innerHTML = '';
+                }, 1000);
+            } else {
+                errorMessageUser.classList.remove('text-success');
+                errorMessageUser.classList.add('text-danger');
+                errorMessageUser.innerHTML = 'Failed to save referral amounts.';
+            }
+        }).catch(error => {
+            console.error('Error:', error);
+            errorMessageUser.classList.remove('text-success');
+            errorMessageUser.classList.add('text-danger');
+            errorMessageUser.innerHTML = 'Error saving referral amounts.';
+        });
+    });
+</script>
+
     <%- include('../partials/adminFooter.ejs') %>
     

@@ -194,7 +194,7 @@ const insertUser = async (req, res) => {
   try {
     const user=await User.findById(req.session.user);
     const {referralCode}=req.body;
-   
+   console.log(referralCode);
     const exitstingUser = await User.findOne({ email: req.body.email });
     if (exitstingUser) {
       return res.render("register", {user, message: "User already exists" });
@@ -287,26 +287,27 @@ const verifyOTP = async (req, res) => {
             console.log("referrer Wallet:", referringUserWallet);
 
             if (referringUserWallet) {
-              const referralAmount = await Referral.findOne().select('offerAmount').lean();
-              console.log("amount", referralAmount);
-              if (!referralAmount) {
-                return res.status(500).json({ message: "Referral amount not found" });
+              const referralAmounts = await Referral.findOne().select('newUserAmount userAmount').lean();
+              console.log("amounts", referralAmounts);
+              if (!referralAmounts) {
+                return res.status(500).json({ message: "Referral amounts not found" });
               }
-              const creditAmount = referralAmount.offerAmount;
+              const creditAmountNewUser = referralAmounts.newUserAmount;
+              const creditAmountUser = referralAmounts.userAmount;
 
               // Credit referring user's wallet
-              referringUserWallet.walletBalance += creditAmount;
+              referringUserWallet.walletBalance += creditAmountUser;
               referringUserWallet.transactions.push({
-                amount: creditAmount,
+                amount: creditAmountUser,
                 description: 'Referral bonus for referring a new user',
                 type: 'credit'
               });
               await referringUserWallet.save();
 
               // Credit new user's wallet
-              wallet.walletBalance += creditAmount;
+              wallet.walletBalance += creditAmountNewUser;
               wallet.transactions.push({
-                amount: creditAmount,
+                amount: creditAmountNewUser,
                 description: 'Referral bonus for using a referral code',
                 type: 'credit'
               });
